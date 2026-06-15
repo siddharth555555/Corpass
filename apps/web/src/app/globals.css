@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Serif headings */
+  h1, h2, h3 {
+    font-family: 'DM Serif Display', Georgia, serif;
+  }
+
+  /* Remove arrows/spinners from number inputs globally */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  /* Premium global input styling */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  textarea,
+  select {
+    @apply rounded-xl border border-border-default bg-surface-raised
+           transition-all duration-300 ease-out
+           focus:bg-white focus:border-primary-500 focus:shadow-[0_0_0_3px_rgba(13,10,62,0.08)]
+           focus:outline-none;
+  }
+}
+
+@layer components {
+  /* Premium card hover effect */
+  .card-hover {
+    @apply transition-all duration-300 ease-out;
+  }
+  .card-hover:hover {
+    @apply -translate-y-0.5 shadow-md;
+  }
+
+  /* Premium button base */
+  .btn-primary {
+    @apply bg-primary-500 text-white font-medium rounded-xl px-5 py-2.5
+           transition-all duration-200 ease-out
+           hover:bg-primary-600 hover:shadow-lg hover:-translate-y-px
+           active:translate-y-0 active:shadow-sm;
+  }
+
+  .btn-cta {
+    @apply bg-cta-500 text-white font-medium rounded-xl px-5 py-2.5
+           transition-all duration-200 ease-out
+           hover:bg-cta-600 hover:shadow-lg hover:-translate-y-px
+           active:translate-y-0 active:shadow-sm;
+  }
+
+  .btn-outline {
+    @apply bg-white text-text-primary font-medium rounded-xl px-5 py-2.5
+           border border-border-default
+           transition-all duration-200 ease-out
+           hover:bg-surface-raised hover:border-border-strong;
+  }
+
+  /* Status badge pills */
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium;
+  }
+  .badge-pending { @apply bg-accent-50 text-accent-500; }
+  .badge-confirmed { @apply bg-primary-50 text-primary-500; }
+  .badge-shipped { @apply bg-highlight-50 text-highlight-500; }
+  .badge-delivered { @apply bg-success-50 text-success-700; }
+  .badge-cancelled { @apply bg-cta-50 text-cta-500; }
+
+  /* Editorial section label */
+  .section-label {
+    @apply text-[11px] uppercase tracking-[0.15em] font-semibold text-text-secondary;
+  }
+}

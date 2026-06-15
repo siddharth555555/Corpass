@@ -1,0 +1,348 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BUYER
+  SELLER
+}
+
+enum DeliveryRange {
+  LOCAL_100KM
+  HYPER_LOCAL_20KM
+  SHIPPING_AVAILABLE
+}
+
+enum PriceType {
+  FIXED
+  CONTACT_FOR_QUOTE
+}
+
+model Company {
+  id            Int      @id @default(autoincrement())
+  name          String
+  address       String
+  pincode       String?
+  type          String
+  employeeCount String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users         User[]
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  name          String
+  loginId       String
+  password      String
+  email         String
+  mobile        String
+  address       String
+  city          String         @default("Unknown")
+  pincode       String
+  role          Role           @default(BUYER)
+  companyId     Int?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  company       Company?       @relation(fields: [companyId], references: [id])
+  sellerProfile SellerProfile?
+  sentInquiries Inquiry[]      @relation("BuyerInquiries")
+  buyerOrders         Order[]            @relation("BuyerOrders")
+  createdInvoices     Invoice[]          @relation("CreatedInvoices")
+  buyerInvoices       Invoice[]          @relation("BuyerInvoices")
+  sentOrderMessages   OrderMessage[]     @relation("SentOrderMessages")
+  sentInquiryMessages InquiryMessage[]   @relation("SentInquiryMessages")
+  assets              Asset[]            @relation("UserAssets")
+  reviewsGiven        Review[]           @relation("ReviewsGiven")
+  reviewsReceived     Review[]           @relation("ReviewsReceived")
+  supportMessages     SupportMessage[]   @relation("UserSupportMessages")
+}
+
+model SellerProfile {
+  id            Int             @id @default(autoincrement())
+  userId        Int             @unique
+  gstin         String
+  deliveryRange DeliveryRange
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  catalogs      ProductCatalog[]
+  receivedInqs  Inquiry[]       @relation("SellerInquiries")
+  sellerOrders  Order[]         @relation("SellerOrders")
+  sellerInvoices Invoice[]      @relation("SellerInvoices")
+}
+
+enum PricingUnit {
+  PIECE
+  PAIR
+  SET
+  PACK
+  BUNDLE
+  BOX
+  CARTON
+  CASE
+  DOZEN
+  GRAM
+  KILOGRAM
+  TONNE
+  QUINTAL
+  MILLILITRE
+  LITRE
+  METRE
+  FOOT
+  ROLL
+  SQ_FOOT
+  SQ_METRE
+  HOUR
+  DAY
+  MONTH
+  YEAR
+  PROJECT
+}
+
+model ProductCatalog {
+  id                Int           @id @default(autoincrement())
+  sellerProfileId   Int
+  name              String
+  description       String?
+  category          String
+  subCategory       String
+  priceType         PriceType
+  price             Decimal?
+  pricingUnit       PricingUnit   @default(PIECE)
+  piecesPerUnit     Int?
+  isDeliverable     Boolean       @default(true)
+  minQtyPurchase    Int
+  minAmountPurchase Decimal
+  deliveryTimeDays  Int           @default(0)
+  stockQuantity     Int           @default(0)
+  images            Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  sellerProfile     SellerProfile @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
+  inquiries         Inquiry[]
+  orders            Order[]
+}
+
+enum InquiryType {
+  QUOTE
+  FEASIBILITY
+  AVAILABILITY
+}
+
+enum InquiryStatus {
+  PENDING
+  RESPONDED
+}
+
+model Inquiry {
+  id                   Int             @id @default(autoincrement())
+  buyerId              Int
+  sellerProfileId      Int
+  productId            Int?
+  customProductRequest String?
+  inquiryType          InquiryType
+  buyerMessage         String          @db.Text
+  sellerResponse       String?         @db.Text
+  responsePrice        Decimal?
+  status               InquiryStatus   @default(PENDING)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  buyer                User             @relation("BuyerInquiries", fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerProfile        SellerProfile    @relation("SellerInquiries", fields: [sellerProfileId], references: [id], onDelete: Cascade)
+  product              ProductCatalog?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+  messages             InquiryMessage[]
+}
+
+// ── Order & Invoice System ──
+
+enum OrderStatus {
+  PLACED
+  COUNTER_OFFERED
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum InvoiceType {
+  AUTO
+  MANUAL
+}
+
+enum InvoiceStatus {
+  PENDING
+  ACKNOWLEDGED
+  DISPUTED
+}
+
+model Order {
+  id                Int            @id @default(autoincrement())
+  orderNumber       String         @unique
+  buyerId           Int
+  sellerProfileId   Int
+  productId         Int?
+  productName       String
+  pricingUnit       PricingUnit    @default(PIECE)
+
+  unitPrice         Decimal
+  quantity          Int
+  totalAmount       Decimal
+
+  shippingAddress   String?        @db.Text
+  billingAddress    String?        @db.Text
+
+  counterPrice      Decimal?
+  counterQuantity   Int?
+  counterNote       String?        @db.Text
+  buyerNote         String?        @db.Text
+  latestProposerId  Int?
+
+  status            OrderStatus    @default(PLACED)
+
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  buyer             User           @relation("BuyerOrders", fields: [buyerId], references: [id])
+  sellerProfile     SellerProfile  @relation("SellerOrders", fields: [sellerProfileId], references: [id])
+  product           ProductCatalog? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  invoice           Invoice?
+  messages          OrderMessage[]
+  asset             Asset?
+  reviews           Review[]
+}
+
+enum OrderMessageType {
+  MESSAGE
+  COUNTER_OFFER
+  ACCEPT
+  DECLINE
+}
+
+model OrderMessage {
+  id               Int              @id @default(autoincrement())
+  orderId          Int
+  senderId         Int
+  type             OrderMessageType @default(MESSAGE)
+  proposedPrice    Decimal?
+  proposedQuantity Int?
+  message          String?          @db.Text
+  createdAt        DateTime         @default(now())
+
+  order            Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sender           User             @relation("SentOrderMessages", fields: [senderId], references: [id])
+}
+
+model InquiryMessage {
+  id               Int              @id @default(autoincrement())
+  inquiryId        Int
+  senderId         Int
+  message          String           @db.Text
+  createdAt        DateTime         @default(now())
+
+  inquiry          Inquiry          @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  sender           User             @relation("SentInquiryMessages", fields: [senderId], references: [id])
+}
+
+model Invoice {
+  id                Int            @id @default(autoincrement())
+  invoiceNumber     String         @unique
+  orderId           Int?           @unique
+  createdByUserId   Int
+  buyerId           Int
+  sellerProfileId   Int
+
+  productName       String
+  pricingUnit       PricingUnit    @default(PIECE)
+  unitPrice         Decimal
+  quantity          Int
+  totalAmount       Decimal
+
+  shippingAddress   String?        @db.Text
+  billingAddress    String?        @db.Text
+
+  type              InvoiceType    @default(AUTO)
+  status            InvoiceStatus  @default(PENDING)
+  buyerAcknowledged Boolean        @default(false)
+  sellerAcknowledged Boolean       @default(false)
+  notes             String?        @db.Text
+
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  order             Order?         @relation(fields: [orderId], references: [id])
+  createdBy         User           @relation("CreatedInvoices", fields: [createdByUserId], references: [id])
+  buyer             User           @relation("BuyerInvoices", fields: [buyerId], references: [id])
+  sellerProfile     SellerProfile  @relation("SellerInvoices", fields: [sellerProfileId], references: [id])
+}
+
+// ── Asset Management ──
+
+enum AssetCondition {
+  PERFECT
+  GOOD
+  FAIR
+  POOR
+  BROKEN
+}
+
+model Asset {
+  id              Int            @id @default(autoincrement())
+  userId          Int
+  name            String
+  type            String
+  quantity        Int
+  condition       AssetCondition @default(PERFECT)
+  notes           String?        @db.Text
+  sourceOrderId   Int?           @unique // Optional link to the order
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  user            User           @relation("UserAssets", fields: [userId], references: [id], onDelete: Cascade)
+  sourceOrder     Order?         @relation(fields: [sourceOrderId], references: [id], onDelete: SetNull)
+}
+
+// ── Review & Rating System ──
+
+model Review {
+  id              Int      @id @default(autoincrement())
+  orderId         Int
+  reviewerId      Int
+  revieweeId      Int
+  rating          Int
+  title           String?
+  comment         String?  @db.Text
+  reviewerRole    Role
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  reviewer        User     @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewee        User     @relation("ReviewsReceived", fields: [revieweeId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId, reviewerRole])
+}
+
+// ── Support System ──
+
+model SupportMessage {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  subject   String?
+  message   String   @db.Text
+  status    String   @default("OPEN")
+  createdAt DateTime @default(now())
+
+  user      User     @relation("UserSupportMessages", fields: [userId], references: [id], onDelete: Cascade)
+}
