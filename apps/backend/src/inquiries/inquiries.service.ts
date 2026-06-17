@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class InquiriesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private notifications: NotificationsService) {}
 
   async createInquiry(buyerId: number, data: any) {
-    return this.prisma.$transaction(async (prisma) => {
+    const result = await this.prisma.$transaction(async (prisma) => {
       const inquiry = await prisma.inquiry.create({
         data: {
           buyerId,
@@ -29,6 +30,13 @@ export class InquiriesService {
 
       return inquiry;
     });
+
+    const sp = await this.prisma.sellerProfile.findUnique({ where: { id: result.sellerProfileId }, select: { userId: true } });
+    if (sp) {
+      await this.notifications.create(sp.userId, 'MESSAGE', 'New Inquiry Received', `You have received a new inquiry from a buyer.`, 'INQUIRY', result.id.toString());
+    }
+
+    return result;
   }
 
   async getInquiries(userId: number, role: string) {
@@ -73,7 +81,7 @@ export class InquiriesService {
       throw new UnauthorizedException('Cannot respond to this inquiry');
     }
 
-    return this.prisma.$transaction(async (prisma) => {
+    const result = await this.prisma.$transaction(async (prisma) => {
       const updated = await prisma.inquiry.update({
         where: { id: inquiryId },
         data: {
@@ -93,6 +101,9 @@ export class InquiriesService {
 
       return updated;
     });
+
+    await this.notifications.create(result.buyerId, 'MESSAGE', 'Inquiry Responded', `The supplier has responded to your inquiry.`, 'INQUIRY', result.id.toString());
+    return result;
   }
 
   async addInquiryMessage(userId: number, inquiryId: number, role: string, message: string) {
@@ -105,7 +116,7 @@ export class InquiriesService {
       if (!sp || inquiry.sellerProfileId !== sp.id) throw new UnauthorizedException('Not your inquiry');
     }
 
-    return this.prisma.inquiryMessage.create({
+    const messageRecord = await this.prisma.inquiryMessage.create({
       data: {
         inquiryId,
         senderId: userId,
@@ -115,6 +126,13 @@ export class InquiriesService {
         sender: { select: { name: true, role: true } }
       }
     });
+
+    const targetUserId = role === 'BUYER' ? (await this.prisma.sellerProfile.findUnique({ where: { id: inquiry.sellerProfileId } }))?.userId : inquiry.buyerId;
+    if (targetUserId) {
+      await this.notifications.create(targetUserId, 'MESSAGE', 'New Message', `You have a new message from ${messageRecord.sender.name}.`, 'INQUIRY', inquiryId.toString());
+    }
+
+    return messageRecord;
   }
 
   async getInquiryMessages(userId: number, inquiryId: number, role: string) {
@@ -158,7 +176,7 @@ export class InquiriesService {
       }
     }
 
-    return this.prisma.$transaction(async (prisma) => {
+    const result = await this.prisma.$transaction(async (prisma) => {
       const inquiry = await prisma.inquiry.create({
         data: {
           buyerId: userId,
@@ -181,5 +199,8 @@ export class InquiriesService {
 
       return inquiry;
     });
+
+    await this.notifications.create(sellerProfile.userId, 'SYSTEM', 'New Support Ticket', `A user has raised a support ticket.`, 'INQUIRY', result.id.toString());
+    return result;
   }
 }

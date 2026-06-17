@@ -61,12 +61,12 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-paper py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <div className="absolute top-8 left-8 sm:top-12 sm:left-12">
-        <LogoLink className="h-16 w-auto object-contain border border-border bg-paper" priority={true} />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-paper py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <div className="flex justify-center items-center w-full mb-8 relative z-10">
+        <LogoLink src="/logo.png" className="w-56 sm:w-72 h-auto object-contain mx-auto" priority={true} />
       </div>
 
-      <div className="w-full max-w-2xl bg-paper shadow-sm border border-border p-8 sm:p-10 relative z-10 mt-12 sm:mt-0">
+      <div className="w-full max-w-2xl bg-paper shadow-sm border border-border p-8 sm:p-10 relative z-10">
         <div className="text-left mb-8">
           <h2 className="text-3xl tracking-tight text-ink font-serif">Create your Account</h2>
           <p className="mt-2 text-sm text-slate font-sans">
@@ -194,10 +194,9 @@ export default function RegisterPage() {
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-slate mb-1.5">Delivery Range Options</label>
                   <select name="deliveryRange" className="w-full px-4 py-2.5 bg-paper border border-border text-sm text-ink focus:outline-none focus:border-border-focus" required defaultValue="">
-                    <option value="" disabled>Select Delivery Capability</option>
-                    <option value="HYPER_LOCAL_20KM">Hyper Local (Within 20 km)</option>
-                    <option value="LOCAL_100KM">Local (Within 100 km)</option>
-                    <option value="SHIPPING_AVAILABLE">Shipping Available (Pan-region)</option>
+                    <option value="HYPER_LOCAL_20KM">Hyper Local</option>
+                    <option value="LOCAL_100KM">Local</option>
+                    <option value="SHIPPING_AVAILABLE">Pan India</option>
                   </select>
                   <p className="mt-2 text-xs text-slate">This helps buyers discover vendors that can deliver to their pincode efficiently.</p>
                 </div>

@@ -56,8 +56,8 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-paper p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-6">
-            <LogoLink src="/logo.png" className="h-40 w-auto object-contain mix-blend-multiply" priority={true} />
+          <div className="flex justify-center items-center w-full mb-8">
+            <LogoLink src="/logo.png" className="w-56 sm:w-72 h-auto object-contain mx-auto" priority={true} />
           </div>
           <h2 className="text-3xl font-serif font-bold text-ink tracking-tight">
             Welcome back

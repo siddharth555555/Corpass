@@ -118,7 +118,7 @@ export class InvoicesService {
     });
   }
 
-  async dispute(userId: number, role: string, invoiceId: number) {
+  async dispute(userId: number, role: string, invoiceId: number, data?: { disputeReason?: string, disputeComment?: string }) {
     const invoice = await this.prisma.invoice.findUnique({ where: { id: invoiceId } });
     if (!invoice) throw new BadRequestException('Invoice not found');
     if (invoice.status === 'ACKNOWLEDGED') throw new BadRequestException('Cannot dispute an acknowledged invoice');
@@ -130,10 +130,33 @@ export class InvoicesService {
       if (!sp || invoice.sellerProfileId !== sp.id) throw new ForbiddenException('Not your invoice');
     }
 
-    return this.prisma.invoice.update({
+    const updated = await this.prisma.invoice.update({
       where: { id: invoiceId },
-      data: { status: 'DISPUTED' }
+      data: { 
+        status: 'DISPUTED',
+        disputedById: userId,
+        disputeReason: data?.disputeReason || 'OTHER',
+        disputeComment: data?.disputeComment || null
+      }
     });
+
+    if (invoice.orderId) {
+      await this.prisma.orderMessage.create({
+        data: {
+          orderId: invoice.orderId,
+          senderId: userId,
+          type: 'SYSTEM_EVENT',
+          message: JSON.stringify({
+            event: 'INVOICE_DISPUTED',
+            invoiceId: invoice.id,
+            reason: updated.disputeReason,
+            comment: updated.disputeComment
+          })
+        }
+      });
+    }
+
+    return updated;
   }
 
   async addPayment(userId: number, role: string, invoiceId: number, data: { amount: number, paymentDate: string, utr?: string }) {
@@ -172,7 +195,7 @@ export class InvoicesService {
     });
   }
 
-  async disputePayment(userId: number, role: string, paymentId: number) {
+  async disputePayment(userId: number, role: string, paymentId: number, data?: { disputeType?: string, disputeComment?: string }) {
     const payment = await this.prisma.paymentRecord.findUnique({ where: { id: paymentId }, include: { invoice: true } });
     if (!payment || !payment.invoiceId) throw new BadRequestException('Payment not found or not linked to an invoice');
     
@@ -183,7 +206,11 @@ export class InvoicesService {
     
     return this.prisma.paymentRecord.update({
       where: { id: paymentId },
-      data: { status: 'DISPUTED' }
+      data: { 
+        status: 'DISPUTED',
+        disputeType: data?.disputeType as any,
+        disputeComment: data?.disputeComment 
+      }
     });
   }
 }

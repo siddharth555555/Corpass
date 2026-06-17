@@ -1,0 +1,112 @@
+/* ============================================================================
+   CORPASS THEME — Dark Mode
+   ----------------------------------------------------------------------------
+   A drop-in dark layer for the CORPASS theme. It re-points the SAME token names
+   used by design-tokens.css / components.css to a dark palette, so every element
+   already wired to --cp-* tokens flips automatically. Nothing else changes.
+
+   LOAD ORDER (this file goes LAST, after the theme):
+       @import "design-tokens.css";
+       @import "components.css";
+       @import "dark-tokens.css";    ← here
+
+   ACTIVATION (two paths, both supported):
+     • System preference (zero JS):  follows the OS automatically.
+     • Manual:  set  <html data-theme="dark">  (or "light" to force light).
+                Manual wins over system. See theme-toggle.js for an optional switch.
+
+   The dark VALUES are defined once below as --cpd-* and then mapped onto the
+   public --cp-* tokens in the two activation blocks. Edit values in one place.
+   ========================================================================== */
+
+:root {
+  /* ---- Dark palette values (inert until mapped) --------------------------- */
+  /* Neutrals: near-black with a faint cool/teal lean */
+  --cpd-bg:#0C1110; --cpd-surface:#131A19; --cpd-surface-2:#182120; --cpd-surface-3:#1F2A29;
+  --cpd-border:#233130; --cpd-border-strong:#324241;
+  --cpd-text:#E8EDEC; --cpd-text-secondary:#AAB6B4; --cpd-text-muted:#7E8C89; --cpd-text-disabled:#56625F;
+
+  /* Brand: in dark mode the "low" steps become dark teal-tinted SURFACES and the
+     "high" steps become LIGHT teal TEXT — the inverse of light mode — so the
+     existing tint-bg + colored-text pairings keep their contrast. brand-600 is a
+     bright interactive teal (links, icons, primary button background). */
+  --cpd-brand-50:#122624; --cpd-brand-100:#173430; --cpd-brand-200:#1E4842; --cpd-brand-300:#2C6B63;
+  --cpd-brand-400:#3E938A; --cpd-brand-500:#12918B; --cpd-brand-600:#15A39B; --cpd-brand-700:#5FD3CB;
+  --cpd-brand-800:#93E4DD; --cpd-brand-900:#0B4E4F;
+
+  /* Status: brighter text, darker tinted backgrounds */
+  --cpd-success:#4FD0A0; --cpd-success-bg:#11281F; --cpd-success-border:#1F3D2E;
+  --cpd-warning:#E8B95C; --cpd-warning-bg:#2A2410; --cpd-warning-border:#3E3518;
+  --cpd-danger:#F08A8A;  --cpd-danger-bg:#2A1414;  --cpd-danger-border:#3F1F1F;
+  --cpd-info:#6FB0F5;    --cpd-info-bg:#122236;    --cpd-info-border:#20374F;
+  --cpd-neutral:#AEB8B5; --cpd-neutral-bg:#1C2423; --cpd-neutral-border:#2A3433;
+
+  /* Shadows: nearly invisible on dark, so go deeper; focus ring uses bright teal */
+  --cpd-shadow-xs:0 1px 2px rgba(0,0,0,.45);
+  --cpd-shadow-sm:0 1px 2px rgba(0,0,0,.45), 0 1px 3px rgba(0,0,0,.55);
+  --cpd-shadow-md:0 4px 14px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.45);
+  --cpd-shadow-lg:0 16px 40px rgba(0,0,0,.6);
+  --cpd-shadow-focus:0 0 0 3px rgba(21,163,155,.38);
+}
+
+/* ---- The remap (the only thing the activation selectors do) --------------- */
+/* Defined as a single declaration list, applied to both activation selectors. */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --cp-bg:var(--cpd-bg); --cp-surface:var(--cpd-surface); --cp-surface-2:var(--cpd-surface-2); --cp-surface-3:var(--cpd-surface-3);
+    --cp-border:var(--cpd-border); --cp-border-strong:var(--cpd-border-strong);
+    --cp-text:var(--cpd-text); --cp-text-secondary:var(--cpd-text-secondary); --cp-text-muted:var(--cpd-text-muted); --cp-text-disabled:var(--cpd-text-disabled);
+    --cp-brand-50:var(--cpd-brand-50); --cp-brand-100:var(--cpd-brand-100); --cp-brand-200:var(--cpd-brand-200); --cp-brand-300:var(--cpd-brand-300);
+    --cp-brand-400:var(--cpd-brand-400); --cp-brand-500:var(--cpd-brand-500); --cp-brand-600:var(--cpd-brand-600); --cp-brand-700:var(--cpd-brand-700);
+    --cp-brand-800:var(--cpd-brand-800); --cp-brand-900:var(--cpd-brand-900);
+    --cp-success:var(--cpd-success); --cp-success-bg:var(--cpd-success-bg); --cp-success-border:var(--cpd-success-border);
+    --cp-warning:var(--cpd-warning); --cp-warning-bg:var(--cpd-warning-bg); --cp-warning-border:var(--cpd-warning-border);
+    --cp-danger:var(--cpd-danger); --cp-danger-bg:var(--cpd-danger-bg); --cp-danger-border:var(--cpd-danger-border);
+    --cp-info:var(--cpd-info); --cp-info-bg:var(--cpd-info-bg); --cp-info-border:var(--cpd-info-border);
+    --cp-neutral:var(--cpd-neutral); --cp-neutral-bg:var(--cpd-neutral-bg); --cp-neutral-border:var(--cpd-neutral-border);
+    --cp-shadow-xs:var(--cpd-shadow-xs); --cp-shadow-sm:var(--cpd-shadow-sm); --cp-shadow-md:var(--cpd-shadow-md); --cp-shadow-lg:var(--cpd-shadow-lg); --cp-shadow-focus:var(--cpd-shadow-focus);
+  }
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg:var(--cpd-bg); --cp-surface:var(--cpd-surface); --cp-surface-2:var(--cpd-surface-2); --cp-surface-3:var(--cpd-surface-3);
+  --cp-border:var(--cpd-border); --cp-border-strong:var(--cpd-border-strong);
+  --cp-text:var(--cpd-text); --cp-text-secondary:var(--cpd-text-secondary); --cp-text-muted:var(--cpd-text-muted); --cp-text-disabled:var(--cpd-text-disabled);
+  --cp-brand-50:var(--cpd-brand-50); --cp-brand-100:var(--cpd-brand-100); --cp-brand-200:var(--cpd-brand-200); --cp-brand-300:var(--cpd-brand-300);
+  --cp-brand-400:var(--cpd-brand-400); --cp-brand-500:var(--cpd-brand-500); --cp-brand-600:var(--cpd-brand-600); --cp-brand-700:var(--cpd-brand-700);
+  --cp-brand-800:var(--cpd-brand-800); --cp-brand-900:var(--cpd-brand-900);
+  --cp-success:var(--cpd-success); --cp-success-bg:var(--cpd-success-bg); --cp-success-border:var(--cpd-success-border);
+  --cp-warning:var(--cpd-warning); --cp-warning-bg:var(--cpd-warning-bg); --cp-warning-border:var(--cpd-warning-border);
+  --cp-danger:var(--cpd-danger); --cp-danger-bg:var(--cpd-danger-bg); --cp-danger-border:var(--cpd-danger-border);
+  --cp-info:var(--cpd-info); --cp-info-bg:var(--cpd-info-bg); --cp-info-border:var(--cpd-info-border);
+  --cp-neutral:var(--cpd-neutral); --cp-neutral-bg:var(--cpd-neutral-bg); --cp-neutral-border:var(--cpd-neutral-border);
+  --cp-shadow-xs:var(--cpd-shadow-xs); --cp-shadow-sm:var(--cpd-shadow-sm); --cp-shadow-md:var(--cpd-shadow-md); --cp-shadow-lg:var(--cpd-shadow-lg); --cp-shadow-focus:var(--cpd-shadow-focus);
+}
+
+[data-theme="light"] { color-scheme: light; }
+
+/* ---- Component corrections for dark ---------------------------------------
+   A few component rules hardcode white text on a brand/success fill (fine in
+   light mode). In dark mode those fills become BRIGHT teal/green, so white text
+   loses contrast — switch it to a near-black ink. These are the only fixes
+   needed beyond the token remap. */
+[data-theme="dark"] .cp-btn--primary,
+[data-theme="dark"] .cp-btn--success,
+[data-theme="dark"] .cp-timeline__node--done {
+  color: #04201E;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .cp-btn--primary,
+  :root:not([data-theme="light"]) .cp-btn--success,
+  :root:not([data-theme="light"]) .cp-timeline__node--done {
+    color: #04201E;
+  }
+}
+
+/* Optional: smooth the transition when toggling manually. Purely cosmetic. */
+:where(body, .cp-card, .cp-sidebar, .cp-nav-item, .cp-btn, .cp-input, .cp-badge) {
+  transition: background-color var(--cp-transition), border-color var(--cp-transition), color var(--cp-transition);
+}

@@ -78,7 +78,7 @@ export class OrdersController {
   }
 
   @Patch('/payments/:id/dispute')
-  disputePayment(@Request() req, @Param('id') id: string) {
-    return this.ordersService.disputePayment(req.user.sub, parseInt(id, 10));
+  disputePayment(@Request() req, @Param('id') id: string, @Body() data?: { disputeType?: string, disputeComment?: string }) {
+    return this.ordersService.disputePayment(req.user.sub, parseInt(id, 10), data);
   }
 }

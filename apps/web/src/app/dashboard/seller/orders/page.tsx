@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ConfirmModal } from "@/components/ConfirmModal";
+import { DisputeModal } from "@/components/DisputeModal";
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  PLACED: { label: "New Order", color: "text-amber-700", bg: "bg-amber-50" },
-  COUNTER_OFFERED: { label: "Counter Offer", color: "text-orange-700", bg: "bg-orange-50" },
-  CONFIRMED: { label: "Confirmed", color: "text-ink", bg: "bg-paper-2" },
-  SHIPPED: { label: "Shipped", color: "text-violet-700", bg: "bg-violet-50" },
-  DELIVERED: { label: "Delivered", color: "text-money", bg: "bg-paper-2 border border-money text-money" },
-  CANCELLED: { label: "Cancelled", color: "text-red-700", bg: "bg-red-50" },
+const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; cpBadge?: string }> = {
+  PLACED: { label: "New Order", color: "text-amber-700", bg: "bg-amber-50", cpBadge: "cp-badge--info" },
+  COUNTER_OFFERED: { label: "Counter Offer", color: "text-orange-700", bg: "bg-orange-50", cpBadge: "cp-badge--warning" },
+  CONFIRMED: { label: "Confirmed", color: "text-ink", bg: "bg-paper-2", cpBadge: "cp-badge--neutral" },
+  SHIPPED: { label: "Shipped", color: "text-violet-700", bg: "bg-violet-50", cpBadge: "cp-badge--info" },
+  DELIVERED: { label: "Delivered", color: "text-money", bg: "bg-paper-2 border border-money text-money", cpBadge: "cp-badge--success" },
+  CANCELLED: { label: "Cancelled", color: "text-red-700", bg: "bg-red-50", cpBadge: "cp-badge--danger" },
 };
 
 const INV_STATUS: Record<string, { label: string; color: string; bg: string }> = {
@@ -66,6 +68,10 @@ export default function SellerOrdersPage() {
   // Advance Form
   const [advanceAmount, setAdvanceAmount] = useState("");
 
+  // Modals
+  const [confirmConfig, setConfirmConfig] = useState<{ isOpen: boolean, title: string, desc: string, isDanger?: boolean, action: () => void }>({ isOpen: false, title: "", desc: "", action: () => {} });
+  const [disputeConfig, setDisputeConfig] = useState<{ isOpen: boolean, title: string, desc: string, action: (type: string, comment: string) => void }>({ isOpen: false, title: "", desc: "", action: () => {} });
+
   const token = () => localStorage.getItem("access_token");
   const api = (path: string, opts?: any) => fetch(`http://${window.location.hostname}:3001${path}`, { ...opts, headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}`, ...opts?.headers } });
 
@@ -104,7 +110,20 @@ export default function SellerOrdersPage() {
     } catch (e) { console.error(e); }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); fetchBuyers(); }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const orderIdParam = params.get('orderId');
+    if (orders.length > 0 && orderIdParam && !selectedOrder) {
+      const order = orders.find(o => o.id.toString() === orderIdParam);
+      if (order) {
+        setTab("orders");
+        setSelectedOrder(order);
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    }
+  }, [orders, selectedOrder]);
 
   const orderAction = async (orderId: number, action: string) => {
     setActionLoading(orderId);
@@ -118,19 +137,22 @@ export default function SellerOrdersPage() {
     } catch (e) { console.error(e); } finally { setActionLoading(null); }
   };
 
-  const invoiceAction = async (invoiceId: number, action: string) => {
+  const invoiceAction = async (invoiceId: number, action: string, data?: any) => {
     setActionLoading(invoiceId);
     try {
-      await api(`/invoices/${invoiceId}/${action}`, { method: "PATCH" });
+      await api(`/invoices/${invoiceId}/${action}`, { method: "PATCH", body: data ? JSON.stringify(data) : undefined });
       fetchData();
     } catch (e) { console.error(e); } finally { setActionLoading(null); }
   };
 
-  const paymentAction = async (paymentId: number, action: string, isInvoicePayment: boolean = false) => {
+  const paymentAction = async (paymentId: number, action: string, isInvoicePayment: boolean = false, extraData?: any) => {
     setActionLoading(paymentId);
     try {
       const endpoint = isInvoicePayment ? `/invoices/payments/${paymentId}/${action}` : `/orders/payments/${paymentId}/${action}`;
-      const res = await api(endpoint, { method: "PATCH" });
+      const res = await api(endpoint, { 
+        method: "PATCH", 
+        ...(extraData && { body: JSON.stringify(extraData) }) 
+      });
       if (!res.ok) {
         const err = await res.json();
         alert(err.message || "Action failed");
@@ -207,13 +229,13 @@ export default function SellerOrdersPage() {
   }, { ALL: 0 } as Record<string, number>);
 
   return (
-    <div className="flex h-full gap-4 relative max-w-7xl mx-auto pb-10">
+    <div className="flex h-full gap-6 relative max-w-6xl mx-auto pb-10">
       {/* LEFT PANE: Orders List */}
       <div className={`flex flex-col h-[calc(100vh-100px)] overflow-y-auto pr-2 pb-10 space-y-4 ${selectedOrder || selectedInvoice ? 'w-[55%] hidden md:flex' : 'w-full'}`}>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-2">
           <div>
-            <h2 className="text-xl font-bold text-ink tracking-tight">Sales & Orders</h2>
-            <p className="text-sm text-slate mt-0.5">Manage incoming orders and invoices.</p>
+            <h1 className="text-2xl font-bold text-ink">Sales & Orders</h1>
+            <p className="text-sm text-slate mt-1">Manage incoming orders and invoices.</p>
           </div>
           {tab === "invoices" && (
             <button onClick={() => { setShowInvModal(true); fetchBuyers(); }} className="bg-ink hover:bg-ink text-white px-4 py-2 rounded text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-sm">
@@ -223,27 +245,27 @@ export default function SellerOrdersPage() {
           )}
         </div>
 
-        <div className="flex gap-2 bg-paper-2 rounded-lg p-1 w-fit shadow-inner">
-          <button onClick={() => setTab("orders")} className={`px-5 py-2 text-sm font-bold rounded-md transition-all duration-300 ease-out transform ${tab === "orders" ? "bg-white text-ink shadow-sm scale-105" : "text-slate hover:bg-slate-200/50 hover:text-ink active:scale-95"}`}>Orders</button>
-          <button onClick={() => setTab("invoices")} className={`px-5 py-2 text-sm font-bold rounded-md transition-all duration-300 ease-out transform flex items-center ${tab === "invoices" ? "bg-white text-ink shadow-sm scale-105" : "text-slate hover:bg-slate-200/50 hover:text-ink active:scale-95"}`}>
-            Invoices {invoices.length > 0 && <span className="ml-2 text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">{invoices.length}</span>}
+        <div className="flex gap-2 p-1 w-fit rounded-lg shadow-inner" style={{ backgroundColor: 'var(--cp-surface-2)' }}>
+          <button onClick={() => setTab("orders")} className={`px-5 py-2 text-[14px] font-[600] rounded-md transition-all duration-300 ease-out transform ${tab === "orders" ? "shadow-sm scale-105" : "hover:scale-105"}`} style={tab === "orders" ? { backgroundColor: 'var(--cp-surface)', color: 'var(--cp-text)', border: '1px solid var(--cp-border)' } : { color: 'var(--cp-text-muted)' }}>Orders</button>
+          <button onClick={() => setTab("invoices")} className={`px-5 py-2 text-[14px] font-[600] rounded-md transition-all duration-300 ease-out transform flex items-center ${tab === "invoices" ? "shadow-sm scale-105" : "hover:scale-105"}`} style={tab === "invoices" ? { backgroundColor: 'var(--cp-surface)', color: 'var(--cp-text)', border: '1px solid var(--cp-border)' } : { color: 'var(--cp-text-muted)' }}>
+            Invoices {invoices.length > 0 && <span className="ml-2 cp-badge cp-badge--info">{invoices.length}</span>}
           </button>
         </div>
 
         {tab === "orders" && (
           <div className="bg-surface border border-border rounded-lg overflow-hidden flex flex-col h-[calc(100vh-220px)] shadow-sm">
             {/* Filters Header */}
-            <div className="p-3 border-b border-border bg-paper flex flex-wrap gap-2 items-center justify-between">
+            <div className="p-3 border-b border-[var(--cp-border)] flex flex-wrap gap-2 items-center justify-between" style={{ backgroundColor: 'var(--cp-surface-2)' }}>
               <div className="flex flex-wrap gap-1">
                 {['ALL', 'PLACED', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map(s => (
-                  <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors ${statusFilter === s ? 'bg-ink text-white' : 'bg-paper-2 text-slate hover:text-ink'}`}>
+                  <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-full text-[12px] font-[600] transition-colors ${statusFilter === s ? 'text-white shadow-sm' : 'hover:bg-[var(--cp-surface)]'}`} style={statusFilter === s ? { backgroundColor: 'var(--cp-brand-600)' } : { backgroundColor: 'var(--cp-surface-3)', color: 'var(--cp-text-secondary)' }}>
                     {s === 'ALL' ? 'All' : STATUS_CONFIG[s]?.label || s} <span className="opacity-70 ml-1">{stats[s] || 0}</span>
                   </button>
                 ))}
               </div>
               <div className="flex gap-2">
-                <input type="date" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} className="px-2 py-1.5 bg-paper-2 border border-border rounded text-xs outline-none text-ink" />
-                <select value={sortOrder} onChange={e => setSortOrder(e.target.value as any)} className="px-2 py-1.5 bg-paper-2 border border-border rounded text-xs outline-none text-ink font-semibold">
+                <input type="date" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} className="cp-input" style={{ padding: '6px 10px', fontSize: '13px' }} />
+                <select value={sortOrder} onChange={e => setSortOrder(e.target.value as any)} className="cp-input font-[600]" style={{ padding: '6px 10px', fontSize: '13px', width: 'auto' }}>
                   <option value="newest">Newest First</option>
                   <option value="highest_amount">Highest Amt</option>
                 </select>
@@ -261,25 +283,25 @@ export default function SellerOrdersPage() {
                 const isSelected = selectedOrder?.id === o.id;
                 const buyerName = o.buyer?.company?.name || o.buyer?.name || '--';
                 return (
-                  <button key={o.id} onClick={() => { setSelectedOrder(o); setDetailTab("overview"); }} className={`w-full text-left p-3 rounded border transition-all flex items-center justify-between gap-3 ${isSelected ? 'bg-indigo-50/50 border-indigo-200 shadow-sm' : 'bg-surface border-border hover:border-slate-300'}`}>
+                  <button key={o.id} onClick={() => { setSelectedOrder(o); setDetailTab("overview"); }} className={`w-full text-left cp-card transition-all flex items-center justify-between gap-3 ${isSelected ? 'ring-2 ring-[var(--cp-brand-300)] bg-[var(--cp-brand-50)]' : 'hover:shadow-md'}`} style={{ padding: '16px' }}>
                     <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${st.color} ${st.bg}`}>{st.label}</span>
-                        <span className="text-[11px] font-mono text-slate bg-paper-2 px-1 rounded border border-border">{o.orderNumber}</span>
-                        <span className="text-[10px] text-slate ml-auto">{new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                        <span className={`cp-badge uppercase tracking-wider ${st.cpBadge}`}>{st.label}</span>
+                        <span className="text-[11px] font-[500] font-mono border rounded px-1.5" style={{ backgroundColor: 'var(--cp-surface-3)', color: 'var(--cp-text-muted)', borderColor: 'var(--cp-border)' }}>{o.orderNumber}</span>
+                        <span className="text-[11px] ml-auto" style={{ color: 'var(--cp-text-muted)' }}>{new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                       </div>
-                      <div className="flex justify-between items-end">
+                      <div className="flex justify-between items-end mt-2">
                         <div className="truncate pr-4">
-                          <p className="text-sm font-semibold text-ink truncate">{o.productName}</p>
-                          <p className="text-[11px] text-slate truncate">Buyer: <b className="text-ink">{buyerName}</b></p>
+                          <p className="text-[15px] font-[600] truncate" style={{ color: 'var(--cp-text)' }}>{o.productName}</p>
+                          <p className="text-[12px] truncate mt-0.5" style={{ color: 'var(--cp-text-secondary)' }}>Buyer: <b style={{ color: 'var(--cp-text)' }}>{buyerName}</b></p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-sm font-bold text-ink tabular-nums">₹{Number(o.totalAmount).toLocaleString('en-IN')}</p>
+                          <p className="text-[18px] font-[700] tabular-nums" style={{ color: 'var(--cp-text)' }}>₹{Number(o.totalAmount).toLocaleString('en-IN')}</p>
                         </div>
                       </div>
                     </div>
-                    <div className="shrink-0 text-slate">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                    <div className="shrink-0" style={{ color: 'var(--cp-text-disabled)' }}>
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </div>
                   </button>
                 );
@@ -326,8 +348,8 @@ export default function SellerOrdersPage() {
                     <span className="text-[11px] text-slate mr-auto">{new Date(inv.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                     {inv.status === 'PENDING' && !inv.sellerAcknowledged && (
                       <>
-                        <button disabled={actionLoading === inv.id} onClick={() => invoiceAction(inv.id, 'acknowledge')} className="px-3 py-1.5 text-xs font-semibold bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors">Acknowledge</button>
-                        <button disabled={actionLoading === inv.id} onClick={() => invoiceAction(inv.id, 'dispute')} className="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded hover:bg-red-100 transition-colors">Dispute</button>
+                        <button disabled={actionLoading === inv.id} onClick={(e) => { e.stopPropagation(); setConfirmConfig({ isOpen: true, title: "Acknowledge Invoice", desc: "Are you sure you want to acknowledge this invoice?", action: () => invoiceAction(inv.id, 'acknowledge') }); }} className="px-3 py-1.5 text-xs font-semibold bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors">Acknowledge</button>
+                        <button disabled={actionLoading === inv.id} onClick={(e) => { e.stopPropagation(); setDisputeConfig({ isOpen: true, title: "Dispute Invoice", desc: "Please select a reason and describe the issue with this invoice.", action: (type, comment) => invoiceAction(inv.id, 'dispute', { disputeReason: type, disputeComment: comment }) }); }} className="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded hover:bg-red-100 transition-colors">Dispute</button>
                       </>
                     )}
                   </div>
@@ -396,13 +418,25 @@ export default function SellerOrdersPage() {
                   </div>
                 )}
                 {selectedOrder.invoice && (
-                   <div className="bg-surface border border-border rounded p-4 flex items-center justify-between">
+                   <div className="bg-surface border border-border rounded-t-xl p-4 flex items-center justify-between">
                      <div>
-                       <h4 className="text-xs font-bold text-slate uppercase tracking-wider mb-1">Invoice Attached</h4>
-                       <p className="text-sm font-mono text-ink">{selectedOrder.invoice.invoiceNumber}</p>
+                       <h4 className="text-xs font-bold text-muted uppercase tracking-wider mb-2">Invoice Attached</h4>
+                       <p className="text-[13px] font-mono font-bold text-ink">{selectedOrder.invoice.invoiceNumber}</p>
                      </div>
-                     <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold ${INV_STATUS[selectedOrder.invoice.status]?.bg} ${INV_STATUS[selectedOrder.invoice.status]?.color}`}>{INV_STATUS[selectedOrder.invoice.status]?.label}</span>
+                     <div className="text-right">
+                       <p className="text-sm font-bold text-ink">₹{Number(selectedOrder.invoice.totalAmount).toLocaleString('en-IN')}</p>
+                       <p className={`text-[11px] font-semibold uppercase mt-1 ${selectedOrder.invoice.status === 'ACKNOWLEDGED' ? 'text-emerald-600' : selectedOrder.invoice.status === 'DISPUTED' ? 'text-red-600' : 'text-amber-600'}`}>{selectedOrder.invoice.status}</p>
+                     </div>
                    </div>
+                )}
+                {selectedOrder.invoice?.status === 'DISPUTED' && (
+                  <div className="p-3 bg-red-50 border-x border-b border-red-200 rounded-b-xl -mt-4 pt-5">
+                    <div className="grid grid-cols-3 gap-2 text-[12px] mb-1"><span className="text-red-700 font-medium">Disputed By</span><span className="col-span-2 font-semibold text-red-900">{selectedOrder.invoice.disputedById === selectedOrder.invoice.sellerProfileId ? 'You' : 'Buyer'}</span></div>
+                    <div className="grid grid-cols-3 gap-2 text-[12px] mb-1"><span className="text-red-700 font-medium">Reason</span><span className="col-span-2 font-semibold text-red-900">{selectedOrder.invoice.disputeReason}</span></div>
+                    {selectedOrder.invoice.disputeComment && (
+                      <div className="grid grid-cols-3 gap-2 text-[12px]"><span className="text-red-700 font-medium">Comment</span><span className="col-span-2 text-red-900">{selectedOrder.invoice.disputeComment}</span></div>
+                    )}
+                  </div>
                 )}
               </div>
             )}
@@ -479,8 +513,8 @@ export default function SellerOrdersPage() {
                           <div className="flex items-center gap-2">
                             {p.status === 'PENDING_ACKNOWLEDGEMENT' ? (
                               <div className="flex gap-1">
-                                <button disabled={actionLoading === p.id} onClick={() => paymentAction(p.id, 'acknowledge', false)} className="px-2 py-1 bg-emerald-600 text-white rounded text-[10px] font-bold hover:bg-emerald-700">ACK</button>
-                                <button disabled={actionLoading === p.id} onClick={() => paymentAction(p.id, 'dispute', false)} className="px-2 py-1 bg-red-600 text-white rounded text-[10px] font-bold hover:bg-red-700">DISPUTE</button>
+                                <button disabled={actionLoading === p.id} onClick={() => setConfirmConfig({ isOpen: true, title: "Acknowledge Payment", desc: "Are you sure you want to acknowledge receiving this payment?", action: () => paymentAction(p.id, 'acknowledge', false) })} className="px-2 py-1 bg-emerald-600 text-white rounded text-[10px] font-bold hover:bg-emerald-700">ACK</button>
+                                <button disabled={actionLoading === p.id} onClick={() => setDisputeConfig({ isOpen: true, title: "Dispute Payment", desc: "Please select a reason and provide details to dispute this payment.", action: (disputeType, disputeComment) => paymentAction(p.id, 'dispute', false, { disputeType, disputeComment }) })} className="px-2 py-1 bg-red-600 text-white rounded text-[10px] font-bold hover:bg-red-700">DISPUTE</button>
                               </div>
                             ) : (
                               <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${PAY_STATUS_CONFIG[p.status]?.bg} ${PAY_STATUS_CONFIG[p.status]?.color}`}>{PAY_STATUS_CONFIG[p.status]?.label}</span>
@@ -532,21 +566,21 @@ export default function SellerOrdersPage() {
           <div className="p-4 border-t border-border bg-paper flex flex-wrap items-center justify-end gap-2 shrink-0">
             {selectedOrder.status === 'PLACED' && (
               <>
-                <button disabled={actionLoading === selectedOrder.id} onClick={() => orderAction(selectedOrder.id, 'reject')} className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded transition-colors mr-auto">Reject Order</button>
-                <button disabled={actionLoading === selectedOrder.id} onClick={() => { setCounterOrder(selectedOrder); setCounterPrice(selectedOrder.unitPrice || ""); setCounterQuantity(selectedOrder.quantity || ""); setShowCounterModal(true); }} className="px-4 py-2 text-sm font-semibold bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200 rounded transition-colors">Counter Offer</button>
-                <button disabled={actionLoading === selectedOrder.id} onClick={() => orderAction(selectedOrder.id, 'confirm')} className="px-4 py-2 text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 rounded transition-colors">Confirm Order</button>
+                <button disabled={actionLoading === selectedOrder.id} onClick={() => setConfirmConfig({ isOpen: true, title: "Reject Order", desc: "Are you sure you want to reject this order?", isDanger: true, action: () => orderAction(selectedOrder.id, 'reject') })} className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded transition-colors mr-auto">Reject Order</button>
+                <button disabled={actionLoading === selectedOrder.id} onClick={() => { setCounterOrder(selectedOrder); setCounterForm({ ...counterForm, price: selectedOrder.unitPrice || "", quantity: selectedOrder.quantity || "" }); setShowCounterModal(true); }} className="px-4 py-2 text-sm font-semibold bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200 rounded transition-colors">Counter Offer</button>
+                <button disabled={actionLoading === selectedOrder.id} onClick={() => setConfirmConfig({ isOpen: true, title: "Confirm Order", desc: "Are you sure you want to confirm this order?", action: () => orderAction(selectedOrder.id, 'confirm') })} className="px-4 py-2 text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 rounded transition-colors">Confirm Order</button>
               </>
             )}
             {selectedOrder.status === 'CONFIRMED' && (
               <>
                 <button disabled={actionLoading === selectedOrder.id} onClick={() => router.push(`/dashboard/seller/messages?threadId=order-${selectedOrder.id}`)} className="px-4 py-2 text-sm font-semibold bg-paper-2 hover:bg-slate-100 text-ink border border-border rounded transition-colors mr-auto">Message</button>
-                <button disabled={actionLoading === selectedOrder.id} onClick={() => orderAction(selectedOrder.id, 'ship')} className="px-4 py-2 text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 rounded transition-colors">Mark Shipped</button>
+                <button disabled={actionLoading === selectedOrder.id} onClick={() => setConfirmConfig({ isOpen: true, title: "Mark Shipped", desc: "Are you sure you have shipped this order?", action: () => orderAction(selectedOrder.id, 'ship') })} className="px-4 py-2 text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 rounded transition-colors">Mark Shipped</button>
               </>
             )}
             {selectedOrder.status === 'SHIPPED' && (
               <>
                 <button disabled={actionLoading === selectedOrder.id} onClick={() => router.push(`/dashboard/seller/messages?threadId=order-${selectedOrder.id}`)} className="px-4 py-2 text-sm font-semibold bg-paper-2 hover:bg-slate-100 text-ink border border-border rounded transition-colors mr-auto">Message</button>
-                <button disabled={actionLoading === selectedOrder.id} onClick={() => orderAction(selectedOrder.id, 'deliver')} className="px-4 py-2 text-sm font-semibold bg-money text-white hover:bg-emerald-600 rounded transition-colors">Mark Delivered</button>
+                <button disabled={actionLoading === selectedOrder.id} onClick={() => setConfirmConfig({ isOpen: true, title: "Mark Delivered", desc: "Are you sure this order has been delivered to the buyer?", action: () => orderAction(selectedOrder.id, 'deliver') })} className="px-4 py-2 text-sm font-semibold bg-money text-white hover:bg-emerald-600 rounded transition-colors">Mark Delivered</button>
               </>
             )}
             {['COUNTER_OFFERED', 'DELIVERED', 'CANCELLED'].includes(selectedOrder.status) && (
@@ -607,8 +641,8 @@ export default function SellerOrdersPage() {
                       <div className="flex items-center gap-2">
                         {p.status === 'PENDING_ACKNOWLEDGEMENT' ? (
                           <div className="flex gap-1">
-                            <button disabled={actionLoading === p.id} onClick={() => paymentAction(p.id, 'acknowledge', selectedInvoice.type === 'MANUAL')} className="px-2 py-1 bg-emerald-600 text-white rounded text-[10px] font-bold hover:bg-emerald-700">ACK</button>
-                            <button disabled={actionLoading === p.id} onClick={() => paymentAction(p.id, 'dispute', selectedInvoice.type === 'MANUAL')} className="px-2 py-1 bg-red-600 text-white rounded text-[10px] font-bold hover:bg-red-700">DISPUTE</button>
+                            <button disabled={actionLoading === p.id} onClick={() => setConfirmConfig({ isOpen: true, title: "Acknowledge Payment", desc: "Are you sure you want to acknowledge receiving this payment?", action: () => paymentAction(p.id, 'acknowledge', selectedInvoice.type === 'MANUAL') })} className="px-2 py-1 bg-emerald-600 text-white rounded text-[10px] font-bold hover:bg-emerald-700">ACK</button>
+                            <button disabled={actionLoading === p.id} onClick={() => setDisputeConfig({ isOpen: true, title: "Dispute Payment", desc: "Please select a reason and provide details to dispute this payment.", action: (disputeType, disputeComment) => paymentAction(p.id, 'dispute', selectedInvoice.type === 'MANUAL', { disputeType, disputeComment }) })} className="px-2 py-1 bg-red-600 text-white rounded text-[10px] font-bold hover:bg-red-700">DISPUTE</button>
                           </div>
                         ) : (
                           <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${PAY_STATUS_CONFIG[p.status]?.bg} ${PAY_STATUS_CONFIG[p.status]?.color}`}>{PAY_STATUS_CONFIG[p.status]?.label}</span>
@@ -702,6 +736,23 @@ export default function SellerOrdersPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
+        onConfirm={confirmConfig.action}
+        title={confirmConfig.title}
+        description={confirmConfig.desc}
+        isDanger={confirmConfig.isDanger}
+      />
+
+      <DisputeModal
+        isOpen={disputeConfig.isOpen}
+        onClose={() => setDisputeConfig({ ...disputeConfig, isOpen: false })}
+        onConfirm={disputeConfig.action}
+        title={disputeConfig.title}
+        description={disputeConfig.desc}
+      />
     </div>
   );
 }

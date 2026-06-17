@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { useNotifications } from "@/hooks/useNotifications";
 
 type Role = "BUYER" | "SELLER";
 
@@ -26,7 +27,13 @@ type Counterparty = {
 
 export function MessagesUI({ role }: { role: Role }) {
   const [counterparties, setCounterparties] = useState<Counterparty[]>([]);
-  const [filter, setFilter] = useState<"ALL" | "ORDERS" | "INQUIRIES">("ALL");
+  const [filterType, setFilterType] = useState<"ALL" | "ORDERS" | "INQUIRIES">("ALL");
+  const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+  const { notifications, fetchNotifications, markAsRead } = useNotifications();
+  
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
   const [activeCounterparty, setActiveCounterparty] = useState<Counterparty | null>(null);
   const [activeThread, setActiveThread] = useState<Thread | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
@@ -80,7 +87,7 @@ export function MessagesUI({ role }: { role: Role }) {
           id: `order-${o.id}`,
           type: "ORDER",
           rawId: o.id,
-          title: `Order: ${o.productName}`,
+          title: o.productName,
           subtitle: cpName,
           status: o.status,
           updatedAt: o.updatedAt,
@@ -95,7 +102,7 @@ export function MessagesUI({ role }: { role: Role }) {
           id: `inquiry-${i.id}`,
           type: "INQUIRY",
           rawId: i.id,
-          title: `Inquiry: ${i.product?.name || i.customProductRequest || 'General'}`,
+          title: i.product?.name || i.customProductRequest || 'General',
           subtitle: cpName,
           status: i.status,
           updatedAt: i.updatedAt,
@@ -156,11 +163,23 @@ export function MessagesUI({ role }: { role: Role }) {
     if (activeThread) {
       fetchMessages(activeThread);
       const interval = setInterval(() => fetchMessages(activeThread), 5000);
+      
+      const unreadNotificationsForThread = notifications.filter(n => 
+        !n.isRead && 
+        n.type === 'MESSAGE' && 
+        n.entityType === activeThread.type && 
+        n.entityId === String(activeThread.rawId)
+      );
+      
+      unreadNotificationsForThread.forEach(n => {
+        markAsRead(n.id);
+      });
+
       return () => clearInterval(interval);
     } else {
       setMessages([]);
     }
-  }, [activeThread]);
+  }, [activeThread, notifications]);
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -254,9 +273,22 @@ export function MessagesUI({ role }: { role: Role }) {
     }
   };
 
+  const isThreadUnread = (t: Thread) => {
+    return notifications.some(n => 
+      !n.isRead && 
+      n.type === 'MESSAGE' && 
+      n.entityType === t.type && 
+      n.entityId === String(t.rawId)
+    );
+  };
+
   const filteredCounterparties = counterparties.map(cp => {
-    const filterType = filter === "ORDERS" ? "ORDER" : filter === "INQUIRIES" ? "INQUIRY" : "ALL";
-    const ft = cp.threads.filter(t => filter === "ALL" || t.type === filterType);
+    const ft = cp.threads.filter(t => {
+      if (showUnreadOnly && !isThreadUnread(t)) return false;
+      if (filterType === "ORDERS" && t.type !== "ORDER") return false;
+      if (filterType === "INQUIRIES" && t.type !== "INQUIRY") return false;
+      return true;
+    });
     return { ...cp, threads: ft };
   }).filter(cp => cp.threads.length > 0);
 
@@ -264,30 +296,38 @@ export function MessagesUI({ role }: { role: Role }) {
   const activeThreadsToDisplay = activeFilteredCp?.threads || [];
 
   return (
-    <div className="flex h-[calc(100vh-140px)] bg-paper border border-border rounded overflow-hidden shadow-sm">
+    <div className="flex h-[calc(100vh-140px)] gap-6">
       {/* Sidebar List (Counterparties) */}
-      <div className={`w-full md:w-1/3 border-r border-border flex flex-col bg-paper-2 shrink-0 ${activeCounterparty ? 'hidden md:flex' : 'flex'}`}>
-        <div className="p-4 border-b border-border bg-paper">
-          <h2 className="text-lg font-bold text-ink">Messages & Negotiations</h2>
-          <div className="flex gap-2 mt-3">
-            {(["ALL", "ORDERS", "INQUIRIES"] as const).map(f => (
-              <button
-                key={f}
-                onClick={() => { setFilter(f); setActiveThread(null); }}
-                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
-                  filter === f ? "bg-ink text-white shadow-sm" : "bg-paper text-slate hover:bg-border-subtle border border-border"
-                }`}
-              >
-                {f.charAt(0) + f.slice(1).toLowerCase()}
-              </button>
-            ))}
+      <div className={`w-full md:w-[35%] lg:w-[30%] flex flex-col space-y-4 shrink-0 ${activeCounterparty ? 'hidden md:flex' : 'flex'}`}>
+        <div className="flex flex-col gap-2 shrink-0">
+          <div className="p-1 bg-surface border border-border rounded-lg shadow-sm flex gap-1">
+              {(["ALL", "ORDERS", "INQUIRIES"] as const).map(f => (
+                <button
+                  key={f}
+                  onClick={() => { setFilterType(f); setActiveThread(null); }}
+                  className={`flex-1 px-3 py-1.5 text-[12px] font-[600] rounded-md transition-colors ${
+                    filterType === f ? "bg-ink text-white shadow-sm" : "text-muted hover:bg-surface-2"
+                  }`}
+                >
+                  {f.charAt(0) + f.slice(1).toLowerCase()}
+                </button>
+              ))}
           </div>
+          <button 
+            onClick={() => { setShowUnreadOnly(!showUnreadOnly); setActiveThread(null); }}
+            className={`px-3 py-1.5 text-[12px] font-[600] rounded-lg border transition-colors flex items-center justify-center gap-2 ${
+              showUnreadOnly ? "bg-brand-50 border-brand-200 text-brand-700 shadow-sm" : "bg-surface border-border text-muted hover:bg-surface-2"
+            }`}
+          >
+            <div className={`w-2 h-2 rounded-full ${showUnreadOnly ? 'bg-brand-500' : 'bg-muted'}`} />
+            Show Unread Only
+          </button>
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto space-y-2 pr-2 pb-10">
           {loading ? (
-            <div className="p-6 text-center text-slate text-sm">Loading...</div>
+            <div className="p-6 text-center text-muted text-sm">Loading...</div>
           ) : filteredCounterparties.length === 0 ? (
-            <div className="p-6 text-center text-slate text-sm">No conversations found.</div>
+            <div className="p-6 text-center text-muted text-sm">No conversations found.</div>
           ) : (
             filteredCounterparties.map(cp => (
               <button
@@ -298,18 +338,21 @@ export function MessagesUI({ role }: { role: Role }) {
                     setActiveThread(cp.threads[0]); 
                   }
                 }}
-                className={`w-full text-left p-4 border-b border-border transition-all duration-200 ${
-                  activeCounterparty?.id === cp.id ? "bg-paper-2 border-l-4 border-l-primary-500" : "hover:bg-paper border-l-4 border-l-transparent"
+                className={`w-full text-left cp-card flex flex-col items-start transition-all duration-200 border-2 p-4 ${
+                  activeCounterparty?.id === cp.id ? "border-brand-500 shadow-md bg-brand-50/30" : "hover:border-brand-300 border-border"
                 }`}
               >
-                <div className="flex justify-between items-start mb-1">
-                  <span className="text-sm font-semibold text-ink truncate pr-2">{cp.name}</span>
-                  <span className="text-[10px] text-slate whitespace-nowrap">
-                    {new Date(cp.updatedAt).toLocaleDateString()}
-                  </span>
+                <div className="flex justify-between items-start mb-1.5 w-full relative z-10">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-ink text-sm leading-tight">{cp.name}</span>
+                    {cp.threads.some(isThreadUnread) && (
+                      <span className="w-2 h-2 rounded-full bg-brand-500 shadow-sm" />
+                    )}
+                  </div>
+                  <span className="text-[11px] font-semibold text-muted shrink-0 bg-surface/80 px-1.5 py-0.5 rounded backdrop-blur-sm">{new Date(cp.updatedAt).toLocaleDateString()}</span>
                 </div>
-                <div className="text-xs text-slate flex items-center gap-2">
-                  <span className="bg-paper border border-border rounded px-1.5 py-0.5">{cp.threads.length} active threads</span>
+                <div className="text-[12px] text-muted flex items-center gap-2 relative z-10 w-full mt-2">
+                  <span className="cp-badge cp-badge--neutral">{cp.threads.length} active threads</span>
                 </div>
               </button>
             ))
@@ -318,43 +361,44 @@ export function MessagesUI({ role }: { role: Role }) {
       </div>
 
       {/* Chat Area */}
-      <div className={`flex-1 flex flex-col bg-canvas relative min-w-0 ${!activeCounterparty ? 'hidden md:flex' : 'flex'}`}>
+      <div className={`flex-1 flex flex-col bg-surface border border-border rounded-xl shadow-sm relative min-w-0 overflow-hidden ${!activeCounterparty ? 'hidden md:flex' : 'flex'}`}>
         {activeCounterparty ? (
           <>
             {/* Header: Counterparty Info & Asset Filter */}
-            <div className="bg-paper border-b border-border shadow-sm z-20 relative flex flex-col">
+            <div className="bg-surface border-b border-border shadow-sm z-20 relative flex flex-col shrink-0">
               <div className="p-4 flex items-center gap-3">
                 <button 
                   onClick={() => setActiveCounterparty(null)}
-                  className="md:hidden h-8 w-8 -ml-2 rounded-full flex items-center justify-center text-slate hover:bg-paper-2"
+                  className="md:hidden h-8 w-8 -ml-2 rounded-full flex items-center justify-center text-muted hover:text-ink hover:bg-surface-2 transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <div className="h-10 w-10 rounded-full bg-paper-2 flex items-center justify-center text-ink font-bold text-lg shrink-0">
+                <div className="h-10 w-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-lg shrink-0 ring-2 ring-brand-50">
                   {activeCounterparty.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-base font-bold text-ink truncate">{activeCounterparty.name}</h3>
-                  <p className="text-xs text-slate">{role === 'SELLER' ? 'Buyer Company' : 'Supplier Company'}</p>
+                  <p className="text-xs font-medium text-muted">{role === 'SELLER' ? 'Buyer Company' : 'Supplier Company'}</p>
                 </div>
               </div>
               
               {/* Asset Dropdown Filter */}
-              <div className="px-4 pb-3">
+              <div className="px-4 pb-4">
                 <div className="relative">
                   <button 
                     onClick={() => setIsThreadDropdownOpen(!isThreadDropdownOpen)}
-                    className="w-full flex items-center bg-surface border border-border rounded-lg overflow-hidden shadow-sm hover:border-slate-300 transition-colors text-left"
+                    className="w-full flex items-center bg-surface border border-border rounded-lg overflow-hidden shadow-sm hover:border-brand-300 transition-colors text-left"
                   >
-                    <span className="pl-3 pr-2 py-2 text-[10px] font-bold text-slate uppercase tracking-widest shrink-0 bg-paper-2 border-r border-border">
+                    <span className="pl-3 pr-2 py-2.5 text-[10px] font-bold text-muted uppercase tracking-widest shrink-0 bg-surface-2 border-r border-border flex items-center gap-1.5">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
                       {activeThread?.type || 'ASSET'}
                     </span>
-                    <div className="flex-1 py-2 pr-8 pl-3 bg-transparent text-sm font-semibold text-ink truncate">
+                    <div className="flex-1 py-2.5 pr-8 pl-3 bg-transparent text-[13px] font-semibold text-ink truncate">
                       {activeThread 
-                        ? `${activeThread.title.replace(/^Order:\s*/i, '').replace(/^Inquiry:\s*/i, '')} (${activeThread.status})` 
+                        ? `${activeThread.title} (${activeThread.status})` 
                         : 'Select a thread...'}
                     </div>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate">
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
                       <svg className={`w-4 h-4 transition-transform duration-200 ${isThreadDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                     </div>
                   </button>
@@ -362,7 +406,7 @@ export function MessagesUI({ role }: { role: Role }) {
                   {isThreadDropdownOpen && (
                     <>
                       <div className="fixed inset-0 z-10" onClick={() => setIsThreadDropdownOpen(false)}></div>
-                      <div className="absolute z-20 w-full mt-1 bg-paper border border-border rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                      <div className="absolute z-20 w-full mt-1.5 bg-surface border border-border rounded-xl shadow-xl max-h-60 overflow-y-auto overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                         {activeThreadsToDisplay.length > 0 ? (
                           activeThreadsToDisplay.map(t => (
                             <button
@@ -371,19 +415,19 @@ export function MessagesUI({ role }: { role: Role }) {
                                 setActiveThread(t);
                                 setIsThreadDropdownOpen(false);
                               }}
-                              className={`w-full text-left px-4 py-2.5 text-sm hover:bg-paper-2 transition-colors border-b border-border/50 last:border-0 flex justify-between items-center ${activeThread?.id === t.id ? 'bg-paper-2 font-semibold text-ink' : 'text-slate'}`}
+                              className={`w-full text-left px-4 py-3 text-[13px] hover:bg-surface-2 transition-colors border-b border-border last:border-0 flex justify-between items-center ${activeThread?.id === t.id ? 'bg-surface-2 font-bold text-ink' : 'text-muted font-medium'}`}
                             >
-                              <div className="flex items-center gap-2 truncate">
-                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${t.type === 'ORDER' ? 'bg-money/10 text-money border-money/20' : 'bg-ink/10 text-ink border-ink/20'} uppercase tracking-wider`}>
+                              <div className="flex items-center gap-2.5 truncate">
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${t.type === 'ORDER' ? 'bg-success-bg text-success border-success/20' : 'bg-surface-3 text-ink border-border-strong'} uppercase tracking-wider`}>
                                   {t.type}
                                 </span>
-                                <span className={`truncate ${activeThread?.id === t.id ? 'text-ink' : ''}`}>{t.title.replace(/^Order:\s*/i, '').replace(/^Inquiry:\s*/i, '')}</span>
+                                <span className={`truncate ${activeThread?.id === t.id ? 'text-ink' : ''}`}>{t.title}</span>
                               </div>
-                              <span className="text-[10px] text-slate ml-2 shrink-0 bg-surface px-1.5 py-0.5 rounded border border-border uppercase font-semibold">{t.status}</span>
+                              <span className="text-[10px] text-muted ml-2 shrink-0 bg-surface px-2 py-0.5 rounded-md border border-border uppercase font-bold">{t.status}</span>
                             </button>
                           ))
                         ) : (
-                          <div className="px-4 py-3 text-sm text-slate text-center">No threads found.</div>
+                          <div className="px-4 py-4 text-[13px] text-muted text-center font-medium">No threads found.</div>
                         )}
                       </div>
                     </>
@@ -396,10 +440,10 @@ export function MessagesUI({ role }: { role: Role }) {
               <>
                 {/* Active Thread Banner (if order) */}
                 {activeThread.type === "ORDER" && (
-                  <div className="px-4 py-2 bg-paper-2/50 border-b border-border flex justify-between items-center relative z-10">
+                  <div className="px-4 py-3 bg-brand-50 border-b border-brand-200 flex justify-between items-center relative z-10 shrink-0">
                     <div className="flex items-center gap-3">
-                      <div className="text-sm font-semibold text-ink">Order Total: ₹{Number(activeThread.data.totalAmount).toLocaleString('en-IN')}</div>
-                      <div className="text-xs text-slate">({activeThread.data.quantity} {activeThread.data.pricingUnit} @ ₹{Number(activeThread.data.unitPrice).toLocaleString('en-IN')})</div>
+                      <div className="text-[13px] font-bold text-brand-800">Order Total: ₹{Number(activeThread.data.totalAmount).toLocaleString('en-IN')}</div>
+                      <div className="text-[11px] font-medium text-brand-700/80 bg-brand-100 px-2 py-0.5 rounded-full">({activeThread.data.quantity} {activeThread.data.pricingUnit} @ ₹{Number(activeThread.data.unitPrice).toLocaleString('en-IN')})</div>
                     </div>
                     {activeThread.data.status === 'PLACED' || activeThread.data.status === 'COUNTER_OFFERED' ? (
                       <button 
@@ -409,7 +453,7 @@ export function MessagesUI({ role }: { role: Role }) {
                           setCounterNote("");
                           setShowCounterModal(true);
                         }}
-                        className="px-3 py-1.5 bg-ink hover:bg-ink text-white shadow-sm text-xs font-medium rounded-md transition-colors"
+                        className="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white shadow-sm text-xs font-bold rounded-md transition-colors"
                       >
                         Make Counter Offer
                       </button>
@@ -418,9 +462,9 @@ export function MessagesUI({ role }: { role: Role }) {
                 )}
 
                 {/* Messages List */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div className="flex-1 overflow-y-auto p-4 space-y-5 relative">
                   {messages.length === 0 ? (
-                    <div className="flex h-full items-center justify-center text-slate text-sm">
+                    <div className="flex h-full items-center justify-center text-muted text-[13px] font-medium italic">
                       Send a message to start the conversation for this asset.
                     </div>
                   ) : (
@@ -430,44 +474,64 @@ export function MessagesUI({ role }: { role: Role }) {
                         const isMine = msg.sender.role === role;
                         return (
                           <div key={idx} className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
-                            <div className={`max-w-[70%] rounded px-4 py-2 ${
-                              isMine ? 'bg-ink text-white rounded-br-sm shadow-sm' : 'bg-paper border border-border text-ink rounded-bl-sm shadow-sm'
+                            <div className={`cp-bubble ${
+                              isMine ? 'cp-bubble--out' : 'cp-bubble--in'
                             }`}>
                               {msg.type === 'COUNTER_OFFER' ? (
-                                <div className="space-y-2">
+                                <div className="space-y-3">
                                   <div className="flex items-center gap-2 border-b border-white/20 pb-2 mb-2">
-                                    <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wide">Counter Offer</span>
+                                    <span className="bg-white/20 px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5"><svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg> Counter Offer</span>
                                   </div>
-                                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                                    <div className="opacity-80">Proposed Price:</div>
-                                    <div className="font-semibold">₹{msg.proposedPrice}</div>
-                                    <div className="opacity-80">Quantity:</div>
-                                    <div className="font-semibold">{msg.proposedQuantity}</div>
+                                  <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-[13px] bg-black/10 rounded-lg p-3">
+                                    <div className="opacity-80 font-medium">Proposed Price:</div>
+                                    <div className="font-bold text-right">₹{msg.proposedPrice}</div>
+                                    <div className="opacity-80 font-medium">Quantity:</div>
+                                    <div className="font-bold text-right">{msg.proposedQuantity}</div>
                                   </div>
-                                  {msg.message && <div className="mt-2 text-sm italic opacity-90">"{msg.message}"</div>}
+                                  {msg.message && <div className="mt-3 text-[13px] italic opacity-90 leading-relaxed border-l-2 border-white/30 pl-2.5">"{msg.message}"</div>}
                                   
                                   {!isMine && activeThread.data.status === 'COUNTER_OFFERED' && idx === lastCounterOfferIdx && (
-                                    <div className="flex gap-2 mt-3 pt-3 border-t border-border/50">
-                                      <button onClick={handleAccept} className="flex-1 bg-money hover:bg-money text-white shadow-sm text-xs py-2 rounded-md font-bold transition-colors">Accept Offer</button>
-                                      <button onClick={handleDecline} className="flex-1 bg-paper text-ink hover:bg-paper-2 border border-border text-xs py-2 rounded-md font-bold transition-colors">Decline</button>
+                                    <div className="flex gap-2.5 mt-4 pt-4 border-t border-white/10">
+                                      <button onClick={handleAccept} className="flex-1 cp-btn cp-btn--success">Accept Offer</button>
+                                      <button onClick={handleDecline} className="flex-1 cp-btn cp-btn--secondary">Decline</button>
                                     </div>
                                   )}
                               </div>
                             ) : msg.type === 'ACCEPT' ? (
-                               <div className="flex items-center gap-2 text-sm">
-                                  <span className="h-2 w-2 rounded-full bg-emerald-300"></span>
-                                  <span className="font-medium">{msg.message}</span>
+                               <div className="flex items-center gap-2.5 text-[13px]">
+                                  <span className="h-2 w-2 rounded-full bg-success ring-4 ring-success-bg"></span>
+                                  <span className="font-bold">{msg.message}</span>
                                </div>
                             ) : msg.type === 'DECLINE' ? (
-                               <div className="flex items-center gap-2 text-sm">
-                                  <span className="h-2 w-2 rounded-full bg-red-300"></span>
-                                  <span className="font-medium">{msg.message}</span>
+                               <div className="flex items-center gap-2.5 text-[13px]">
+                                  <span className="h-2 w-2 rounded-full bg-danger ring-4 ring-danger-bg"></span>
+                                  <span className="font-bold">{msg.message}</span>
                                </div>
+                            ) : msg.type === 'SYSTEM_EVENT' ? (
+                                (() => {
+                                  try {
+                                    const eventPayload = JSON.parse(msg.message);
+                                    if (eventPayload.event === 'INVOICE_DISPUTED') {
+                                      return (
+                                        <div className="bg-red-50 border border-red-200 rounded-lg p-3 w-full min-w-[250px] text-left">
+                                          <div className="flex items-center gap-2 text-red-700 font-bold mb-2">
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                            Invoice Disputed
+                                          </div>
+                                          <p className="text-[12px] text-red-900 mb-1"><strong>Reason:</strong> {eventPayload.reason}</p>
+                                          {eventPayload.comment && <p className="text-[12px] text-red-900 italic mb-3">"{eventPayload.comment}"</p>}
+                                          <a href={`/dashboard/${role.toLowerCase()}/orders`} className="inline-block px-3 py-1.5 text-[11px] font-bold text-white bg-red-600 rounded hover:bg-red-700 transition-colors shadow-sm">View in Orders</a>
+                                        </div>
+                                      );
+                                    }
+                                  } catch (e) {}
+                                  return <div className="text-[13px] italic text-muted opacity-80 px-2 py-1 bg-surface-3 rounded">System Event Recorded</div>;
+                                })()
                             ) : (
-                              <div className="text-sm whitespace-pre-wrap leading-relaxed">{msg.message}</div>
+                              <div className="text-[14px] whitespace-pre-wrap leading-relaxed">{msg.message}</div>
                             )}
                           </div>
-                          <span className="text-[10px] text-slate mt-1 px-1">
+                          <span className="text-[10px] font-medium text-muted mt-1.5 px-1.5">
                             {new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                           </span>
                         </div>
@@ -479,52 +543,62 @@ export function MessagesUI({ role }: { role: Role }) {
                 </div>
 
                 {/* Message Input */}
-                <div className="p-4 bg-paper border-t border-border">
-                  <form onSubmit={handleSendMessage} className="flex gap-2">
+                <div className="p-4 bg-surface border-t border-border shrink-0">
+                  <form onSubmit={handleSendMessage} className="flex gap-3">
                     <Input
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
                       placeholder="Type your message..."
-                      className="flex-1 bg-canvas"
+                      className="flex-1 bg-surface-2 text-[13px]"
                     />
                     <button
                       type="submit"
                       disabled={!inputText.trim()}
-                      className="px-6 py-2.5 bg-ink text-white rounded font-medium text-sm hover:bg-ink focus:ring-2 focus:ring-primary-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+                      className="cp-btn cp-btn--primary px-6"
                     >
+                      <svg className="w-4 h-4 mr-1.5 -ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                       Send
                     </button>
                   </form>
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-slate bg-paper-2/30">
-                <p className="text-sm font-medium">Select an asset from the top bar to view messages.</p>
+              <div className="flex-1 flex flex-col items-center justify-center text-muted bg-canvas">
+                <div className="w-16 h-16 bg-surface-2 rounded-full flex items-center justify-center mb-4 border border-border">
+                  <svg className="w-8 h-8 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <p className="text-[15px] font-bold text-ink">Select a Thread</p>
+                <p className="text-[13px] text-muted mt-1">Choose a thread from the top bar to view messages.</p>
               </div>
             )}
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-slate bg-paper-2/30">
-            <svg className="w-16 h-16 text-border-default mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <p className="text-sm font-medium text-ink">Select a Supplier</p>
-            <p className="text-xs text-slate mt-1">Choose a company from the sidebar to view your negotiations</p>
+          <div className="flex-1 flex flex-col items-center justify-center text-muted bg-canvas">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5" style={{ backgroundColor: 'var(--cp-brand-50)' }}>
+              <svg className="w-10 h-10" style={{ color: 'var(--cp-brand-600)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <p className="text-[18px] font-[700]" style={{ color: 'var(--cp-text)' }}>Select a Conversation</p>
+            <p className="text-[13px] font-[500] mt-1.5 max-w-xs text-center" style={{ color: 'var(--cp-text-muted)' }}>Choose a company from the sidebar to view your negotiations and messages</p>
           </div>
         )}
       </div>
 
       {/* Counter Offer Modal */}
       {showCounterModal && activeThread && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-paper w-full max-w-md rounded shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-paper">
-              <h3 className="text-lg font-bold text-ink">Make a Counter Offer</h3>
-              <button onClick={() => setShowCounterModal(false)} className="h-8 w-8 rounded-full bg-paper-2 flex items-center justify-center text-slate hover:text-ink transition-colors">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-ink/30 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowCounterModal(false)}></div>
+          <div className="bg-surface w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 relative z-10 border border-border">
+            <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-surface">
+              <h3 className="text-[18px] font-bold text-ink tracking-tight">Make a Counter Offer</h3>
+              <button onClick={() => setShowCounterModal(false)} className="h-8 w-8 rounded-full bg-surface-2 flex items-center justify-center text-muted hover:text-ink hover:bg-border transition-colors">
                 <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
               </button>
             </div>
-            <form onSubmit={handleCounter} className="p-6 space-y-4">
+            <form onSubmit={handleCounter} className="p-6 space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <Input
                   label="Proposed Price (₹)"
@@ -550,9 +624,9 @@ export function MessagesUI({ role }: { role: Role }) {
                 onChange={e => setCounterNote(e.target.value)}
                 placeholder="Explain why you are proposing these terms..."
               />
-              <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => setShowCounterModal(false)} className="flex-1 px-4 py-2 bg-paper hover:bg-paper-2 border border-border text-ink text-sm font-medium rounded transition-colors">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2 bg-ink hover:bg-ink text-white text-sm font-medium rounded shadow-sm transition-colors">Send Offer</button>
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={() => setShowCounterModal(false)} className="cp-btn cp-btn--secondary">Cancel</button>
+                <button type="submit" className="cp-btn cp-btn--primary">Send Offer</button>
               </div>
             </form>
           </div>
@@ -562,16 +636,16 @@ export function MessagesUI({ role }: { role: Role }) {
       {/* Custom Alert Box */}
       {alertConfig && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setAlertConfig(null)}></div>
-          <div className="relative bg-paper rounded shadow-2xl w-full max-w-sm p-6 text-center animate-in zoom-in-95 duration-200">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-              <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="fixed inset-0 bg-ink/30 backdrop-blur-sm" onClick={() => setAlertConfig(null)}></div>
+          <div className="relative bg-surface rounded-xl shadow-2xl w-full max-w-sm p-6 text-center animate-in zoom-in-95 duration-200 border border-border">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-danger-bg mb-4 ring-8 ring-danger-bg/50">
+              <svg className="h-6 w-6 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <h3 className="text-lg font-bold text-ink mb-2">Error</h3>
-            <p className="text-sm text-slate mb-6">{alertConfig.message}</p>
-            <button onClick={() => setAlertConfig(null)} className="w-full btn-primary bg-red-600 hover:bg-red-700 border-none text-sm py-2.5">
+            <p className="text-[13px] text-muted mb-6">{alertConfig.message}</p>
+            <button onClick={() => setAlertConfig(null)} className="w-full cp-btn cp-btn--danger-outline py-2.5">
               Dismiss
             </button>
           </div>

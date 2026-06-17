@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CORPASS Theme — Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./design-tokens.css" />
+<link rel="stylesheet" href="./components.css" />
+<style>
+  /* Layout scaffolding for the preview only (not part of the theme). */
+  .wrap { display:grid; grid-template-columns: var(--cp-sidebar-width) 1fr; min-height:100vh; }
+  .main { padding: var(--cp-space-8); display:grid; gap:var(--cp-space-6); }
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--cp-space-5); }
+  .grid-2 { display:grid; grid-template-columns:1.4fr 1fr; gap:var(--cp-space-5); }
+  .sb { padding:var(--cp-space-5) var(--cp-space-4); display:grid; gap:2px; align-content:start; }
+  .logo { display:flex; align-items:center; gap:10px; margin-bottom:var(--cp-space-6); }
+  .logo-mark { width:34px; height:34px; border-radius:9px; background:var(--cp-brand-900); color:#fff; display:grid; place-items:center; font-weight:700; }
+  .logo-text { font-weight:700; letter-spacing:.04em; color:var(--cp-text); }
+  .muted { color:var(--cp-text-muted); }
+  .row-flex { display:flex; align-items:center; gap:var(--cp-space-3); }
+  .between { display:flex; align-items:center; justify-content:space-between; }
+  h2.sec { font-size:var(--cp-text-md); font-weight:600; margin:0; }
+  .swatches { display:flex; gap:10px; flex-wrap:wrap; }
+  .sw { width:64px; height:48px; border-radius:var(--cp-radius-md); border:1px solid var(--cp-border); display:flex; align-items:flex-end; padding:4px; font-size:10px; color:#fff; }
+  .pill-chip { padding:4px 12px; border-radius:var(--cp-radius-pill); font-size:var(--cp-text-sm); font-weight:600; border:1px solid var(--cp-border-strong); background:var(--cp-surface); }
+  .pill-chip--on { background:var(--cp-brand-600); color:#fff; border-color:transparent; }
+  .prod-img { height:120px; border-radius:var(--cp-radius-md); background:var(--cp-surface-3); display:grid; place-items:center; color:var(--cp-text-muted); margin-bottom:var(--cp-space-3); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- Sidebar -->
+  <aside class="cp-sidebar sb">
+    <div class="logo"><span class="logo-mark">C</span><span class="logo-text">CORPASS</span></div>
+    <div class="cp-nav-item cp-nav-item--active">▦ &nbsp;Dashboard</div>
+    <div class="cp-nav-item">▤ &nbsp;Marketplace</div>
+    <div class="cp-nav-item between"><span>✉ &nbsp;Messages</span>
+      <span style="background:var(--cp-brand-600);color:#fff;border-radius:var(--cp-radius-pill);font-size:11px;padding:1px 7px;font-weight:600;">3</span></div>
+    <div class="cp-nav-item">◳ &nbsp;Assets</div>
+    <div class="cp-nav-item">◍ &nbsp;Profile</div>
+    <div class="cp-nav-item">◎ &nbsp;Support</div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="between">
+      <div>
+        <div style="font-size:var(--cp-text-xl);font-weight:700;">Good morning, Siddharth 👋</div>
+        <div class="muted">Here's what's happening with your procurement today.</div>
+      </div>
+      <input class="cp-input cp-search" style="max-width:280px" placeholder="Search anything…" />
+    </div>
+
+    <!-- Stat cards -->
+    <div class="grid-4">
+      <div class="cp-card">
+        <div class="cp-stat__label">Total Spend (YTD)</div>
+        <div class="cp-stat__value">₹1,37,03,565</div>
+        <div class="cp-stat__delta cp-stat__delta--up">▲ 12% <span class="muted" style="font-weight:400">vs last year</span></div>
+      </div>
+      <div class="cp-card">
+        <div class="cp-stat__label">Active Orders</div>
+        <div class="cp-stat__value">22</div>
+        <div class="cp-stat__delta cp-stat__delta--up">▲ 8% <span class="muted" style="font-weight:400">vs last month</span></div>
+      </div>
+      <div class="cp-card">
+        <div class="cp-stat__label">Pending Approvals</div>
+        <div class="cp-stat__value">8</div>
+        <div class="cp-stat__delta cp-stat__delta--down">▼ 2 <span class="muted" style="font-weight:400">vs last month</span></div>
+      </div>
+      <div class="cp-card">
+        <div class="cp-stat__label">Open Negotiations</div>
+        <div class="cp-stat__value">4</div>
+        <div class="cp-stat__delta cp-stat__delta--up">▲ 1 <span class="muted" style="font-weight:400">vs last month</span></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Timeline card -->
+      <div class="cp-card">
+        <div class="cp-card-title">Procurement Timeline</div>
+        <div class="cp-timeline" style="display:grid;gap:var(--cp-space-5)">
+          <div style="position:relative">
+            <span class="cp-timeline__node cp-timeline__node--done" style="display:grid;place-items:center;font-size:10px">✓</span>
+            <div style="font-weight:600">New order placed</div>
+            <div class="cp-timeline__time">ORD-20200616-9332 · 16 Jun, 10:30 AM</div>
+          </div>
+          <div style="position:relative">
+            <span class="cp-timeline__node cp-timeline__node--done" style="display:grid;place-items:center;font-size:10px">✓</span>
+            <div style="font-weight:600">Order confirmed</div>
+            <div class="cp-timeline__time">16 Jun, 11:15 AM</div>
+          </div>
+          <div style="position:relative">
+            <span class="cp-timeline__node"></span>
+            <div style="font-weight:600">Delivered</div>
+            <div class="cp-timeline__time">Estimated: 20 Jun 2026</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buttons + badges -->
+      <div class="cp-card" style="display:grid;gap:var(--cp-space-5);align-content:start">
+        <div>
+          <h2 class="sec" style="margin-bottom:var(--cp-space-3)">Buttons</h2>
+          <div class="row-flex" style="flex-wrap:wrap">
+            <button class="cp-btn cp-btn--primary">New Order</button>
+            <button class="cp-btn cp-btn--secondary">Upload RFQ</button>
+            <button class="cp-btn cp-btn--ghost">View all</button>
+            <button class="cp-btn cp-btn--success cp-btn--sm">Approve</button>
+            <button class="cp-btn cp-btn--danger-outline cp-btn--sm">Reject</button>
+          </div>
+        </div>
+        <div>
+          <h2 class="sec" style="margin-bottom:var(--cp-space-3)">Status badges</h2>
+          <div class="row-flex" style="flex-wrap:wrap">
+            <span class="cp-badge cp-badge--success">Delivered</span>
+            <span class="cp-badge cp-badge--success">Confirmed</span>
+            <span class="cp-badge cp-badge--warning">Inspection Due</span>
+            <span class="cp-badge cp-badge--danger">Cancelled</span>
+            <span class="cp-badge cp-badge--info">New</span>
+          </div>
+        </div>
+        <div>
+          <h2 class="sec" style="margin-bottom:var(--cp-space-3)">Filter chips</h2>
+          <div class="row-flex" style="flex-wrap:wrap">
+            <span class="pill-chip pill-chip--on">All 22</span>
+            <span class="pill-chip">New 7</span>
+            <span class="pill-chip">Confirmed 2</span>
+            <span class="pill-chip">Delivered 5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Product card -->
+      <div class="cp-card" style="max-width:240px">
+        <div class="prod-img">Product image</div>
+        <div style="font-weight:600">HP LaserJet Pro Printer</div>
+        <div class="muted" style="font-size:var(--cp-text-sm)">By Spark Creative Agency</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:var(--cp-space-3) 0">
+          <span style="font-weight:700">₹12,999</span>
+          <span style="color:var(--cp-warning);font-size:var(--cp-text-sm)">★ 4.8</span>
+        </div>
+        <button class="cp-btn cp-btn--primary" style="width:100%">Add to cart</button>
+      </div>
+
+      <!-- Chat -->
+      <div class="cp-card" style="display:grid;gap:var(--cp-space-3);align-content:start">
+        <div class="cp-card-title" style="margin:0">Messages</div>
+        <div class="cp-bubble cp-bubble--in">We can offer a 10% discount on bulk orders!
+          <div class="cp-bubble__meta">9:21 AM</div></div>
+        <div class="cp-bubble cp-bubble--out">That sounds great. Can you share the final price for 5 units?
+          <div class="cp-bubble__meta">9:23 AM</div></div>
+        <div class="cp-bubble cp-bubble--in">Sure! Final price would be ₹9,000 per unit.
+          <div class="cp-bubble__meta">10:24 AM</div></div>
+        <div class="row-flex">
+          <button class="cp-btn cp-btn--success cp-btn--sm">Approve</button>
+          <button class="cp-btn cp-btn--secondary cp-btn--sm">Counter Offer</button>
+          <button class="cp-btn cp-btn--danger-outline cp-btn--sm">Reject</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Palette -->
+    <div class="cp-card">
+      <div class="cp-card-title">Palette</div>
+      <div class="swatches">
+        <div class="sw" style="background:#012829">900</div>
+        <div class="sw" style="background:#015C5D">600</div>
+        <div class="sw" style="background:#0A6E6E">500</div>
+        <div class="sw" style="background:#2E8C88">400</div>
+        <div class="sw" style="background:#A7D0CD;color:#023638">200</div>
+        <div class="sw" style="background:#EAF4F3;color:#023638">50</div>
+        <div class="sw" style="background:#0F7A57">ok</div>
+        <div class="sw" style="background:#9A6700">warn</div>
+        <div class="sw" style="background:#C23B3B">err</div>
+        <div class="sw" style="background:#2C68B5">info</div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

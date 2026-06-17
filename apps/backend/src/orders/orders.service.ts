@@ -1,10 +1,11 @@
 import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { calculateDistanceKm } from '../products/products.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private notifications: NotificationsService) {}
 
   private generateOrderNumber(): string {
     const date = new Date();
@@ -49,7 +50,7 @@ export class OrdersService {
     const quantity = parseInt(data.quantity, 10);
     const totalAmount = unitPrice * quantity;
 
-    return this.prisma.order.create({
+    const result = await this.prisma.order.create({
       data: {
         orderNumber: this.generateOrderNumber(),
         buyerId,
@@ -68,6 +69,13 @@ export class OrdersService {
       },
       include: { buyer: { select: { name: true, email: true, city: true, company: true } }, sellerProfile: { include: { user: { select: { name: true, company: true } } } }, product: true }
     });
+
+    const sp = await this.prisma.sellerProfile.findUnique({ where: { id: product.sellerProfileId }, select: { userId: true } });
+    if (sp) {
+      await this.notifications.create(sp.userId, 'ORDER_UPDATE', 'New Order Received', `You have received a new order for ${product.name}.`, 'ORDER', result.id.toString());
+    }
+
+    return result;
   }
 
   async findAll(userId: number, role: string) {
@@ -109,17 +117,19 @@ export class OrdersService {
       throw new BadRequestException('Cannot request advance at this stage');
     }
     
-    return this.prisma.order.update({
+    const updated = await this.prisma.order.update({
       where: { id: orderId },
       data: { advanceRequested: amount }
     });
+    await this.notifications.create(order.buyerId, 'ORDER_UPDATE', 'Advance Requested', `Supplier has requested an advance of ₹${amount}.`, 'ORDER', orderId.toString());
+    return updated;
   }
 
   async addPayment(userId: number, orderId: number, data: { amount: number, paymentDate: string, utr?: string }) {
     const order = await this.prisma.order.findUnique({ where: { id: orderId } });
     if (!order || order.buyerId !== userId) throw new ForbiddenException('Not your order');
     
-    return this.prisma.paymentRecord.create({
+    const result = await this.prisma.paymentRecord.create({
       data: {
         orderId,
         amount: data.amount,
@@ -128,6 +138,13 @@ export class OrdersService {
         status: 'PENDING_ACKNOWLEDGEMENT'
       }
     });
+
+    const sp = await this.prisma.sellerProfile.findUnique({ where: { id: order.sellerProfileId }, select: { userId: true } });
+    if (sp) {
+      await this.notifications.create(sp.userId, 'ORDER_UPDATE', 'Payment Recorded', `Buyer has recorded a payment of ₹${data.amount}.`, 'ORDER', orderId.toString());
+    }
+
+    return result;
   }
 
   async acknowledgePayment(userId: number, paymentId: number) {
@@ -137,13 +154,15 @@ export class OrdersService {
     const payment = await this.prisma.paymentRecord.findUnique({ where: { id: paymentId }, include: { order: true } });
     if (!payment || payment.order.sellerProfileId !== sp.id) throw new ForbiddenException('Not your payment record');
     
-    return this.prisma.paymentRecord.update({
+    const result = await this.prisma.paymentRecord.update({
       where: { id: paymentId },
       data: { status: 'ACKNOWLEDGED' }
     });
+    await this.notifications.create(payment.order.buyerId, 'ORDER_UPDATE', 'Payment Acknowledged', `Supplier has acknowledged your payment of ₹${payment.amount}.`, 'ORDER', payment.orderId.toString());
+    return result;
   }
 
-  async disputePayment(userId: number, paymentId: number) {
+  async disputePayment(userId: number, paymentId: number, data?: { disputeType?: string, disputeComment?: string }) {
     const sp = await this.prisma.sellerProfile.findUnique({ where: { userId } });
     if (!sp) throw new ForbiddenException('Not a seller');
     
@@ -152,7 +171,11 @@ export class OrdersService {
     
     const updatedPayment = await this.prisma.paymentRecord.update({
       where: { id: paymentId },
-      data: { status: 'DISPUTED' }
+      data: { 
+        status: 'DISPUTED',
+        disputeType: data?.disputeType as any,
+        disputeComment: data?.disputeComment 
+      }
     });
 
     await this.prisma.orderMessage.create({
@@ -160,10 +183,11 @@ export class OrdersService {
         orderId: payment.orderId,
         senderId: userId,
         type: 'MESSAGE',
-        message: `🚨 Payment of ₹${payment.amount} dated ${payment.paymentDate.toLocaleDateString()} (UTR: ${payment.utr || 'N/A'}) has been DISPUTED by the seller. Please verify.`,
+        message: `🚨 Payment of ₹${payment.amount} dated ${payment.paymentDate.toLocaleDateString()} (UTR: ${payment.utr || 'N/A'}) has been DISPUTED by the seller. ${data?.disputeType ? `[Reason: ${data.disputeType}] ` : ''}${data?.disputeComment ? `- ${data.disputeComment}` : 'Please verify.'}`,
       }
     });
 
+    await this.notifications.create(payment.order.buyerId, 'ORDER_UPDATE', 'Payment Disputed', `Supplier has disputed your payment of ₹${payment.amount}.`, 'ORDER', payment.orderId.toString());
     return updatedPayment;
   }
 
@@ -188,7 +212,7 @@ export class OrdersService {
     const counterPrice = parseFloat(data.counterPrice);
     const counterQuantity = data.counterQuantity ? parseInt(data.counterQuantity, 10) : (order.counterQuantity || order.quantity);
 
-    return this.prisma.$transaction(async (prisma) => {
+    const result = await this.prisma.$transaction(async (prisma) => {
       const updatedOrder = await prisma.order.update({
         where: { id: orderId },
         data: {
@@ -214,6 +238,13 @@ export class OrdersService {
 
       return updatedOrder;
     });
+
+    const targetUserId = role === 'BUYER' ? (await this.prisma.sellerProfile.findUnique({ where: { id: order.sellerProfileId } }))?.userId : order.buyerId;
+    if (targetUserId) {
+      await this.notifications.create(targetUserId, 'ORDER_UPDATE', 'Counter Offer', `You received a counter offer for ₹${counterPrice}.`, 'ORDER', orderId.toString());
+    }
+
+    return result;
   }
 
   async acceptCounter(userId: number, orderId: number, role: string) {
@@ -229,7 +260,7 @@ export class OrdersService {
     if (order.status !== 'COUNTER_OFFERED') throw new BadRequestException('No counter-offer to accept');
     if (order.latestProposerId === userId) throw new BadRequestException('You cannot accept your own counter-offer');
 
-    return this.prisma.$transaction(async (prisma) => {
+    const result = await this.prisma.$transaction(async (prisma) => {
       const updatedOrder = await prisma.order.update({
         where: { id: orderId },
         data: {
@@ -255,6 +286,13 @@ export class OrdersService {
 
       return updatedOrder;
     });
+
+    const targetUserId = role === 'BUYER' ? (await this.prisma.sellerProfile.findUnique({ where: { id: order.sellerProfileId } }))?.userId : order.buyerId;
+    if (targetUserId) {
+      await this.notifications.create(targetUserId, 'ORDER_UPDATE', 'Offer Accepted', `Your counter offer was accepted.`, 'ORDER', orderId.toString());
+    }
+
+    return result;
   }
 
   async declineCounter(userId: number, orderId: number, role: string) {
@@ -270,7 +308,7 @@ export class OrdersService {
     if (order.status !== 'COUNTER_OFFERED') throw new BadRequestException('No counter-offer to decline');
     if (order.latestProposerId === userId) throw new BadRequestException('You cannot decline your own counter-offer');
 
-    return this.prisma.$transaction(async (prisma) => {
+    const result = await this.prisma.$transaction(async (prisma) => {
       const updatedOrder = await prisma.order.update({
         where: { id: orderId },
         data: {
@@ -293,6 +331,13 @@ export class OrdersService {
 
       return updatedOrder;
     });
+
+    const targetUserId = role === 'BUYER' ? (await this.prisma.sellerProfile.findUnique({ where: { id: order.sellerProfileId } }))?.userId : order.buyerId;
+    if (targetUserId) {
+      await this.notifications.create(targetUserId, 'ORDER_UPDATE', 'Offer Declined', `Your counter offer was declined.`, 'ORDER', orderId.toString());
+    }
+
+    return result;
   }
 
   async addOrderMessage(userId: number, orderId: number, role: string, message: string) {
@@ -305,7 +350,7 @@ export class OrdersService {
       if (!sp || order.sellerProfileId !== sp.id) throw new ForbiddenException('Not your order');
     }
 
-    return this.prisma.orderMessage.create({
+    const messageRecord = await this.prisma.orderMessage.create({
       data: {
         orderId,
         senderId: userId,
@@ -316,6 +361,13 @@ export class OrdersService {
         sender: { select: { name: true, role: true } }
       }
     });
+
+    const targetUserId = role === 'BUYER' ? (await this.prisma.sellerProfile.findUnique({ where: { id: order.sellerProfileId } }))?.userId : order.buyerId;
+    if (targetUserId) {
+      await this.notifications.create(targetUserId, 'MESSAGE', 'New Message', `You have a new message from ${messageRecord.sender.name}.`, 'ORDER', orderId.toString());
+    }
+
+    return messageRecord;
   }
 
   async getOrderMessages(userId: number, orderId: number, role: string) {
@@ -344,10 +396,12 @@ export class OrdersService {
     if (!order || order.sellerProfileId !== sp.id) throw new ForbiddenException('Not your order');
     if (order.status !== 'PLACED') throw new BadRequestException('Can only confirm PLACED orders');
 
-    return this.prisma.order.update({
+    const updated = await this.prisma.order.update({
       where: { id: orderId },
       data: { status: 'CONFIRMED' }
     });
+    await this.notifications.create(order.buyerId, 'ORDER_UPDATE', 'Order Confirmed', `Your order has been confirmed by the supplier.`, 'ORDER', orderId.toString());
+    return updated;
   }
 
   async ship(userId: number, orderId: number) {
@@ -364,7 +418,7 @@ export class OrdersService {
       }
     }
 
-    return this.prisma.$transaction(async (prisma) => {
+    const result = await this.prisma.$transaction(async (prisma) => {
       const updatedOrder = await prisma.order.update({
         where: { id: orderId },
         data: { status: 'SHIPPED' }
@@ -381,6 +435,9 @@ export class OrdersService {
 
       return updatedOrder;
     });
+
+    await this.notifications.create(order.buyerId, 'ORDER_UPDATE', 'Order Shipped', `Your order has been shipped.`, 'ORDER', orderId.toString());
+    return result;
   }
 
   async deliver(userId: number, orderId: number) {
@@ -430,6 +487,7 @@ export class OrdersService {
       }
     });
 
+    await this.notifications.create(order.buyerId, 'ORDER_UPDATE', 'Order Delivered', `Your order has been delivered successfully.`, 'ORDER', orderId.toString());
     return updated;
   }
 
@@ -448,9 +506,16 @@ export class OrdersService {
       throw new BadRequestException('Cannot cancel this order');
     }
 
-    return this.prisma.order.update({
+    const updated = await this.prisma.order.update({
       where: { id: orderId },
       data: { status: 'CANCELLED' }
     });
+
+    const targetUserId = role === 'BUYER' ? (await this.prisma.sellerProfile.findUnique({ where: { id: order.sellerProfileId } }))?.userId : order.buyerId;
+    if (targetUserId) {
+      await this.notifications.create(targetUserId, 'ORDER_UPDATE', 'Order Cancelled', `An order was cancelled.`, 'ORDER', orderId.toString());
+    }
+
+    return updated;
   }
 }

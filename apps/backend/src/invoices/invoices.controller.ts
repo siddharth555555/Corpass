@@ -23,8 +23,8 @@ export class InvoicesController {
   }
 
   @Patch(':id/dispute')
-  dispute(@Request() req, @Param('id') id: string) {
-    return this.invoicesService.dispute(req.user.sub, req.user.role, parseInt(id, 10));
+  dispute(@Request() req, @Param('id') id: string, @Body() data?: { disputeReason?: string, disputeComment?: string }) {
+    return this.invoicesService.dispute(req.user.sub, req.user.role, parseInt(id, 10), data);
   }
 
   @Post(':id/payments')
@@ -38,7 +38,7 @@ export class InvoicesController {
   }
 
   @Patch('payments/:id/dispute')
-  disputePayment(@Request() req, @Param('id') id: string) {
-    return this.invoicesService.disputePayment(req.user.sub, req.user.role, parseInt(id, 10));
+  disputePayment(@Request() req, @Param('id') id: string, @Body() data?: { disputeType?: string, disputeComment?: string }) {
+    return this.invoicesService.disputePayment(req.user.sub, req.user.role, parseInt(id, 10), data);
   }
 }

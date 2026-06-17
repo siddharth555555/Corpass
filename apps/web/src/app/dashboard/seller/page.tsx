@@ -58,12 +58,10 @@ export default function SellerDashboardOverview() {
   useEffect(() => { fetchData(); }, []);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl text-ink tracking-tight">Dashboard Overview</h2>
-          <p className="text-sm text-slate mt-1">High-level view of your business performance.</p>
-        </div>
+    <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-ink">Dashboard Overview</h1>
+        <p className="text-sm text-slate mt-1">High-level view of your business performance.</p>
       </div>
 
       {!profile?.sellerProfile?.deliveryRange && !loading && (
@@ -81,49 +79,53 @@ export default function SellerDashboardOverview() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-paper border border-border rounded py-5 px-6 relative overflow-hidden card-hover opacity-0 animate-fade-up">
-          <h3 className="section-label mb-2">Pending Orders</h3>
-          <p className="text-3xl font-semibold text-ink font-sans">{loading ? "..." : stats.pendingOrders}</p>
-          <div className="absolute bottom-0 left-0 w-full h-[3px] bg-ink"></div>
+        <div className="cp-card relative overflow-hidden card-hover opacity-0 animate-fade-up">
+          <h3 className="cp-stat__label mb-2">Pending Orders</h3>
+          <p className="cp-stat__value">{loading ? "..." : stats.pendingOrders}</p>
+          <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[var(--cp-brand-600)]"></div>
         </div>
-        <div className="bg-paper border border-border rounded py-5 px-6 card-hover opacity-0 animate-fade-up-1">
-          <h3 className="section-label mb-2">Total Sales (YTD)</h3>
-          <p className="text-3xl font-semibold text-ink font-sans">{loading ? "..." : `₹${stats.totalSales.toLocaleString('en-IN')}`}</p>
+        <div className="cp-card card-hover opacity-0 animate-fade-up-1">
+          <h3 className="cp-stat__label mb-2">Total Sales (YTD)</h3>
+          <p className="cp-stat__value">{loading ? "..." : `₹${stats.totalSales.toLocaleString('en-IN')}`}</p>
         </div>
-        <div className="bg-paper border border-border rounded py-5 px-6 card-hover opacity-0 animate-fade-up-2">
-          <h3 className="section-label mb-2">Active Items</h3>
-          <p className="text-3xl font-semibold text-ink font-sans">{loading ? "..." : products.length}</p>
+        <div className="cp-card card-hover opacity-0 animate-fade-up-2">
+          <h3 className="cp-stat__label mb-2">Active Items</h3>
+          <p className="cp-stat__value">{loading ? "..." : products.length}</p>
         </div>
-        <div className="bg-paper border border-border rounded py-5 px-6 card-hover opacity-0 animate-fade-up-2">
-          <h3 className="section-label mb-2">Review Rating</h3>
+        <div className="cp-card card-hover opacity-0 animate-fade-up-2">
+          <h3 className="cp-stat__label mb-2">Review Rating</h3>
           <div className="flex items-end gap-2">
-            <p className="text-3xl font-semibold text-ink font-sans">{loading ? "..." : stats.avgRating}</p>
-            <span className="text-sm text-slate mb-1">({loading ? "..." : stats.reviewCount} reviews)</span>
+            <p className="cp-stat__value">{loading ? "..." : stats.avgRating}</p>
+            <span className="text-[var(--cp-text-muted)] text-[13px] mb-1">({loading ? "..." : stats.reviewCount} reviews)</span>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 opacity-0 animate-fade-up-3">
         {/* Recent Orders */}
-        <div className="bg-paper border border-border rounded overflow-hidden">
-          <div className="px-6 py-4 border-b border-border flex justify-between items-center">
-            <h3 className="text-sm font-semibold text-ink font-sans">Recent Orders</h3>
-            <button onClick={() => router.push("/dashboard/seller/orders")} className="text-xs font-semibold text-ink hover:text-copper transition-colors">View All</button>
+        <div className="cp-card cp-card--flush">
+          <div className="px-6 py-4 border-b border-[var(--cp-border)] flex justify-between items-center">
+            <h3 className="text-[16px] font-[600] text-[var(--cp-text)]">Recent Orders</h3>
+            <button onClick={() => router.push("/dashboard/seller/orders")} className="text-[13px] font-semibold text-[var(--cp-brand-600)] transition-colors hover:text-[var(--cp-brand-700)]">View All</button>
           </div>
 
           {loading ? (
-            <div className="py-12 flex justify-center"><div className="animate-spin h-6 w-6 border-2 border-ink border-t-transparent rounded-full"></div></div>
+            <div className="py-12 flex justify-center"><div className="animate-spin h-6 w-6 border-2 border-[var(--cp-brand-600)] border-t-transparent rounded-full"></div></div>
           ) : recentOrders.length > 0 ? (
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-[var(--cp-border)]">
               {recentOrders.map(order => (
-                <div key={order.id} className="px-6 py-4 flex items-center justify-between hover:bg-paper-2 transition-colors">
+                <div key={order.id} className="cp-row justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-ink truncate max-w-[200px]">{order.productName}</p>
-                    <p className="text-xs text-slate mt-0.5">{order.orderNumber} • {new Date(order.createdAt).toLocaleDateString()}</p>
+                    <p className="text-[14px] font-[600] text-[var(--cp-text)] truncate max-w-[200px]">{order.productName}</p>
+                    <p className="text-[13px] text-[var(--cp-text-muted)] mt-0.5">{order.orderNumber} • {new Date(order.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-ink">₹{Number(order.totalAmount).toLocaleString('en-IN')}</p>
-                    <p className="text-xs font-semibold text-money mt-0.5">{order.status}</p>
+                    <p className="text-[15px] font-[700] text-[var(--cp-text)]">₹{Number(order.totalAmount).toLocaleString('en-IN')}</p>
+                    <div className="mt-1 flex justify-end">
+                      <span className={`cp-badge ${order.status === 'PLACED' ? 'cp-badge--info' : order.status === 'CONFIRMED' ? 'cp-badge--neutral' : order.status === 'SHIPPED' ? 'cp-badge--info' : order.status === 'DELIVERED' ? 'cp-badge--success' : order.status === 'CANCELLED' ? 'cp-badge--danger' : 'cp-badge--warning'}`}>
+                        {order.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -144,38 +146,38 @@ export default function SellerDashboardOverview() {
         </div>
 
         {/* Top Active Items */}
-        <div className="bg-paper border border-border rounded overflow-hidden">
-          <div className="px-6 py-4 border-b border-border flex justify-between items-center">
-            <h3 className="text-sm font-semibold text-ink font-sans">Top Active Items</h3>
-            <button onClick={() => router.push("/dashboard/seller/catalog")} className="text-xs font-semibold text-ink hover:text-copper transition-colors">View Catalog</button>
+        <div className="cp-card cp-card--flush">
+          <div className="px-6 py-4 border-b border-[var(--cp-border)] flex justify-between items-center">
+            <h3 className="text-[16px] font-[600] text-[var(--cp-text)]">Top Active Items</h3>
+            <button onClick={() => router.push("/dashboard/seller/catalog")} className="text-[13px] font-semibold text-[var(--cp-brand-600)] transition-colors hover:text-[var(--cp-brand-700)]">View Catalog</button>
           </div>
 
           {loading ? (
-            <div className="py-12 flex justify-center"><div className="animate-spin h-6 w-6 border-2 border-ink border-t-transparent rounded-full"></div></div>
+            <div className="py-12 flex justify-center"><div className="animate-spin h-6 w-6 border-2 border-[var(--cp-brand-600)] border-t-transparent rounded-full"></div></div>
           ) : products.length > 0 ? (
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-[var(--cp-border)]">
               {products.slice(0, 4).map(product => (
-                <div key={product.id} className="px-6 py-4 flex items-center justify-between hover:bg-paper-2 transition-colors">
+                <div key={product.id} className="cp-row justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded border border-border flex items-center justify-center shrink-0 overflow-hidden bg-paper">
+                    <div className="cp-thumb flex items-center justify-center shrink-0 overflow-hidden">
                       {product.images && product.images[0] ? (
                         <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
                       ) : (
-                        <svg className="w-5 h-5 text-slate" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-5 h-5 text-[var(--cp-text-disabled)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                       )}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-ink truncate max-w-[150px] md:max-w-[180px]">{product.name}</p>
-                      <p className="text-xs text-slate mt-0.5">{product.category} • {product.stockQuantity} in stock</p>
+                      <p className="text-[14px] font-[600] text-[var(--cp-text)] truncate max-w-[150px] md:max-w-[180px]">{product.name}</p>
+                      <p className="text-[13px] text-[var(--cp-text-muted)] mt-0.5">{product.category} • {product.stockQuantity} in stock</p>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-bold text-ink">
+                    <p className="text-[15px] font-[700] text-[var(--cp-text)]">
                       {product.price ? `₹${Number(product.price).toLocaleString('en-IN')}` : 'Ask Quote'}
                     </p>
-                    <p className="text-[10px] uppercase font-semibold text-slate mt-0.5 tracking-wider">Per {product.pricingUnit.toLowerCase()}</p>
+                    <p className="text-[11px] uppercase text-[var(--cp-text-muted)] mt-0.5 tracking-wider">Per {product.pricingUnit.toLowerCase()}</p>
                   </div>
                 </div>
               ))}

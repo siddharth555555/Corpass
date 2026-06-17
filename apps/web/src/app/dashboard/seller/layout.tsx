@@ -4,12 +4,37 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { NotificationBell } from "@/components/NotificationBell";
+import { useNotifications } from "@/hooks/useNotifications";
 
 export default function SellerDashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { unreadMessagesCount } = useNotifications();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [userLoaded, setUserLoaded] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("access_token");
+      if (!token) { setUserLoaded(true); return; }
+      try {
+        const res = await fetch(`http://${window.location.hostname}:3001/auth/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          setUser(await res.json());
+        }
+      } catch (e) {
+        console.error("Failed to fetch user", e);
+      } finally {
+        setUserLoaded(true);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
@@ -37,19 +62,23 @@ export default function SellerDashboardLayout({ children }: { children: React.Re
       )}
 
       {/* Sidebar Navigation */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-[260px] bg-paper border-r border-border flex flex-col transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex pt-6 px-4 ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}>
-        <div className="mb-8 px-2 flex items-center justify-between">
-          <Link href="/dashboard/seller" className="block w-fit">
-            <Image src="/logo-compact.png" alt="Corpass Logo" width={320} height={120} className="h-16 w-auto object-contain rounded shadow-sm border border-border bg-white" />
+      <aside className={`fixed inset-y-0 left-0 z-50 cp-sidebar flex flex-col transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex pt-6 px-4 ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}>
+        <div className="flex justify-center items-center w-full py-4 relative">
+          <Link href="/dashboard/seller" className="block flex items-center">
+            <img src="/logo-compact.png" alt="Corpass Logo" style={{ width: '160px' }} className="w-full h-auto object-contain scale-[1.35]" />
           </Link>
-          <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-slate hover:text-ink p-1">
+          <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-slate hover:text-ink p-1 absolute right-2 top-4">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
         
+        <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--cp-border)' }}>
+          <div className="truncate" style={{ color: 'var(--cp-text)', fontSize: '15px', fontWeight: 600 }}>{userLoaded ? (user?.name || "—") : "Loading..."}</div>
+          <div className="truncate" style={{ color: 'var(--cp-text-muted)', fontSize: '13px' }}>Seller</div>
+        </div>
+
         <div className="flex flex-col flex-1 overflow-y-auto">
-          <div className="px-3 mb-3 text-[10px] uppercase tracking-widest font-bold text-slate">Workspace</div>
-          <nav className="flex-1 space-y-1.5 pb-4">
+          <nav className="flex-1 space-y-1.5 pb-4 mt-4">
             {navItems.map((item) => {
               const isActive = (item.href === '/dashboard/seller') 
                 ? pathname === item.href 
@@ -59,24 +88,27 @@ export default function SellerDashboardLayout({ children }: { children: React.Re
                   key={item.name} 
                   href={item.href} 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded transition-all duration-200 group ${
-                  isActive 
-                    ? 'bg-ink text-paper shadow-sm' 
-                    : 'text-slate hover:bg-paper-2 hover:text-ink'
-                }`}>
-                  <div className={`${isActive ? 'text-paper' : 'text-slate group-hover:text-ink'} transition-colors`}>
+                  className={`cp-nav-item ${isActive ? 'cp-nav-item--active' : ''}`}
+                >
+                  <div className="cp-icon">
                     {item.icon}
                   </div>
-                  {item.name}
+                  <span className="flex-1">{item.name}</span>
+                  {/* Messages Count Badge Example */}
+                  {item.name === "Messages" && unreadMessagesCount > 0 && (
+                    <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[11px] font-bold text-white bg-danger rounded-full">
+                      {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
           </nav>
         </div>
         
-        <div className="pb-6 pt-4 border-t border-border mt-auto bg-paper">
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-copper rounded hover:bg-copper-bg transition-all duration-200 border border-transparent">
-            <svg className="flex-shrink-0 w-5 h-5 text-copper" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="pb-6 pt-4 border-t mt-auto" style={{ borderColor: 'var(--cp-border)' }}>
+          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-200 border border-transparent" style={{ color: 'var(--cp-danger)' }}>
+            <svg className="flex-shrink-0 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
             Sign Out
@@ -98,8 +130,9 @@ export default function SellerDashboardLayout({ children }: { children: React.Re
             </button>
           </div>
           <div className="flex items-center gap-4 ml-auto">
-            <Link href="/dashboard/seller/profile" className="h-8 w-8 rounded-full bg-paper-2 border border-border flex items-center justify-center hover:bg-border transition-all duration-300">
-              <svg className="h-4 w-4 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <NotificationBell href="/dashboard/seller/notifications" />
+            <Link href="/dashboard/seller/profile" className="cp-avatar w-9 h-9 transition-all duration-300" style={{ backgroundColor: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }}>
+              <svg className="h-4 w-4" style={{ color: 'var(--cp-text-secondary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </Link>

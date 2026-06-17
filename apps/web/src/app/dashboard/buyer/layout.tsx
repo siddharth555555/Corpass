@@ -4,12 +4,37 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { NotificationBell } from "@/components/NotificationBell";
+import { useNotifications } from "@/hooks/useNotifications";
 
 export default function BuyerDashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { unreadMessagesCount } = useNotifications();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [userLoaded, setUserLoaded] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("access_token");
+      if (!token) { setUserLoaded(true); return; }
+      try {
+        const res = await fetch(`http://${window.location.hostname}:3001/auth/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          setUser(await res.json());
+        }
+      } catch (e) {
+        console.error("Failed to fetch user", e);
+      } finally {
+        setUserLoaded(true);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
@@ -27,29 +52,35 @@ export default function BuyerDashboardLayout({ children }: { children: React.Rea
   ];
 
   return (
-    <div className="h-screen overflow-hidden bg-paper flex font-sans">
+    <div className="h-screen overflow-hidden bg-canvas flex font-sans">
       {/* Mobile Backdrop */}
       {mobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-primary-950/20 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-ink/20 backdrop-blur-sm z-40 md:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar Navigation */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-[260px] bg-paper border-r border-border flex flex-col transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex pt-6 px-4 ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}>
-        <div className="mb-8 px-2 flex items-center justify-between">
-          <Link href="/dashboard/buyer" className="block w-fit">
-            <Image src="/logo-compact.png" alt="Corpass Logo" width={320} height={120} className="h-16 w-auto object-contain rounded shadow-sm border border-border bg-white" />
+      <aside className={`fixed inset-y-0 left-0 z-50 cp-sidebar flex flex-col transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex pt-6 px-4 ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}>
+        <div className="flex justify-center items-center w-full py-4 relative">
+          <Link href="/dashboard/buyer" className="block flex items-center">
+            <img src="/logo-compact.png" alt="Corpass Logo" style={{ width: '160px' }} className="w-full h-auto object-contain scale-[1.35]" />
           </Link>
-          <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-slate hover:text-ink p-1">
+          <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-muted hover:text-ink p-1 absolute right-2 top-4">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
         
         <div className="flex flex-col flex-1 overflow-y-auto">
-          <div className="px-3 mb-3 text-[10px] uppercase tracking-widest font-bold text-slate">Workspace</div>
-          <nav className="flex-1 space-y-1.5 pb-4">
+          {/* Workspace Identifier */}
+          <div className="px-2 mb-6 mt-4">
+            <div className="w-full flex items-center justify-between bg-surface border border-border-strong rounded-md px-3 py-2 text-sm font-medium text-ink">
+              <span>{userLoaded ? (user?.company?.name || "—") : "Loading..."}</span>
+            </div>
+          </div>
+
+          <nav className="flex-1 space-y-1 pb-4 px-2">
             {navItems.map((item) => {
               const isActive = (item.href === '/dashboard/buyer') 
                 ? pathname === item.href 
@@ -59,54 +90,58 @@ export default function BuyerDashboardLayout({ children }: { children: React.Rea
                   key={item.name} 
                   href={item.href} 
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded transition-all duration-200 group ${
-                  isActive 
-                    ? 'bg-ink text-paper shadow-sm' 
-                    : 'text-slate hover:bg-paper-2 hover:text-ink'
-                }`}>
-                  <div className={`${isActive ? 'text-paper' : 'text-slate group-hover:text-ink'} transition-colors`}>
+                  className={`cp-nav-item ${isActive ? 'cp-nav-item--active' : ''}`}
+                >
+                  <div className="cp-icon shrink-0">
                     {item.icon}
                   </div>
-                  {item.name}
+                  <span className="flex-1">{item.name}</span>
+                  {/* Messages Count Badge Example */}
+                  {item.name === "Messages" && unreadMessagesCount > 0 && (
+                    <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[11px] font-bold text-white bg-danger rounded-full">
+                      {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
           </nav>
         </div>
         
-        <div className="pb-6 pt-4 border-t border-border mt-auto bg-paper">
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-copper rounded hover:bg-copper-bg transition-all duration-200 border border-transparent">
-            <svg className="flex-shrink-0 w-5 h-5 text-copper" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            Sign Out
-          </button>
+        <div className="pb-6 pt-4 border-t border-border mt-auto px-2">
+          <Link href="/dashboard/buyer/profile" className="flex items-center gap-3 px-2 py-2 mb-2 rounded-md hover:bg-surface-2 transition-colors">
+             <div className="cp-avatar shrink-0">{user?.name?.substring(0, 2).toUpperCase() || "SJ"}</div>
+             <div className="min-w-0 flex-1">
+               <div className="text-sm font-semibold text-ink truncate">{userLoaded ? (user?.name || "—") : "Loading..."}</div>
+               <div className="text-xs text-muted truncate">Buyer</div>
+             </div>
+          </Link>
         </div>
       </aside>
 
       {/* Main Content Wrapper */}
       <div className="flex-1 flex flex-col min-w-0 md:pl-0">
-        <header className="h-[56px] flex items-center justify-between px-4 md:px-6 bg-transparent shrink-0 z-20">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 -ml-2 text-slate hover:bg-paper-2 rounded transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
+        <header className="h-[64px] flex items-center px-4 md:px-8 bg-canvas shrink-0 z-20">
+          <button 
+            onClick={() => setMobileMenuOpen(true)}
+            className="md:hidden p-2 -ml-2 mr-4 text-muted hover:bg-surface-2 rounded transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          {/* Global Search Removed for now */}
+
           <div className="flex items-center gap-4 ml-auto">
-            <Link href="/dashboard/buyer/profile" className="h-8 w-8 rounded-full bg-paper-2 border border-border flex items-center justify-center hover:bg-border transition-all duration-300">
-              <svg className="h-4 w-4 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </Link>
+            <NotificationBell href="/dashboard/buyer/notifications" />
+            <button onClick={handleLogout} className="text-sm font-medium text-danger hover:text-danger-700 transition-colors">
+              Sign Out
+            </button>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
           {children}
         </main>
       </div>

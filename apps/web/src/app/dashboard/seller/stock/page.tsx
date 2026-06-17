@@ -128,30 +128,32 @@ export default function SellerStockManagement() {
     <div className="space-y-8 max-w-6xl mx-auto pb-12">
       {/* Header & KPI Dashboard */}
       <div>
-        <h2 className="text-3xl font-bold text-ink tracking-tight font-sans">Stock Command</h2>
-        <p className="text-sm text-slate mt-1.5 max-w-2xl">Real-time inventory tactile control. Adjust levels instantly or monitor fill ratios at a glance.</p>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-ink">Stock Command</h1>
+          <p className="text-sm text-slate mt-1 max-w-2xl">Real-time inventory tactile control. Adjust levels instantly or monitor fill ratios at a glance.</p>
+        </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
-          <div className="bg-paper border border-border rounded-xl p-5 shadow-sm relative overflow-hidden">
+          <div className="cp-card relative overflow-hidden" style={{ border: 'none' }}>
              <div className="absolute top-0 right-0 p-5 opacity-10">
-               <svg className="w-16 h-16 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+               <svg className="w-16 h-16" style={{ color: 'var(--cp-text)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
              </div>
-             <p className="text-xs font-bold uppercase tracking-widest text-slate mb-1">Total Assets</p>
-             <p className="text-4xl font-black text-ink tabular-nums tracking-tighter">{totalProducts}</p>
+             <p className="cp-stat__label">Total Assets</p>
+             <p className="cp-stat__value">{totalProducts}</p>
           </div>
-          <div className="bg-gradient-to-br from-amber-50 to-paper border border-amber-200 rounded-xl p-5 shadow-sm relative overflow-hidden">
+          <div className="cp-card relative overflow-hidden" style={{ border: 'none', backgroundColor: 'var(--cp-warning-bg)' }}>
              <div className="absolute top-0 right-0 p-5 opacity-10">
-               <svg className="w-16 h-16 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+               <svg className="w-16 h-16" style={{ color: 'var(--cp-warning)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
              </div>
-             <p className="text-xs font-bold uppercase tracking-widest text-amber-700 mb-1">Low Stock Alerts</p>
-             <p className="text-4xl font-black text-amber-600 tabular-nums tracking-tighter">{lowStockCount}</p>
+             <p className="cp-stat__label" style={{ color: 'var(--cp-warning)' }}>Low Stock Alerts</p>
+             <p className="cp-stat__value" style={{ color: 'var(--cp-warning)' }}>{lowStockCount}</p>
           </div>
-          <div className="bg-gradient-to-br from-rose-50 to-paper border border-rose-200 rounded-xl p-5 shadow-sm relative overflow-hidden">
+          <div className="cp-card relative overflow-hidden" style={{ border: 'none', backgroundColor: 'var(--cp-danger-bg)' }}>
              <div className="absolute top-0 right-0 p-5 opacity-10">
-               <svg className="w-16 h-16 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+               <svg className="w-16 h-16" style={{ color: 'var(--cp-danger)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
              </div>
-             <p className="text-xs font-bold uppercase tracking-widest text-rose-700 mb-1">Out of Stock</p>
-             <p className="text-4xl font-black text-rose-600 tabular-nums tracking-tighter">{outOfStockCount}</p>
+             <p className="cp-stat__label" style={{ color: 'var(--cp-danger)' }}>Out of Stock</p>
+             <p className="cp-stat__value" style={{ color: 'var(--cp-danger)' }}>{outOfStockCount}</p>
           </div>
         </div>
       </div>
@@ -159,16 +161,16 @@ export default function SellerStockManagement() {
       {/* Interactive Stock Grid */}
       <div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-          <h3 className="text-sm font-bold text-ink uppercase tracking-widest">Inventory Matrix</h3>
+          <h3 className="text-[14px] font-[700] uppercase tracking-widest" style={{ color: 'var(--cp-text)' }}>Inventory Matrix</h3>
           <div className="relative w-full sm:w-72">
             <input 
               type="text" 
               placeholder="Search products by name or SKU..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm bg-paper-2 border border-border rounded-lg text-ink focus:border-ink focus:ring-1 focus:ring-ink outline-none transition-colors"
+              className="cp-input w-full pl-9 pr-4 py-2 text-[14px]"
             />
-            <svg className="w-4 h-4 text-slate absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--cp-text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
@@ -194,7 +196,7 @@ export default function SellerStockManagement() {
                const fillPercent = Math.min(100, (stock / maxMeter) * 100);
                
                return (
-                 <div key={p.id} className={`relative bg-paper border ${isOutOfStock ? 'border-rose-200 shadow-sm shadow-rose-100' : isLowStock ? 'border-amber-200' : 'border-border'} rounded-2xl overflow-hidden group hover:-translate-y-1 hover:shadow-xl hover:border-ink/20 transition-all duration-300 min-h-[180px] flex flex-col justify-between`}>
+                  <div key={p.id} className={`cp-card relative overflow-hidden group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 min-h-[180px] flex flex-col justify-between`} style={{ borderColor: isOutOfStock ? 'var(--cp-danger)' : isLowStock ? 'var(--cp-warning)' : 'var(--cp-border)' }}>
                     
                     {/* Background Product Image */}
                     {p.images && p.images.length > 0 && (
@@ -205,13 +207,13 @@ export default function SellerStockManagement() {
                     
                     {/* Liquid Fill Background */}
                     <div 
-                      className={`absolute bottom-0 left-0 right-0 opacity-10 transition-all duration-1000 ease-in-out ${isOutOfStock ? 'bg-rose-500' : isLowStock ? 'bg-amber-500' : 'bg-money'}`} 
+                      className={`absolute bottom-0 left-0 right-0 opacity-10 transition-all duration-1000 ease-in-out ${isOutOfStock ? 'bg-rose-500' : isLowStock ? 'bg-amber-500' : 'bg-emerald-500'}`} 
                       style={{ height: `${fillPercent}%` }} 
                     />
                     {/* Wave Top Detail */}
                     {fillPercent > 0 && fillPercent < 100 && (
                       <div 
-                        className={`absolute left-0 right-0 h-1 opacity-20 ${isOutOfStock ? 'bg-rose-500' : isLowStock ? 'bg-amber-500' : 'bg-money'}`}
+                        className={`absolute left-0 right-0 h-1 opacity-20 ${isOutOfStock ? 'bg-rose-500' : isLowStock ? 'bg-amber-500' : 'bg-emerald-500'}`}
                         style={{ bottom: `${fillPercent}%` }}
                       />
                     )}
@@ -219,44 +221,44 @@ export default function SellerStockManagement() {
                     {/* Header */}
                     <div className="p-5 relative z-10 flex justify-between items-start gap-3">
                        <div className="min-w-0">
-                         <h3 className="font-bold text-ink truncate text-base leading-tight">{p.name}</h3>
-                         <p className="text-[10px] text-slate font-mono mt-1 opacity-70">SKU: #{p.id}</p>
+                         <h3 className="text-[16px] font-[700] truncate leading-tight" style={{ color: 'var(--cp-text)' }}>{p.name}</h3>
+                         <p className="text-[11px] font-mono mt-1 opacity-70" style={{ color: 'var(--cp-text-muted)' }}>SKU: #{p.id}</p>
                        </div>
                        {isOutOfStock && (
                          <span className="shrink-0 flex h-2.5 w-2.5 relative mt-1">
                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                           <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                           <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ backgroundColor: 'var(--cp-danger)' }}></span>
                          </span>
                        )}
                     </div>
 
                     {/* Stock Value & Unit */}
                     <div className="px-5 pb-5 relative z-10 flex flex-col justify-end mt-auto h-full">
-                       <p className="text-[10px] font-bold uppercase tracking-widest text-slate mb-0.5">Available Stock</p>
+                       <p className="text-[11px] font-[700] uppercase tracking-widest mb-0.5" style={{ color: 'var(--cp-text-muted)' }}>Available Stock</p>
                        <div className="flex items-baseline gap-1.5 transition-transform duration-300 group-hover:-translate-y-1">
-                         <span className={`text-4xl font-black tabular-nums tracking-tighter leading-none ${isOutOfStock ? 'text-rose-600' : isLowStock ? 'text-amber-600' : 'text-ink'}`}>
+                         <span className="text-[36px] font-[900] tabular-nums tracking-tighter leading-none" style={{ color: isOutOfStock ? 'var(--cp-danger)' : isLowStock ? 'var(--cp-warning)' : 'var(--cp-text)' }}>
                            {stock}
                          </span>
-                         <span className="text-xs text-slate font-medium uppercase">{p.pricingUnit === 'PIECE' ? 'pcs' : p.pricingUnit}</span>
+                         <span className="text-[12px] font-[500] uppercase" style={{ color: 'var(--cp-text-muted)' }}>{p.pricingUnit === 'PIECE' ? 'pcs' : p.pricingUnit}</span>
                        </div>
                     </div>
 
                     {/* Quick Actions Hover Overlay */}
-                    <div className="absolute inset-0 bg-paper/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-4 z-20">
-                       <p className="text-[10px] font-bold uppercase tracking-widest text-slate">Quick Adjust</p>
-                       <div className="flex items-center gap-2 bg-surface rounded-full p-1 border border-border shadow-inner">
-                          <button onClick={() => handleLocalQuickAdjust(p.id, -1, currentStock)} className="w-10 h-10 rounded-full flex items-center justify-center text-ink hover:bg-white hover:shadow transition-all font-mono font-bold text-lg">-</button>
-                          <span className="text-base font-black w-10 text-center tabular-nums text-ink">{stock}</span>
-                          <button onClick={() => handleLocalQuickAdjust(p.id, 1, currentStock)} className="w-10 h-10 rounded-full flex items-center justify-center text-ink hover:bg-white hover:shadow transition-all font-mono font-bold text-lg">+</button>
+                    <div className="absolute inset-0 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-4 z-20" style={{ backgroundColor: 'rgba(255, 255, 255, 0.85)' }}>
+                       <p className="text-[11px] font-[700] uppercase tracking-widest" style={{ color: 'var(--cp-text-muted)' }}>Quick Adjust</p>
+                       <div className="flex items-center gap-2 rounded-full p-1 shadow-inner border" style={{ backgroundColor: 'var(--cp-surface-2)', borderColor: 'var(--cp-border)' }}>
+                          <button onClick={() => handleLocalQuickAdjust(p.id, -1, currentStock)} className="w-10 h-10 rounded-full flex items-center justify-center font-mono font-[700] text-[18px] transition-all hover:shadow" style={{ color: 'var(--cp-text)', backgroundColor: 'transparent' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor='var(--cp-surface)'} onMouseOut={(e) => e.currentTarget.style.backgroundColor='transparent'}>-</button>
+                          <span className="text-[16px] font-[900] w-10 text-center tabular-nums" style={{ color: 'var(--cp-text)' }}>{stock}</span>
+                          <button onClick={() => handleLocalQuickAdjust(p.id, 1, currentStock)} className="w-10 h-10 rounded-full flex items-center justify-center font-mono font-[700] text-[18px] transition-all hover:shadow" style={{ color: 'var(--cp-text)', backgroundColor: 'transparent' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor='var(--cp-surface)'} onMouseOut={(e) => e.currentTarget.style.backgroundColor='transparent'}>+</button>
                        </div>
                        
                        {isDirty ? (
-                         <button onClick={() => confirmQuickAdjust(p)} className="px-4 py-1.5 bg-ink text-white text-xs font-bold rounded-md shadow-sm hover:bg-ink/90 transition-colors flex items-center gap-1 mt-1">
-                           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                         <button onClick={() => confirmQuickAdjust(p)} className="cp-btn cp-btn--primary px-4 py-1.5 text-[12px] mt-1">
+                           <svg className="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                            Confirm Update
                          </button>
                        ) : (
-                         <button onClick={() => openUpdateModal(p)} className="text-[10px] font-bold text-ink hover:text-copper uppercase tracking-widest border-b border-ink/20 hover:border-copper transition-colors pb-0.5 mt-2">
+                         <button onClick={() => openUpdateModal(p)} className="text-[11px] font-[700] uppercase tracking-widest transition-colors pb-0.5 mt-2" style={{ color: 'var(--cp-brand-600)', borderBottom: '1px solid var(--cp-brand-300)' }}>
                            Set Exact Value
                          </button>
                        )}
@@ -279,21 +281,21 @@ export default function SellerStockManagement() {
       {/* Update Stock Modal (Set Exact Value) */}
       {editingProduct && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-primary-900/40 backdrop-blur-sm transition-opacity" onClick={() => setEditingProduct(null)}></div>
-          <div className="relative w-full max-w-sm bg-paper rounded-xl shadow-2xl p-6 animate-in zoom-in-95 duration-200">
+          <div className="fixed inset-0 backdrop-blur-sm transition-opacity" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => setEditingProduct(null)}></div>
+          <div className="cp-modal relative w-full max-w-sm p-6 animate-in zoom-in-95 duration-200">
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h3 className="text-lg font-bold text-ink">Set Exact Stock</h3>
-                <p className="text-xs text-slate mt-1 font-mono">#{editingProduct.id} — {editingProduct.name}</p>
+                <h3 className="text-[18px] font-[700]" style={{ color: 'var(--cp-text)' }}>Set Exact Stock</h3>
+                <p className="text-[12px] font-mono mt-1" style={{ color: 'var(--cp-text-muted)' }}>#{editingProduct.id} — {editingProduct.name}</p>
               </div>
-              <button onClick={() => setEditingProduct(null)} className="text-slate hover:text-ink transition-colors">
+              <button onClick={() => setEditingProduct(null)} className="transition-colors" style={{ color: 'var(--cp-text-muted)' }} onMouseOver={(e) => e.currentTarget.style.color='var(--cp-text)'} onMouseOut={(e) => e.currentTarget.style.color='var(--cp-text-muted)'}>
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
             
             <form onSubmit={handleUpdateStock} className="space-y-6">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-widest text-slate mb-2">Quantity Available</label>
+                <label className="block text-[11px] font-[700] uppercase tracking-widest mb-2" style={{ color: 'var(--cp-text-muted)' }}>Quantity Available</label>
                 <div className="relative">
                   <input 
                     required 
@@ -301,27 +303,27 @@ export default function SellerStockManagement() {
                     min="0" 
                     value={newStock} 
                     onChange={e => setNewStock(e.target.value)} 
-                    className="w-full px-4 py-3 text-2xl font-black tabular-nums bg-surface border border-border rounded-lg text-ink focus:border-ink focus:ring-1 focus:ring-ink outline-none transition-all" 
+                    className="cp-input w-full px-4 py-3 text-[24px] font-[900] tabular-nums" 
                     autoFocus
                   />
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate uppercase">
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-[700] uppercase" style={{ color: 'var(--cp-text-muted)' }}>
                     {editingProduct.pricingUnit === 'PIECE' ? 'pcs' : editingProduct.pricingUnit}
                   </div>
                 </div>
               </div>
               
-              <div className="flex justify-end gap-3 pt-2 border-t border-border">
+              <div className="flex justify-end gap-3 pt-2 border-t" style={{ borderColor: 'var(--cp-border)' }}>
                 <button 
                   type="button" 
                   onClick={() => setEditingProduct(null)} 
-                  className="px-5 py-2.5 text-sm font-bold text-slate bg-surface border border-border rounded-lg hover:bg-paper-2 transition-colors"
+                  className="cp-btn cp-btn--secondary"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
                   disabled={submitting} 
-                  className="px-5 py-2.5 text-sm font-bold text-white bg-ink rounded-lg hover:bg-ink/90 transition-colors disabled:opacity-50 shadow-sm"
+                  className="cp-btn cp-btn--primary"
                 >
                   {submitting ? 'Applying...' : 'Apply Update'}
                 </button>

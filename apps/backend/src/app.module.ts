@@ -10,6 +10,8 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { SupportModule } from './support/support.module';
 import { CitiesModule } from './cities/cities.module';
+import { AdminModule } from './admin/admin.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { CitiesModule } from './cities/cities.module';
     CloudinaryModule,
     SupportModule,
     CitiesModule,
+    AdminModule,
+    NotificationsModule,
   ],
   controllers: [],
   providers: [],

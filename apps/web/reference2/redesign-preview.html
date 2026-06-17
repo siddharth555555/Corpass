@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CORPASS Seller — Redesign Target</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./design-tokens.css" />
+<link rel="stylesheet" href="./components.css" />
+<style>
+  .wrap { display:grid; grid-template-columns: var(--cp-sidebar-width) 1fr; min-height:100vh; }
+  .sb { padding:var(--cp-space-5) var(--cp-space-4); display:flex; flex-direction:column; gap:2px; }
+  .logo { font-weight:700; letter-spacing:.06em; color:var(--cp-text); text-align:center; margin:var(--cp-space-2) 0 var(--cp-space-5); }
+  .user { padding-bottom:var(--cp-space-4); border-bottom:1px solid var(--cp-border); margin-bottom:var(--cp-space-4); }
+  .user b { display:block; color:var(--cp-text); }
+  .ws-label { font-size:var(--cp-text-xs); font-weight:600; color:var(--cp-text-muted); letter-spacing:.08em; margin:var(--cp-space-3) 0; }
+  .signout { margin-top:auto; padding-top:var(--cp-space-5); color:var(--cp-danger); display:flex; align-items:center; gap:10px; }
+  .main { padding:var(--cp-space-8); display:grid; gap:var(--cp-space-8); }
+  .page-h h1 { font-size:var(--cp-text-xl); font-weight:700; margin:0; }
+  .page-h p { color:var(--cp-text-muted); margin:4px 0 0; }
+  .head-row { display:flex; align-items:flex-start; justify-content:space-between; }
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--cp-space-5); }
+  .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--cp-space-5); }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:var(--cp-space-5); }
+  .between { display:flex; align-items:center; justify-content:space-between; }
+  .muted { color:var(--cp-text-muted); }
+  .mono { font-family:var(--cp-font-mono); font-size:var(--cp-text-xs); color:var(--cp-text-muted); background:var(--cp-surface-3); padding:2px 8px; border-radius:var(--cp-radius-sm); }
+  .link { color:var(--cp-brand-600); font-size:var(--cp-text-sm); font-weight:600; }
+  .row-item { display:flex; align-items:center; gap:var(--cp-space-3); }
+  .section-tag { font-size:var(--cp-text-2xs); color:var(--cp-text-muted); letter-spacing:.06em; }
+  .pill { padding:4px 14px; border-radius:var(--cp-radius-pill); font-size:var(--cp-text-sm); font-weight:600; border:1px solid var(--cp-border-strong); background:var(--cp-surface); color:var(--cp-text-secondary); }
+  .pill--on { background:var(--cp-brand-600); color:#fff; border-color:transparent; }
+  .divider-page { border:0; border-top:1px dashed var(--cp-border-strong); margin:0; }
+  .order-card { border-left:3px solid transparent; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- Sidebar -->
+  <aside class="cp-sidebar sb">
+    <div class="logo">CORPASS</div>
+    <div class="user"><b>Lakshmi Rao</b><span class="muted">Seller</span></div>
+    <div class="ws-label">WORKSPACE</div>
+    <div class="cp-nav-item cp-nav-item--active">⌂ &nbsp;Overview</div>
+    <div class="cp-nav-item">▦ &nbsp;Product Catalog</div>
+    <div class="cp-nav-item">▢ &nbsp;Messages</div>
+    <div class="cp-nav-item">▤ &nbsp;Orders</div>
+    <div class="cp-nav-item">◫ &nbsp;Stock</div>
+    <div class="cp-nav-item">◍ &nbsp;Profile</div>
+    <div class="cp-nav-item">◎ &nbsp;Support</div>
+    <div class="signout"><span class="cp-avatar" style="width:28px;height:28px;font-size:12px">N</span> Sign Out</div>
+  </aside>
+
+  <main class="main">
+    <!-- ===== OVERVIEW ===== -->
+    <section>
+      <div class="head-row">
+        <div class="page-h"><h1>Dashboard Overview</h1><p>High-level view of your business performance.</p></div>
+      </div>
+      <div class="grid-4" style="margin-top:var(--cp-space-6)">
+        <div class="cp-card" style="border-bottom:3px solid var(--cp-brand-600)">
+          <div class="cp-stat__label">Pending Orders</div><div class="cp-stat__value">7</div></div>
+        <div class="cp-card"><div class="cp-stat__label">Total Sales (YTD)</div><div class="cp-stat__value">₹1,37,03,565</div></div>
+        <div class="cp-card"><div class="cp-stat__label">Active Items</div><div class="cp-stat__value">4</div></div>
+        <div class="cp-card"><div class="cp-stat__label">Review Rating</div><div class="cp-stat__value">0 <span class="muted" style="font-size:var(--cp-text-base);font-weight:400">(0 reviews)</span></div></div>
+      </div>
+      <div class="grid-2" style="margin-top:var(--cp-space-5)">
+        <div class="cp-card cp-card--flush">
+          <div class="between" style="padding:var(--cp-space-5) var(--cp-card-padding)"><span class="cp-card-title" style="margin:0">Recent Orders</span><span class="link">View All</span></div>
+          <div class="cp-row between"><div><div style="font-weight:600">aisehi ek product with dum…</div><div class="muted" style="font-size:13px">ORD-20260616-9332 · 16/06/2026</div></div>
+            <div style="text-align:right"><div style="font-weight:700">₹10,000</div><span class="cp-badge cp-badge--info">Placed</span></div></div>
+          <div class="cp-row between"><div><div style="font-weight:600">Corporate Website Design</div><div class="muted" style="font-size:13px">ORD-20260615-2766 · 15/06/2026</div></div>
+            <div style="text-align:right"><div style="font-weight:700">₹80,000</div><span class="cp-badge cp-badge--neutral">Confirmed</span></div></div>
+        </div>
+        <div class="cp-card cp-card--flush">
+          <div class="between" style="padding:var(--cp-space-5) var(--cp-card-padding)"><span class="cp-card-title" style="margin:0">Top Active Items</span><span class="link">View Catalog</span></div>
+          <div class="cp-row between"><div class="row-item"><span class="cp-thumb"></span><div><div style="font-weight:600">aisehi ek product with d…</div><div class="muted" style="font-size:13px">Office Supplies · 1224 in stock</div></div></div>
+            <div style="text-align:right"><div style="font-weight:700">₹1,000</div><div class="muted" style="font-size:11px;text-transform:uppercase">Per piece</div></div></div>
+          <div class="cp-row between"><div class="row-item"><span class="cp-thumb"></span><div><div style="font-weight:600">Social Media Manageme…</div><div class="muted" style="font-size:13px">Professional Services · 3516</div></div></div>
+            <div style="text-align:right"><div style="font-weight:700">₹25,000</div><div class="muted" style="font-size:11px;text-transform:uppercase">Per month</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider-page" />
+
+    <!-- ===== ORDERS ===== -->
+    <section>
+      <div class="page-h"><h1>Sales &amp; Orders</h1><p>Manage incoming orders and invoices.</p></div>
+      <div class="row-item" style="margin:var(--cp-space-5) 0">
+        <button class="cp-btn cp-btn--secondary cp-btn--sm" style="background:var(--cp-surface)">Orders</button>
+        <button class="cp-btn cp-btn--ghost cp-btn--sm">Invoices <span class="cp-badge cp-badge--info" style="margin-left:6px">12</span></button>
+      </div>
+      <div class="row-item" style="flex-wrap:wrap;gap:8px;margin-bottom:var(--cp-space-5)">
+        <span class="pill pill--on">All 21</span><span class="pill">New Order 7</span><span class="pill">Confirmed 2</span>
+        <span class="pill">Shipped 0</span><span class="pill">Delivered 11</span><span class="pill">Cancelled 1</span>
+      </div>
+      <div style="display:grid;gap:var(--cp-space-3)">
+        <div class="cp-card between order-card" style="border-left-color:var(--cp-info)">
+          <div><div class="row-item" style="margin-bottom:6px"><span class="cp-badge cp-badge--info">New order</span><span class="mono">ORD-20260616-9332</span></div>
+            <div style="font-weight:600;font-size:16px">aisehi ek product with dummy image</div><div class="muted" style="font-size:13px">Buyer: <b style="color:var(--cp-text)">Corpass</b></div></div>
+          <div style="text-align:right"><div class="muted" style="font-size:12px">16 Jun 2026</div><div style="font-weight:700;font-size:18px">₹10,000</div></div>
+        </div>
+        <div class="cp-card between order-card" style="border-left-color:var(--cp-success)">
+          <div><div class="row-item" style="margin-bottom:6px"><span class="cp-badge cp-badge--success">Delivered</span><span class="mono">ORD-20260615-8092</span></div>
+            <div style="font-weight:600;font-size:16px">E2E Testing Ergonomic Chair</div><div class="muted" style="font-size:13px">Buyer: <b style="color:var(--cp-text)">Corpass</b></div></div>
+          <div style="text-align:right"><div class="muted" style="font-size:12px">15 Jun 2026</div><div style="font-weight:700;font-size:18px">₹85,000</div></div>
+        </div>
+        <div class="cp-card between order-card" style="border-left-color:var(--cp-danger)">
+          <div><div class="row-item" style="margin-bottom:6px"><span class="cp-badge cp-badge--danger">Cancelled</span><span class="mono">ORD-20260615-4464</span></div>
+            <div style="font-weight:600;font-size:16px">Corporate Website Design</div><div class="muted" style="font-size:13px">Buyer: <b style="color:var(--cp-text)">Corpass</b></div></div>
+          <div style="text-align:right"><div class="muted" style="font-size:12px">15 Jun 2026</div><div style="font-weight:700;font-size:18px">₹80,000</div></div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider-page" />
+
+    <!-- ===== STOCK ===== -->
+    <section>
+      <div class="page-h"><h1>Stock Command</h1><p>Real-time inventory control. Adjust levels or monitor fill ratios at a glance.</p></div>
+      <div class="grid-3" style="margin:var(--cp-space-6) 0">
+        <div class="cp-card"><div class="section-tag" style="text-transform:uppercase">Total Assets</div><div class="cp-stat__value">4</div></div>
+        <div class="cp-card" style="background:var(--cp-warning-bg);border-color:var(--cp-warning-border)">
+          <div class="section-tag" style="text-transform:uppercase;color:var(--cp-warning)">Low Stock Alerts</div>
+          <div class="cp-stat__value" style="color:var(--cp-warning)">0</div></div>
+        <div class="cp-card" style="background:var(--cp-danger-bg);border-color:var(--cp-danger-border)">
+          <div class="section-tag" style="text-transform:uppercase;color:var(--cp-danger)">Out of Stock</div>
+          <div class="cp-stat__value" style="color:var(--cp-danger)">0</div></div>
+      </div>
+      <div class="between" style="margin-bottom:var(--cp-space-4)"><span class="ws-label" style="margin:0">INVENTORY MATRIX</span>
+        <input class="cp-input cp-search" style="max-width:280px" placeholder="Search products by name or SKU…" /></div>
+      <div class="grid-4">
+        <div class="cp-card" style="background:var(--cp-brand-50)"><div style="font-weight:700">aisehi ek product…</div><div class="mono" style="background:none;padding:0">SKU: #45</div>
+          <div class="section-tag" style="text-transform:uppercase;margin-top:var(--cp-space-4)">Available Stock</div><div class="cp-stat__value">1224 <span class="muted" style="font-size:13px">PCS</span></div></div>
+        <div class="cp-card" style="background:var(--cp-brand-50)"><div style="font-weight:700">E2E Testing Chair</div><div class="mono" style="background:none;padding:0">SKU: #44</div>
+          <div class="section-tag" style="text-transform:uppercase;margin-top:var(--cp-space-4)">Available Stock</div><div class="cp-stat__value">3329 <span class="muted" style="font-size:13px">PCS</span></div></div>
+        <div class="cp-card" style="background:var(--cp-brand-50)"><div style="font-weight:700">Social Media Mgmt…</div><div class="mono" style="background:none;padding:0">SKU: #42</div>
+          <div class="section-tag" style="text-transform:uppercase;margin-top:var(--cp-space-4)">Available Stock</div><div class="cp-stat__value">3516 <span class="muted" style="font-size:13px">MONTH</span></div></div>
+        <div class="cp-card" style="background:var(--cp-brand-50)"><div style="font-weight:700">Corporate Website…</div><div class="mono" style="background:none;padding:0">SKU: #43</div>
+          <div class="section-tag" style="text-transform:uppercase;margin-top:var(--cp-space-4)">Available Stock</div><div class="cp-stat__value">1335 <span class="muted" style="font-size:13px">PROJECT</span></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

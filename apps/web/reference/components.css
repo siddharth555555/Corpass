@@ -1,0 +1,117 @@
+/* ============================================================================
+   CORPASS THEME — Components
+   ----------------------------------------------------------------------------
+   Optional, ready-made component classes built on design-tokens.css.
+
+   Two ways to use these:
+   1. Apply the `cp-*` class to your existing element (preferred — no markup
+      restructuring), e.g. add class="cp-btn cp-btn--primary" to a <button>
+      that already has the right onClick.
+   2. Copy the rule body into your own component's existing selector so you
+      keep your class names and just inherit the look.
+
+   These are STYLE ONLY. They never assume or change behavior.
+   Requires design-tokens.css to be loaded first.
+   ========================================================================== */
+
+/* ---- Card / Panel --------------------------------------------------------- */
+.cp-card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: var(--cp-radius-lg);
+  box-shadow: var(--cp-shadow-sm);
+  padding: var(--cp-card-padding);
+}
+.cp-card--flush { padding: 0; overflow: hidden; }
+.cp-card-title {
+  font-size: var(--cp-text-md);
+  font-weight: var(--cp-fw-semibold);
+  color: var(--cp-text);
+  margin: 0 0 var(--cp-space-4);
+}
+
+/* ---- Stat card (Total Spend, Active Orders…) ----------------------------- */
+.cp-stat__label  { font-size: var(--cp-text-sm); color: var(--cp-text-muted); font-weight: var(--cp-fw-medium); }
+.cp-stat__value  { font-size: var(--cp-display); font-weight: var(--cp-fw-bold); color: var(--cp-text); line-height: var(--cp-leading-tight); margin: var(--cp-space-2) 0; }
+.cp-stat__delta  { display: inline-flex; align-items: center; gap: 4px; font-size: var(--cp-text-xs); font-weight: var(--cp-fw-semibold); }
+.cp-stat__delta--up   { color: var(--cp-success); }
+.cp-stat__delta--down { color: var(--cp-danger); }
+
+/* ---- Buttons -------------------------------------------------------------- */
+.cp-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--cp-space-2);
+  font-family: var(--cp-font-sans); font-size: var(--cp-text-base); font-weight: var(--cp-fw-semibold);
+  padding: 10px 16px; border-radius: var(--cp-radius-md);
+  border: 1px solid transparent; cursor: pointer;
+  transition: background var(--cp-transition), border-color var(--cp-transition), color var(--cp-transition);
+}
+.cp-btn--primary   { background: var(--cp-brand-600); color: #fff; box-shadow: var(--cp-shadow-xs); }
+.cp-btn--primary:hover { background: var(--cp-brand-700); }
+.cp-btn--secondary { background: var(--cp-surface); color: var(--cp-text-secondary); border-color: var(--cp-border-strong); }
+.cp-btn--secondary:hover { background: var(--cp-surface-2); }
+.cp-btn--ghost     { background: transparent; color: var(--cp-text-secondary); }
+.cp-btn--ghost:hover { background: var(--cp-surface-2); }
+.cp-btn--success   { background: var(--cp-success); color: #fff; }
+.cp-btn--danger-outline { background: var(--cp-surface); color: var(--cp-danger); border-color: var(--cp-danger-border); }
+.cp-btn--sm { padding: 7px 12px; font-size: var(--cp-text-sm); }
+
+/* ---- Badges / status pills ----------------------------------------------- */
+.cp-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: var(--cp-radius-pill);
+  font-size: var(--cp-text-xs); font-weight: var(--cp-fw-semibold); line-height: 1.6;
+  border: 1px solid transparent;
+}
+.cp-badge--success { color: var(--cp-success); background: var(--cp-success-bg); border-color: var(--cp-success-border); }
+.cp-badge--warning { color: var(--cp-warning); background: var(--cp-warning-bg); border-color: var(--cp-warning-border); }
+.cp-badge--danger  { color: var(--cp-danger);  background: var(--cp-danger-bg);  border-color: var(--cp-danger-border); }
+.cp-badge--info    { color: var(--cp-info);     background: var(--cp-info-bg);    border-color: var(--cp-info-border); }
+.cp-badge--neutral { color: var(--cp-neutral);  background: var(--cp-neutral-bg); border-color: var(--cp-neutral-border); }
+/* Status word → variant map: Shipped/Confirmed/Delivered/Good/Perfect/Verified → success;
+   Inspection Due/Maintenance Due/Pending → warning; Cancelled/Rejected → danger; New → info. */
+
+/* ---- Inputs / search ------------------------------------------------------ */
+.cp-input {
+  width: 100%; font-family: var(--cp-font-sans); font-size: var(--cp-text-base);
+  color: var(--cp-text); background: var(--cp-surface);
+  border: 1px solid var(--cp-border-strong); border-radius: var(--cp-radius-md);
+  padding: 10px 12px; transition: border-color var(--cp-transition), box-shadow var(--cp-transition);
+}
+.cp-input::placeholder { color: var(--cp-text-muted); }
+.cp-input:focus { outline: none; border-color: var(--cp-brand-400); box-shadow: var(--cp-shadow-focus); }
+.cp-search { background: var(--cp-surface-3); border-color: transparent; }
+
+/* ---- Sidebar / nav -------------------------------------------------------- */
+.cp-sidebar { width: var(--cp-sidebar-width); background: var(--cp-surface); border-right: 1px solid var(--cp-border); }
+.cp-nav-item {
+  display: flex; align-items: center; gap: var(--cp-space-3);
+  padding: 10px 12px; margin: 2px 0; border-radius: var(--cp-radius-md);
+  color: var(--cp-text-secondary); font-size: var(--cp-text-base); font-weight: var(--cp-fw-medium);
+  cursor: pointer; transition: background var(--cp-transition), color var(--cp-transition);
+}
+.cp-nav-item:hover { background: var(--cp-surface-2); }
+.cp-nav-item--active { background: var(--cp-brand-50); color: var(--cp-brand-700); font-weight: var(--cp-fw-semibold); }
+.cp-nav-item--active svg, .cp-nav-item--active .cp-icon { color: var(--cp-brand-600); }
+
+/* ---- List rows / tables --------------------------------------------------- */
+.cp-row { display: flex; align-items: center; padding: 14px var(--cp-card-padding); border-bottom: 1px solid var(--cp-border); transition: background var(--cp-transition); }
+.cp-row:last-child { border-bottom: 0; }
+.cp-row:hover { background: var(--cp-surface-2); }
+.cp-th { font-size: var(--cp-text-xs); font-weight: var(--cp-fw-semibold); color: var(--cp-text-muted); text-transform: none; letter-spacing: .01em; }
+.cp-thumb { width: 40px; height: 40px; border-radius: var(--cp-radius-sm); background: var(--cp-surface-3); object-fit: cover; }
+
+/* ---- Timeline ------------------------------------------------------------- */
+.cp-timeline { position: relative; padding-left: 26px; }
+.cp-timeline::before { content: ""; position: absolute; left: 9px; top: 6px; bottom: 6px; width: 2px; background: var(--cp-border-strong); }
+.cp-timeline__node { position: absolute; left: 0; width: 18px; height: 18px; border-radius: var(--cp-radius-pill); background: var(--cp-surface); border: 2px solid var(--cp-border-strong); }
+.cp-timeline__node--done { background: var(--cp-brand-600); border-color: var(--cp-brand-600); color: #fff; }
+.cp-timeline__time { font-size: var(--cp-text-xs); color: var(--cp-text-muted); }
+
+/* ---- Chat bubbles --------------------------------------------------------- */
+.cp-bubble { max-width: 78%; padding: 10px 14px; border-radius: var(--cp-radius-lg); font-size: var(--cp-text-base); line-height: var(--cp-leading-snug); }
+.cp-bubble--in  { background: var(--cp-surface-2); color: var(--cp-text); border-bottom-left-radius: var(--cp-radius-sm); }
+.cp-bubble--out { background: var(--cp-brand-50); color: var(--cp-text); border-bottom-right-radius: var(--cp-radius-sm); margin-left: auto; }
+.cp-bubble__meta { font-size: var(--cp-text-2xs); color: var(--cp-text-muted); margin-top: 4px; }
+
+/* ---- Avatar --------------------------------------------------------------- */
+.cp-avatar { width: 36px; height: 36px; border-radius: var(--cp-radius-pill); background: var(--cp-brand-100); color: var(--cp-brand-700); display: inline-flex; align-items: center; justify-content: center; font-weight: var(--cp-fw-semibold); font-size: var(--cp-text-sm); }

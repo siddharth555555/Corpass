@@ -1,36 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "design-tokens.css";
+@import "components.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --ink:        #1C1B17;
-    --ink-2:      #3A3934;
-    --slate:      #6B695E;
-    --paper:      #F5F4F0;
-    --paper-2:    #EBEAE4;
-    --money:      #117B56;
-    --money-hover:#0B6143;
-    --money-bg:   #E4F2EC;
-    --copper:     #B56A45;
-    --copper-bg:  #F7EBE5;
-    --border:     #D8D7D0;
-    --border-focus: #1C1B17;
-  }
-
-  /* Serif headings */
-  h1, h2, h3 {
-    font-family: var(--font-serif), 'DM Serif Display', Georgia, serif;
-    color: var(--ink);
-  }
-
-  body {
-    background-color: var(--paper);
-    color: var(--ink);
-  }
-
   /* Remove arrows/spinners from number inputs globally */
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
@@ -40,54 +15,5 @@
   input[type="number"] {
     -moz-appearance: textfield;
   }
-
-  /* Premium global input styling */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  input[type="tel"],
-  input[type="url"],
-  textarea,
-  select {
-    @apply rounded-none border border-border bg-paper transition-all duration-300 ease-out focus:bg-white focus:border-border-focus focus:shadow-none focus:outline-none;
-  }
 }
 
-@layer components {
-  /* Premium card hover effect */
-  .card-hover {
-    @apply transition-all duration-300 ease-out;
-  }
-  .card-hover:hover {
-    @apply -translate-y-0.5 shadow-sm;
-  }
-
-  /* Premium button base */
-  .btn-primary {
-    @apply bg-ink text-paper font-medium rounded-none px-5 py-2.5 transition-all duration-200 ease-out hover:bg-ink-2 active:translate-y-0;
-  }
-
-  .btn-cta {
-    @apply bg-copper text-white font-medium rounded-none px-5 py-2.5 transition-all duration-200 ease-out hover:bg-[#A05C3A] active:translate-y-0;
-  }
-
-  .btn-outline {
-    @apply bg-paper text-ink font-medium rounded-none px-5 py-2.5 border border-border transition-all duration-200 ease-out hover:bg-paper-2 hover:border-slate;
-  }
-
-  /* Status badge pills */
-  .badge {
-    @apply inline-flex items-center gap-1.5 rounded-none px-3 py-1 text-xs font-medium border border-border;
-  }
-  .badge-pending { @apply bg-paper-2 text-ink-2 border-transparent; }
-  .badge-confirmed { @apply bg-paper-2 text-ink border-transparent; }
-  .badge-shipped { @apply bg-paper-2 text-ink border-transparent; }
-  .badge-delivered { @apply bg-money-bg text-money border-transparent; }
-  .badge-cancelled { @apply bg-copper-bg text-copper border-transparent; }
-
-  /* Editorial section label */
-  .section-label {
-    @apply text-[11px] uppercase tracking-[0.15em] font-semibold text-slate;
-  }
-}

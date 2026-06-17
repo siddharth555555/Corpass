@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface LogoLinkProps {
@@ -11,7 +12,7 @@ interface LogoLinkProps {
   src?: string;
 }
 
-export default function LogoLink({ className = "h-16 w-auto object-contain", width = 320, height = 120, priority = false, src = "/logo-compact.png" }: LogoLinkProps) {
+export default function LogoLink({ className = "w-48 sm:w-64 h-auto object-contain", width = 1536, height = 1024, priority = false, src = "/logo-compact.png" }: LogoLinkProps) {
   const router = useRouter();
 
   const handleClick = async (e: React.MouseEvent) => {
@@ -42,8 +43,8 @@ export default function LogoLink({ className = "h-16 w-auto object-contain", wid
   };
 
   return (
-    <a href="/" onClick={handleClick} className="inline-block cursor-pointer">
-      <Image src={src} alt="Corpass Logo" width={width} height={height} className={className} priority={priority} />
-    </a>
+    <Link href="/" onClick={handleClick} className={`block cursor-pointer mx-auto flex items-center ${className}`}>
+      <img src={src} alt="Corpass Logo" className="w-full h-auto object-contain block mx-auto scale-125 sm:scale-150" />
+    </Link>
   );
 }

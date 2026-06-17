@@ -1,0 +1,7 @@
+const { PrismaClient } = require('./apps/backend/node_modules/@prisma/client');
+const prisma = new PrismaClient();
+async function main() {
+  const users = await prisma.user.findMany({ take: 1, include: { company: true } });
+  console.log(JSON.stringify(users, null, 2));
+}
+main();

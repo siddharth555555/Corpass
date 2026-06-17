@@ -10,6 +10,7 @@ datasource db {
 enum Role {
   BUYER
   SELLER
+  ADMIN
 }
 
 enum DeliveryRange {
@@ -63,6 +64,7 @@ model User {
   reviewsGiven        Review[]           @relation("ReviewsGiven")
   reviewsReceived     Review[]           @relation("ReviewsReceived")
   supportMessages     SupportMessage[]   @relation("UserSupportMessages")
+  notifications       Notification[]
 }
 
 model SellerProfile {
@@ -194,16 +196,25 @@ enum PaymentStatus {
   DISPUTED
 }
 
+enum PaymentDisputeType {
+  NOT_RECEIVED
+  LESS_AMOUNT
+  MORE_AMOUNT
+  OTHER
+}
+
 model PaymentRecord {
   id          Int           @id @default(autoincrement())
   orderId     Int?
   invoiceId   Int?
   amount      Decimal
   paymentDate DateTime
-  utr         String?
-  status      PaymentStatus @default(PENDING_ACKNOWLEDGEMENT)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  utr            String?
+  status         PaymentStatus       @default(PENDING_ACKNOWLEDGEMENT)
+  disputeType    PaymentDisputeType?
+  disputeComment String?             @db.Text
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
 
   order       Order?        @relation("OrderPayments", fields: [orderId], references: [id], onDelete: Cascade)
   invoice     Invoice?      @relation("InvoicePayments", fields: [invoiceId], references: [id], onDelete: Cascade)
@@ -265,6 +276,7 @@ enum OrderMessageType {
   COUNTER_OFFER
   ACCEPT
   DECLINE
+  SYSTEM_EVENT
 }
 
 model OrderMessage {
@@ -311,6 +323,9 @@ model Invoice {
 
   type              InvoiceType    @default(AUTO)
   status            InvoiceStatus  @default(PENDING)
+  disputedById      Int?
+  disputeReason     String?
+  disputeComment    String?        @db.Text
   buyerAcknowledged Boolean        @default(false)
   sellerAcknowledged Boolean       @default(false)
   notes             String?        @db.Text
@@ -384,4 +399,31 @@ model SupportMessage {
   createdAt DateTime @default(now())
 
   user      User     @relation("UserSupportMessages", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ── Notification System ──
+
+enum NotificationType {
+  SUPPORT_TICKET
+  ORDER_UPDATE
+  MESSAGE
+  SYSTEM
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  userId      Int
+  type        NotificationType
+  title       String
+  message     String           @db.Text
+  entityType  String?
+  entityId    String?
+  isRead      Boolean          @default(false)
+  readAt      DateTime?
+  createdAt   DateTime         @default(now())
+
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
 }

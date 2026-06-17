@@ -15,92 +15,30 @@ const config: Config = {
         mono: ['var(--font-mono)', 'monospace'],
       },
       colors: {
-        ink: {
-          DEFAULT: 'var(--ink)',
-          2: 'var(--ink-2)',
+        brand: {
+          50:'#EAF4F3',100:'#D2E8E6',200:'#A7D0CD',300:'#6FB1AD',400:'#2E8C88',
+          500:'#0A6E6E',600:'#015C5D',700:'#034849',800:'#023638',900:'#012829',
+          DEFAULT:'#015C5D',
         },
-        slate: 'var(--slate)',
-        paper: {
-          DEFAULT: 'var(--paper)',
-          2: 'var(--paper-2)',
-        },
-        money: {
-          DEFAULT: 'var(--money)',
-          hover: 'var(--money-hover)',
-          bg: 'var(--money-bg)',
-        },
-        copper: {
-          DEFAULT: 'var(--copper)',
-          bg: 'var(--copper-bg)',
-        },
-        canvas: 'var(--paper)',
-        surface: {
-          DEFAULT: '#FFFFFF',
-          raised: 'var(--paper-2)',
-          overlay: '#FFFFFF',
-        },
-        primary: {
-          50:  'var(--paper-2)',
-          100: '#D5D3F8',
-          200: '#B0AAEF',
-          500: 'var(--ink)',
-          600: 'var(--ink-2)',
-          700: '#070522',
-          900: '#030214',
-        },
-        accent: {
-          50:  '#F5E8F5',
-          100: '#E5C4E5',
-          200: '#D19DD1',
-          500: '#7B1E7A',
-          600: '#621862',
-          700: '#4A124A',
-        },
-        highlight: {
-          50:  '#FBEDF1',
-          100: '#F5D0DB',
-          200: '#EDADC0',
-          500: '#B33F62',
-          600: '#8F324E',
-          700: '#6B253B',
-        },
-        cta: {
-          50:  'var(--copper-bg)',
-          100: '#FDD5D3',
-          200: '#FCB3B0',
-          500: 'var(--copper)',
-          600: '#E03E38',
-          700: '#C72F29',
-        },
-        text: {
-          primary:   'var(--ink)',
-          secondary: 'var(--ink-2)',
-          tertiary:  'var(--slate)',
-          'on-brand': 'var(--paper)',
-          'on-canvas': 'var(--ink)',
-        },
-        border: {
-          DEFAULT: 'var(--border)',
-          focus: 'var(--border-focus)',
-          subtle:  'var(--border)',
-          strong:  'var(--ink-2)',
-          brand:   'var(--ink)',
-        },
-        success: {
-          50:  'var(--money-bg)',
-          500: 'var(--money)',
-          700: 'var(--money-hover)'
-        },
-        warning: {
-          50:  '#FFFBEB',
-          500: '#F59E0B',
-          700: '#B45309'
-        },
-        danger: {
-          50:  'var(--copper-bg)',
-          500: 'var(--copper)',
-          700: '#B91C1C'
-        }
+        canvas:'#F4F5F7', surface:'#FFFFFF', 'surface-2':'#FAFBFC', 'surface-3':'#F1F2F5',
+        hairline:'#ECEDF0', 'hairline-strong':'#E0E2E7',
+        ink:'#16191C', 'ink-secondary':'#4B5563', muted:'#8A909A',
+        success:{DEFAULT:'#0F7A57', bg:'#E4F4EC'},
+        warning:{DEFAULT:'#9A6700', bg:'#FBF0D6'},
+        danger:{DEFAULT:'#C23B3B', bg:'#FBE7E7'},
+        info:{DEFAULT:'#2C68B5', bg:'#E7F0FB'},
+        
+        // Legacy fallbacks (to prevent total breakage while we migrate pages)
+        paper: { DEFAULT: '#FFFFFF', 2: '#F4F5F7' },
+        money: { DEFAULT: '#0F7A57', bg: '#E4F4EC', hover: '#0A5C41' },
+        copper: { DEFAULT: '#C23B3B', bg: '#FBE7E7' },
+        slate: '#8A909A',
+        border: { DEFAULT: '#ECEDF0', focus: '#015C5D', subtle: '#E0E2E7', strong: '#E0E2E7', brand: '#015C5D' },
+      },
+      borderRadius: { card:'16px', md:'12px', pill:'999px' },
+      boxShadow: {
+        'cp-sm':'0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06)',
+        'cp-md':'0 4px 12px rgba(16,24,40,.06), 0 2px 4px rgba(16,24,40,.04)',
       },
       animation: {
         blob: "blob 7s infinite",

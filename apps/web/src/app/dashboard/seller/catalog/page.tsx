@@ -122,7 +122,7 @@ export default function SellerProductCatalog() {
   const [formData, setFormData] = useState<any>({
     name: "", description: "", category: "Office Supplies", subCategory: "Paper & Notebooks",
     priceType: "FIXED", price: "", pricingUnit: "PIECE", piecesPerUnit: "",
-    isDeliverable: true, deliveryRange: "", minQtyPurchase: "1", minAmountPurchase: "0", deliveryTimeDays: "3", stockQuantity: "0",
+    isDeliverable: true, deliveryRange: "SHIPPING_AVAILABLE", minQtyPurchase: "1", minAmountPurchase: "0", deliveryTimeDays: "3", stockQuantity: "0",
     images: [],
   });
 
@@ -160,7 +160,7 @@ export default function SellerProductCatalog() {
       pricingUnit: product.pricingUnit || "PIECE",
       piecesPerUnit: product.piecesPerUnit || "",
       isDeliverable: product.isDeliverable ?? true,
-      deliveryRange: product.deliveryRange || "",
+      deliveryRange: product.deliveryRange || "SHIPPING_AVAILABLE",
       minQtyPurchase: product.minQtyPurchase || "1",
       minAmountPurchase: product.minAmountPurchase || "0",
       deliveryTimeDays: product.deliveryTimeDays || "3",
@@ -194,7 +194,7 @@ export default function SellerProductCatalog() {
         setFormData({
           name: "", description: "", category: "Office Supplies", subCategory: "Paper & Notebooks",
           priceType: "FIXED", price: "", pricingUnit: "PIECE", piecesPerUnit: "",
-          isDeliverable: true, deliveryRange: "", minQtyPurchase: "1", minAmountPurchase: "0", deliveryTimeDays: "3", stockQuantity: "0",
+          isDeliverable: true, deliveryRange: "SHIPPING_AVAILABLE", minQtyPurchase: "1", minAmountPurchase: "0", deliveryTimeDays: "3", stockQuantity: "0",
           images: [],
         });
         fetchData();
@@ -209,113 +209,113 @@ export default function SellerProductCatalog() {
   const currentUnitLabel = getUnitLabel(formData.pricingUnit);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col h-[calc(100vh-100px)] max-w-6xl mx-auto">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-ink tracking-tight">Product Catalog</h2>
+          <h1 className="text-2xl font-bold text-ink">Product Catalog</h1>
           <p className="text-sm text-slate mt-1">Manage your product listings and pricing.</p>
         </div>
-        <button onClick={() => { setEditingProductId(null); setIsModalOpen(true); setDeliveryCities([]); setDeliveryPincodes([]); setFormData({ name: "", description: "", category: "Office Supplies", subCategory: "Paper & Notebooks", priceType: "FIXED", price: "", pricingUnit: "PIECE", piecesPerUnit: "", isDeliverable: true, deliveryRange: "", minQtyPurchase: "1", minAmountPurchase: "0", deliveryTimeDays: "3", stockQuantity: "0", images: [] }); }} className="bg-ink hover:bg-ink text-white px-4 py-2 rounded text-sm font-medium transition-colors shadow-sm flex items-center">
-          <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+        <button onClick={() => { setEditingProductId(null); setIsModalOpen(true); setDeliveryCities([]); setDeliveryPincodes([]); setFormData({ name: "", description: "", category: "Office Supplies", subCategory: "Paper & Notebooks", priceType: "FIXED", price: "", pricingUnit: "PIECE", piecesPerUnit: "", isDeliverable: true, deliveryRange: "SHIPPING_AVAILABLE", minQtyPurchase: "1", minAmountPurchase: "0", deliveryTimeDays: "3", stockQuantity: "0", images: [] }); }} className="cp-btn cp-btn--primary">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
           Add Product
         </button>
       </div>
 
-      <div className="bg-paper border border-border rounded overflow-hidden">
-        <div className="px-6 py-4 border-b border-border bg-paper-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h3 className="text-sm font-semibold text-ink whitespace-nowrap">All Products</h3>
-          <div className="flex w-full sm:w-auto items-center gap-3">
-            <div className="relative w-full sm:w-64">
-              <input 
-                type="text" 
-                placeholder="Search products..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-sm bg-paper border border-border rounded-lg text-ink focus:border-ink focus:ring-1 focus:ring-ink outline-none transition-colors"
-              />
-              <svg className="w-4 h-4 text-slate absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <select 
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="px-3 py-2 text-sm bg-paper border border-border rounded-lg text-ink focus:border-ink focus:ring-1 focus:ring-ink outline-none transition-colors"
-            >
-              <option value="All">All Categories</option>
-              {Object.keys(categoryStats).map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
+      <div className="cp-card p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0 mb-6" style={{ backgroundColor: 'var(--cp-surface-2)' }}>
+        <h3 className="text-[16px] font-[600] text-[var(--cp-text)] whitespace-nowrap">All Products</h3>
+        <div className="flex w-full sm:w-auto items-center gap-3">
+          <div className="relative w-full sm:w-64">
+            <input 
+              type="text" 
+              placeholder="Search products..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="cp-input cp-search pl-9"
+            />
+            <svg className="w-4 h-4 text-[var(--cp-text-muted)] absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </div>
+          <select 
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="cp-input w-auto cursor-pointer"
+          >
+            <option value="All">All Categories</option>
+            {Object.keys(categoryStats).map(cat => (
+              <option key={cat} value={cat}>{cat} ({categoryStats[cat].count})</option>
+            ))}
+          </select>
         </div>
+      </div>
         
+      <div className="flex-1 overflow-y-auto pr-2 pb-10">
         {loading ? (
            <div className="py-12 text-center text-slate text-sm">Loading inventory...</div>
         ) : products.length > 0 ? (
-           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 bg-surface">
-             {products.filter(p => {
-               const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                     p.description?.toLowerCase().includes(searchQuery.toLowerCase());
-               const matchesCategory = filterCategory === "All" || p.category === filterCategory;
-               return matchesSearch && matchesCategory;
-             }).map((p) => (
-               <div key={p.id} className="group bg-paper border border-border rounded-lg overflow-hidden hover:shadow-xl hover:border-ink/20 transition-all duration-300 flex flex-col">
-                 <div className="bg-gradient-to-br from-paper-2 to-surface-raised h-48 flex items-center justify-center relative overflow-hidden border-b border-border">
-                   {p.images && p.images.length > 0 ? (
-                     <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                   ) : (
-                     <svg className="w-12 h-12 text-slate/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                     </svg>
-                   )}
-                   <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                     <button onClick={() => handleEditProduct(p)} className="h-8 w-8 bg-paper/90 backdrop-blur-sm border border-border rounded-full flex items-center justify-center text-slate hover:text-ink hover:bg-paper shadow-sm transition-colors" title="Edit Product">
-                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                     </button>
-                   </div>
-                   <div className="absolute bottom-3 left-3 flex items-center gap-2">
-                     <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-ink text-white uppercase tracking-wider shadow-sm">{p.category}</span>
-                   </div>
-                 </div>
-                 
-                 <div className="p-4 flex-1 flex flex-col">
-                   <h3 className="text-base font-bold text-ink leading-tight mb-1 transition-colors font-sans line-clamp-1" title={p.name}>{p.name}</h3>
-                   <p className="text-[11px] text-slate line-clamp-2 mb-4 leading-relaxed h-8">{p.description}</p>
-                   
-                   <div className="grid grid-cols-2 gap-3 mb-4">
-                     <div className="bg-paper-2 rounded p-2.5 border border-border">
-                       <p className="text-[10px] font-semibold text-slate uppercase tracking-wider mb-0.5">Stock</p>
-                       <p className={`text-lg font-extrabold tabular-nums leading-none ${p.stockQuantity <= 10 ? 'text-rose-600' : 'text-ink'}`}>
-                         {p.stockQuantity}
-                       </p>
-                     </div>
-                     <div className="bg-paper-2 rounded p-2.5 border border-border">
-                       <p className="text-[10px] font-semibold text-slate uppercase tracking-wider mb-0.5">Delivery</p>
-                       <p className="text-sm font-bold text-ink tabular-nums leading-none mt-1">
-                         {p.isDeliverable ? `${p.deliveryTimeDays} days` : 'Pickup'}
-                       </p>
-                     </div>
-                   </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-2">
+              {products.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                      p.description?.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesCategory = filterCategory === "All" || p.category === filterCategory;
+                return matchesSearch && matchesCategory;
+              }).map((p) => (
+                <div key={p.id} className="cp-card cp-card--flush flex flex-col group transition-all duration-300 hover:shadow-md">
+                  <div className="h-48 flex items-center justify-center relative overflow-hidden" style={{ backgroundColor: 'var(--cp-surface-3)', borderBottom: '1px solid var(--cp-border)' }}>
+                    {p.images && p.images.length > 0 ? (
+                      <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <svg className="w-12 h-12" style={{ color: 'var(--cp-text-disabled)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                    <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => handleEditProduct(p)} className="h-8 w-8 bg-white/90 backdrop-blur-sm border rounded-full flex items-center justify-center shadow-sm transition-colors" style={{ borderColor: 'var(--cp-border)', color: 'var(--cp-text-secondary)' }} title="Edit Product">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                      </button>
+                    </div>
+                    <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                      <span className="cp-badge cp-badge--neutral uppercase tracking-wider text-[11px]">{p.category}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="p-[var(--cp-card-padding)] flex-1 flex flex-col">
+                    <h3 className="text-[16px] font-[700] leading-tight mb-1 line-clamp-1" style={{ color: 'var(--cp-text)' }} title={p.name}>{p.name}</h3>
+                    <p className="text-[13px] line-clamp-2 mb-4 leading-relaxed h-10" style={{ color: 'var(--cp-text-muted)' }}>{p.description}</p>
+                    
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="p-2.5 border" style={{ backgroundColor: 'var(--cp-surface-3)', borderRadius: 'var(--cp-radius-sm)', borderColor: 'var(--cp-border)' }}>
+                        <p className="text-[11px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--cp-text-muted)' }}>Stock</p>
+                        <p className={`text-[15px] font-[600] tabular-nums leading-none mt-1 ${p.stockQuantity <= 10 ? 'text-[var(--cp-danger)]' : 'text-[var(--cp-text)]'}`}>
+                          {p.stockQuantity}
+                        </p>
+                      </div>
+                      <div className="p-2.5 border" style={{ backgroundColor: 'var(--cp-surface-3)', borderRadius: 'var(--cp-radius-sm)', borderColor: 'var(--cp-border)' }}>
+                        <p className="text-[11px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--cp-text-muted)' }}>Delivery</p>
+                        <p className="text-[15px] font-[600] tabular-nums leading-none mt-1" style={{ color: 'var(--cp-text)' }}>
+                          {p.isDeliverable ? `${p.deliveryTimeDays} days` : 'Pickup'}
+                        </p>
+                      </div>
+                    </div>
 
-                   <div className="mt-auto pt-3 border-t border-border flex flex-col">
-                     <span className="text-[10px] font-semibold text-slate uppercase tracking-wider mb-0.5">Pricing</span>
-                     <div className="flex items-baseline gap-1.5">
-                       {p.priceType === 'FIXED' ? (
-                         <>
-                           <span className="text-lg font-extrabold tabular-nums text-ink">₹{Number(p.price).toLocaleString('en-IN')}</span>
-                           <span className="text-[11px] text-slate font-medium">/ {getUnitLabel(p.pricingUnit)}</span>
-                         </>
-                       ) : (
-                         <>
-                           <span className="text-sm font-extrabold text-copper">Quote Required</span>
-                           <span className="text-[10px] text-slate ml-auto font-medium">From ₹{Number(p.price || 0).toLocaleString('en-IN')}</span>
-                         </>
-                       )}
-                     </div>
-                   </div>
-                 </div>
-               </div>
+                    <div className="mt-auto pt-3 border-t flex flex-col" style={{ borderColor: 'var(--cp-border)' }}>
+                      <span className="text-[11px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--cp-text-muted)' }}>Pricing</span>
+                      <div className="flex items-baseline gap-1.5">
+                        {p.priceType === 'FIXED' ? (
+                          <>
+                            <span className="text-[16px] font-[700] tabular-nums" style={{ color: 'var(--cp-text)' }}>₹{Number(p.price).toLocaleString('en-IN')}</span>
+                            <span className="text-[13px]" style={{ color: 'var(--cp-text-muted)' }}>/ {getUnitLabel(p.pricingUnit)}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-[14px] font-[700]" style={{ color: 'var(--cp-danger)' }}>Quote Required</span>
+                            <span className="text-[11px] ml-auto font-[500]" style={{ color: 'var(--cp-text-muted)' }}>From ₹{Number(p.price || 0).toLocaleString('en-IN')}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
              ))}
            </div>
         ) : (
@@ -438,10 +438,9 @@ export default function SellerProductCatalog() {
                       <div>
                         <label className="block text-xs font-medium text-slate mb-1">Delivery Range</label>
                         <select value={formData.deliveryRange} onChange={e => setFormData({...formData, deliveryRange: e.target.value})} className="w-full px-3 py-2 bg-paper border border-border rounded text-sm text-ink focus:border-ink outline-none">
-                          <option value="" disabled hidden>Select Delivery Range</option>
-                          <option value="LOCAL_100KM">Local</option>
                           <option value="HYPER_LOCAL_20KM">Hyper Local</option>
-                          <option value="SHIPPING_AVAILABLE">Pan India Shipping</option>
+                          <option value="LOCAL_100KM">Local</option>
+                          <option value="SHIPPING_AVAILABLE">Pan India</option>
                         </select>
                       </div>
                     </div>

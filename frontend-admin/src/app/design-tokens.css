@@ -1,0 +1,131 @@
+/* ============================================================================
+   CORPASS THEME — Design Tokens
+   ----------------------------------------------------------------------------
+   A drop-in design-token layer. Import this ONCE, globally, near the top of
+   your stylesheet chain so the variables cascade everywhere:
+
+       @import "corpass-theme/design-tokens.css";   (CSS)
+       import "corpass-theme/design-tokens.css";     (JS/bundler entry)
+
+   This file only defines CSS custom properties + a light, safe base layer
+   (page background, font, smoothing). It does NOT touch your markup, layout,
+   or any component logic. Wire your existing components to these variables.
+
+   Palette sampled directly from the CORPASS reference mockup.
+   ========================================================================== */
+
+:root {
+  /* ---- Brand: deep petrol teal -------------------------------------------- */
+  --cp-brand-50:  #EAF4F3;
+  --cp-brand-100: #D2E8E6;
+  --cp-brand-200: #A7D0CD;
+  --cp-brand-300: #6FB1AD;
+  --cp-brand-400: #2E8C88;
+  --cp-brand-500: #0A6E6E;   /* primary interactive (links, focus) */
+  --cp-brand-600: #015C5D;   /* DEFAULT brand — primary buttons, logo */
+  --cp-brand-700: #034849;   /* hover / pressed */
+  --cp-brand-800: #023638;
+  --cp-brand-900: #012829;   /* deepest — logo plate */
+
+  /* ---- Neutrals: cool gray ------------------------------------------------ */
+  --cp-bg:            #F4F5F7;   /* app canvas / page background */
+  --cp-surface:       #FFFFFF;   /* cards, panels, sidebar */
+  --cp-surface-2:     #FAFBFC;   /* subtle nested sections, row hover */
+  --cp-surface-3:     #F1F2F5;   /* inputs at rest, chips */
+  --cp-border:        #ECEDF0;   /* default hairline borders */
+  --cp-border-strong: #E0E2E7;   /* input borders, dividers needing weight */
+
+  --cp-text:           #16191C;  /* primary text, headings, big numbers */
+  --cp-text-secondary: #4B5563;  /* body, nav labels */
+  --cp-text-muted:     #8A909A;  /* captions, timestamps, placeholders */
+  --cp-text-disabled:  #B4B9C0;
+
+  /* ---- Status (text + soft background pairs) ------------------------------ */
+  --cp-success:     #0F7A57;  --cp-success-bg: #E4F4EC;  --cp-success-border: #C9E9D9;
+  --cp-warning:     #9A6700;  --cp-warning-bg: #FBF0D6;  --cp-warning-border: #F1E0AE;
+  --cp-danger:      #C23B3B;  --cp-danger-bg:  #FBE7E7;  --cp-danger-border:  #F3CFCF;
+  --cp-info:        #2C68B5;  --cp-info-bg:    #E7F0FB;  --cp-info-border:    #CFE0F6;
+  --cp-neutral:     #5B6470;  --cp-neutral-bg: #EFF1F4;  --cp-neutral-border: #E1E4E9;
+
+  /* ---- Typography --------------------------------------------------------- */
+  --cp-font-sans: "Inter", "Plus Jakarta Sans", "Geist", -apple-system,
+                  BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --cp-font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --cp-text-2xs: 11px;
+  --cp-text-xs:  12px;
+  --cp-text-sm:  13px;
+  --cp-text-base:14px;   /* default body */
+  --cp-text-md:  16px;
+  --cp-text-lg:  18px;
+  --cp-text-xl:  22px;
+  --cp-display:  28px;   /* hero stat numbers */
+  --cp-display-lg: 32px;
+
+  --cp-fw-regular:  400;
+  --cp-fw-medium:   500;
+  --cp-fw-semibold: 600;
+  --cp-fw-bold:     700;
+
+  --cp-leading-tight: 1.25;
+  --cp-leading-snug:  1.4;
+  --cp-leading-base:  1.55;
+
+  /* ---- Spacing (4px base) ------------------------------------------------- */
+  --cp-space-1: 4px;
+  --cp-space-2: 8px;
+  --cp-space-3: 12px;
+  --cp-space-4: 16px;
+  --cp-space-5: 20px;
+  --cp-space-6: 24px;
+  --cp-space-8: 32px;
+  --cp-space-10: 40px;
+  --cp-space-12: 48px;
+
+  /* ---- Radius ------------------------------------------------------------- */
+  --cp-radius-sm:   8px;    /* thumbnails, small chips */
+  --cp-radius-md:   12px;   /* buttons, inputs, list items */
+  --cp-radius-lg:   16px;   /* cards, panels */
+  --cp-radius-xl:   20px;
+  --cp-radius-pill: 999px;  /* badges, avatars, toggles */
+
+  /* ---- Shadows (soft, low) ----------------------------------------------- */
+  --cp-shadow-xs: 0 1px 2px rgba(16,24,40,.04);
+  --cp-shadow-sm: 0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+  --cp-shadow-md: 0 4px 12px rgba(16,24,40,.06), 0 2px 4px rgba(16,24,40,.04);
+  --cp-shadow-lg: 0 12px 32px rgba(16,24,40,.10);
+  --cp-shadow-focus: 0 0 0 3px rgba(1,92,93,.18);   /* focus ring */
+
+  /* ---- Layout knobs ------------------------------------------------------- */
+  --cp-sidebar-width: 240px;
+  --cp-card-padding: 22px;
+  --cp-transition: 140ms cubic-bezier(.4,0,.2,1);
+}
+
+/* ----------------------------------------------------------------------------
+   SAFE BASE LAYER
+   Minimal, presentation-only. Remove any rule here that conflicts with an
+   intentional choice in the host app. Nothing here changes behavior.
+   -------------------------------------------------------------------------- */
+body {
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  font-family: var(--cp-font-sans);
+  font-size: var(--cp-text-base);
+  line-height: var(--cp-leading-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--cp-brand-100); color: var(--cp-brand-800); }
+
+:where(a) { color: var(--cp-brand-600); text-decoration: none; }
+:where(a:hover) { color: var(--cp-brand-700); }
+
+/* Visible, on-brand focus for keyboard users (accessibility — keep this). */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--cp-shadow-focus);
+  border-radius: var(--cp-radius-sm);
+}

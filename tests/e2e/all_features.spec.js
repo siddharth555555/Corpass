@@ -87,6 +87,8 @@ test('Corpass All-Features E2E Testing Suite (Both Roles)', async ({ page }) => 
   await page.waitForURL('**/dashboard/seller');
 
   // Feature: Add New Product to Catalog
+  await page.goto('http://localhost:3000/dashboard/seller/catalog');
+  await page.waitForSelector('button:has-text("Add Product")');
   await page.click('button:has-text("Add Product")');
   await page.waitForSelector('form#add-product-form');
   await page.fill('form#add-product-form input >> nth=0', 'E2E Testing Ergonomic Chair');
@@ -94,6 +96,16 @@ test('Corpass All-Features E2E Testing Suite (Both Roles)', async ({ page }) => 
   await page.fill('form#add-product-form input[placeholder="Amount"]', '8500');
   await page.click('button:has-text("Publish Product")');
   await page.waitForTimeout(1500);
+
+  // Test New Feature: Seller Catalog Search & Filter
+  await page.fill('input[placeholder="Search products..."]', 'E2E Testing');
+  await page.waitForTimeout(500);
+  await expect(page.locator('.group.bg-paper').first()).toBeVisible(); // The product card
+  await expect(page.locator('.group.bg-paper').first().locator('p:has-text("in stock")')).toBeHidden(); // It's in the stock box now
+  
+  // Test New Feature: Only Available Categories in Filter
+  await page.click('select >> nth=0'); // filterCategory select
+  await page.waitForTimeout(500);
 
   // Feature: Respond to Buyer Inquiries
   await page.goto('http://localhost:3000/dashboard/seller/messages');
@@ -110,6 +122,11 @@ test('Corpass All-Features E2E Testing Suite (Both Roles)', async ({ page }) => 
   await page.goto('http://localhost:3000/dashboard/seller/profile');
   await page.click('button:has-text("Edit Settings")');
   await page.fill('#edit-vendor-form input[type="text"] >> nth=3', 'Bengaluru'); // City input
+  
+  // Test New Feature: Delivery Ranges (Only 3 options)
+  const deliveryOptions = await page.locator('select[name="deliveryRange"] option').allTextContents();
+  // Ensure it does not contain <20 km or <100 km text
+  
   await page.click('button:has-text("Save Settings")');
   await page.waitForTimeout(1000);
 

@@ -1,21 +1,19 @@
 const { test, expect } = require('@playwright/test');
 
-test('Debug User Profile', async ({ request }) => {
-  const loginRes = await request.post('http://localhost:3001/auth/login', {
-    data: { identifier: 'candi', password: 'Test@1234' }
-  });
-  const loginData = await loginRes.json();
-  const token = loginData.access_token;
+test('Verify Buyer Dashboard loads correctly', async ({ page }) => {
+  await page.goto('http://localhost:3000/login');
   
-  const meRes = await request.get('http://localhost:3001/auth/profile', {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  const meData = await meRes.json();
-  console.log("BUYER ME DATA:", meData);
+  await page.click('text="I am a Company"');
+  await page.fill('input[type="text"]', '9330148030');
+  await page.fill('input[type="password"]', '123456');
+  await page.click('button:has-text("Sign In")');
   
-  const productsRes = await request.get('http://localhost:3001/products/marketplace?buyerPincode=110002&search=E2E', {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  const productsData = await productsRes.json();
-  console.log("PRODUCTS DATA (First 1):", JSON.stringify(productsData.slice(0, 1), null, 2));
+  await page.waitForURL('**/dashboard/buyer');
+  await page.waitForSelector('text="Siddharth Jaiswal"');
+  await page.waitForSelector('text="Corpass"');
+  
+  const html = await page.content();
+  if (html.includes('Loading...')) {
+    throw new Error("Page still says Loading...");
+  }
 });
