@@ -46,7 +46,7 @@ test('login page test', async ({ page }) => {
   console.log(`Current URL after submit: ${currentUrl}`);
   
   // Check if error message container is visible
-  const errorContainer = await page.$('.bg-danger-50');
+  const errorContainer = await page.$('.bg-copper-bg');
   if (errorContainer) {
     const errorMessage = await errorContainer.textContent();
     console.log(`Error message displayed: "${errorMessage?.trim()}"`);

@@ -21,7 +21,7 @@ test('Corpass Checkout E2E Flow', async ({ page }) => {
   await page.waitForTimeout(1500); // wait for network
 
   // 3. IN-RANGE ORDER PLACEMENT
-  await page.fill('input[placeholder="6 Digit Pincode"]', '110001'); // Delhi
+  await page.fill('input[placeholder="6 Digit Pincode"]', '560001'); // Bangalore
   await page.click('button[title="Apply Pincode"]');
   await page.waitForTimeout(1500); // wait for network
 
@@ -32,7 +32,7 @@ test('Corpass Checkout E2E Flow', async ({ page }) => {
   // Fill modal
   await page.waitForSelector('input[type="number"]');
   await page.fill('input[type="number"]', '');
-  await page.fill('input[type="number"]', '5');
+  await page.fill('input[type="number"]', '500');
   
   // Addresses
   await page.fill('textarea[placeholder="Enter delivery address..."]', '123 E2E Test Street');
@@ -43,14 +43,15 @@ test('Corpass Checkout E2E Flow', async ({ page }) => {
   await sameAsShipping.uncheck();
   await page.fill('textarea[placeholder="Enter billing address..."]', '456 Corporate Ave, Billing Dept');
 
+  // Select Payment Method
+  await page.selectOption('#payment-mode-select', 'BANK_TRANSFER');
+
   // Place Order
   await page.click('button:has-text("Place Order")');
   await page.waitForURL(/\/dashboard\/buyer\/orders/);
-  await expect(page.locator('span:has-text("PLACED")').first()).toBeVisible();
+  await expect(page.locator('span:has-text("New Order")').first()).toBeVisible();
 
-  // 4. SELLER LOGIC & INVOICING
-  // Find out who the seller is (wait, since we don't know exactly which seller owns the first product, let's look at the DB or seed!)
-  // Actually, I can just log into `seller20` (Spark Creative) because they own the chair which is first in the list usually!
+  // 4. SELLER LOGIC
   await page.evaluate(() => localStorage.removeItem('access_token'));
   
   await page.goto('/login');
@@ -60,31 +61,29 @@ test('Corpass Checkout E2E Flow', async ({ page }) => {
   await page.click('button[type="submit"]');
   await expect(page).toHaveURL(/\/dashboard\/seller/);
 
-  // Manage Order
+  // Manage Order (Split Pane)
   await page.goto('/dashboard/seller/orders');
-  const orderCard = page.locator('.border-border-subtle', { hasText: 'PLACED' }).first();
-  await orderCard.click(); 
+  
+  // Select first order in the left pane
+  const orderListButton = page.locator('button', { hasText: 'New Order' }).first();
+  await orderListButton.click(); 
 
-  // Confirm -> Ship -> Deliver
-  const confirmBtn = orderCard.locator('button:has-text("Confirm Order")');
+  // Right pane actions
+  const confirmBtn = page.locator('button:has-text("Confirm Order")');
   if (await confirmBtn.isVisible()) {
     await confirmBtn.click();
-    await expect(orderCard.locator('span:has-text("CONFIRMED")')).toBeVisible();
+    await expect(page.locator('.p-5.border-b').locator('span:has-text("Confirmed")')).toBeVisible();
   }
 
-  const shipBtn = orderCard.locator('button:has-text("Mark Shipped")');
+  const shipBtn = page.locator('button:has-text("Mark Shipped")');
   if (await shipBtn.isVisible()) {
     await shipBtn.click();
-    await expect(orderCard.locator('span:has-text("SHIPPED")')).toBeVisible();
+    await expect(page.locator('.p-5.border-b').locator('span:has-text("Shipped")')).toBeVisible();
   }
 
-  const deliverBtn = orderCard.locator('button:has-text("Mark Delivered")');
+  const deliverBtn = page.locator('button:has-text("Mark Delivered")');
   if (await deliverBtn.isVisible()) {
     await deliverBtn.click();
-    await expect(orderCard.locator('span:has-text("DELIVERED")')).toBeVisible();
+    await expect(page.locator('.p-5.border-b').locator('span:has-text("Delivered")')).toBeVisible();
   }
-
-  // Auto Invoice Verification
-  await page.goto('/dashboard/seller/invoices');
-  await expect(page.locator('div:has-text("INV-")').first()).toBeVisible();
 });

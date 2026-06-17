@@ -1,0 +1,1317 @@
+< !DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Corpass — Design System & Specification</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"><style>
+
+/* ============================================================
+   CORPASS DESIGN TOKENS  —  this stylesheet IS the system.
+   Every value below is the documented, canonical token.
+   ============================================================ */
+:root {
+    /* — Core neutrals (warm, never pure black/white) — */
+    --ink: #1C1B17;
+    /* primary text, deep surfaces      */
+    --ink-2: #3A3934;
+    /* strong secondary text            */
+    --slate: #6B6960;
+    /* muted text, captions             */
+    --slate-2: #97948A;
+    /* faint text, placeholders         */
+    --line: #E4E0D6;
+    /* hairline rules, borders          */
+    --line-strong: #D2CDC0;
+    /* emphasized dividers              */
+    --paper: #F4F2EB;
+    /* app + marketing canvas (warm)    */
+    --paper-2: #ECE9DF;
+    /* recessed wells, table zebra      */
+    --surface: #FDFCF8;
+    /* cards, panels                    */
+    --surface-2: #FFFFFF;
+    /* raised/elevated surfaces         */
+
+    /* — Identity: Evergreen (primary / money / trust) — */
+    --green-900: #13352A;
+    --green-700: #1E4D3A;
+    /* primary brand                    */
+    --green-600: #2C6B50;
+    /* interactive / hover              */
+    --green-500: #3C8466;
+    --green-100: #DCE8DF;
+    /* tints, active-nav wash           */
+    --green-050: #EDF3ED;
+
+    /* — Accent: Copper (warmth, secondary energy) — */
+    --copper-700: #9A4F22;
+    --copper-600: #B5632E;
+    /* accent base                      */
+    --copper-100: #F1E1D2;
+
+    /* — Semantic status (the procurement state machine) — */
+    --info: #2D5C86;
+    --info-100: #DCE6F0;
+    /* Placed / neutral */
+    --ok: #2C6B50;
+    --ok-100: #DCE8DF;
+    /* Confirmed/In-Stock/Delivered */
+    --warn: #9C7211;
+    --warn-100: #F2E9CF;
+    /* Low / Pending    */
+    --danger: #A8392F;
+    --danger-100: #F2DAD6;
+    /* Rejected/Out/Dispute */
+    --ship: #6B4F9A;
+    --ship-100: #E5DEF1;
+    /* Shipped (in-transit) */
+
+    /* — Type — */
+    --display: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --mono: 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
+
+    /* — Spacing scale (4pt base) — */
+    --s1: 4px;
+    --s2: 8px;
+    --s3: 12px;
+    --s4: 16px;
+    --s5: 24px;
+    --s6: 32px;
+    --s7: 48px;
+    --s8: 64px;
+    --s9: 96px;
+
+    /* — Radius — */
+    --r-sm: 6px;
+    --r: 10px;
+    --r-lg: 16px;
+    --r-xl: 22px;
+    --r-pill: 999px;
+
+    /* — Elevation (warm-tinted, never blue-gray) — */
+    --e1: 0 1px 2px rgba(28, 27, 23, .05), 0 1px 1px rgba(28, 27, 23, .04);
+    --e2: 0 4px 14px -4px rgba(28, 27, 23, .12), 0 2px 4px rgba(28, 27, 23, .05);
+    --e3: 0 18px 48px -12px rgba(28, 27, 23, .22), 0 4px 10px rgba(28, 27, 23, .06);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+}
+
+html {
+    scroll-behavior: smooth
+}
+
+@media (prefers-reduced-motion:reduce) {
+    html {
+        scroll-behavior: auto
+    }
+
+    * {
+        animation: none !important;
+        transition: none !important
+    }
+}
+
+body {
+    font-family: var(--ui);
+    color: var(--ink);
+    background: var(--paper);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "cv05", "ss01";
+}
+
+/* ---------- App frame: sticky nav + content ---------- */
+.shell {
+    display: grid;
+    grid-template-columns: 288px 1fr;
+    max-width: 1440px;
+    margin: 0 auto;
+    min-height: 100vh
+}
+
+.nav {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+    background: var(--surface);
+    padding: var(--s6) var(--s5);
+}
+
+.nav .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: var(--s6)
+}
+
+.nav .mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: var(--green-700);
+    color: #F4F2EB;
+    display: grid;
+    place-items: center;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 19px;
+    box-shadow: var(--e1);
+    flex: none;
+}
+
+.nav .brand b {
+    font-family: var(--display);
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -.01em
+}
+
+.nav .brand small {
+    display: block;
+    font-size: 11px;
+    color: var(--slate);
+    letter-spacing: .04em;
+    text-transform: uppercase
+}
+
+.nav .eyebrow {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--slate-2);
+    margin: var(--s5) 0 var(--s2)
+}
+
+.nav a {
+    display: block;
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 7px;
+    transition: background .15s, color .15s
+}
+
+.nav a .n {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--slate-2);
+    margin-right: 8px
+}
+
+.nav a:hover {
+    background: var(--green-050);
+    color: var(--green-700)
+}
+
+.nav a:hover .n {
+    color: var(--green-600)
+}
+
+.content {
+    padding: var(--s8) clamp(24px, 5vw, 80px);
+    max-width: 1000px
+}
+
+/* ---------- Document typography ---------- */
+.section {
+    padding-top: var(--s8);
+    margin-top: var(--s8);
+    border-top: 1px solid var(--line);
+    scroll-margin-top: 24px
+}
+
+.section:first-of-type {
+    border-top: 0;
+    margin-top: 0;
+    padding-top: 0
+}
+
+.kicker {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--copper-600);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: var(--s3)
+}
+
+.kicker::before {
+    content: "";
+    width: 26px;
+    height: 1.5px;
+    background: var(--copper-600);
+    display: inline-block
+}
+
+h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(40px, 6vw, 68px);
+    line-height: 1.02;
+    letter-spacing: -.02em;
+    margin-bottom: var(--s4)
+}
+
+h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.08;
+    letter-spacing: -.015em;
+    margin-bottom: var(--s4)
+}
+
+h3 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 23px;
+    letter-spacing: -.01em;
+    margin: var(--s6) 0 var(--s3)
+}
+
+h4 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .005em;
+    margin: var(--s5) 0 var(--s2)
+}
+
+p {
+    margin-bottom: var(--s4);
+    color: var(--ink-2);
+    max-width: 68ch
+}
+
+.lead {
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 60ch
+}
+
+strong {
+    font-weight: 600;
+    color: var(--ink)
+}
+
+em {
+    font-style: normal;
+    font-family: var(--mono);
+    font-size: .88em;
+    background: var(--paper-2);
+    padding: 1px 6px;
+    border-radius: 5px;
+    color: var(--green-700)
+}
+
+a.inline {
+    color: var(--green-600);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px
+}
+
+ul.clean {
+    list-style: none;
+    margin: 0 0 var(--s4)
+}
+
+ul.clean li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 8px;
+    color: var(--ink-2);
+    max-width: 66ch
+}
+
+ul.clean li::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 11px;
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--green-600)
+}
+
+ul.clean li strong {
+    color: var(--ink)
+}
+
+/* ---------- Ledger rule (the signature) ---------- */
+.ledger-note {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--slate);
+    border-left: 2px solid var(--copper-600);
+    padding: 6px 0 6px 14px;
+    margin: var(--s4) 0;
+    background: linear-gradient(90deg, var(--paper-2), transparent)
+}
+
+/* ---------- Cards & grids in the doc ---------- */
+.bento {
+    display: grid;
+    gap: var(--s3);
+    margin: var(--s5) 0
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: var(--s5);
+    box-shadow: var(--e1)
+}
+
+.card h4 {
+    margin-top: 0
+}
+
+.card p {
+    font-size: 14px;
+    margin-bottom: 0;
+    color: var(--slate)
+}
+
+/* ---------- Color swatches ---------- */
+.swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--s3);
+    margin: var(--s5) 0
+}
+
+.sw {
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    overflow: hidden;
+    background: var(--surface)
+}
+
+.sw .chip {
+    height: 70px;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px
+}
+
+.sw .meta {
+    padding: 8px 10px
+}
+
+.sw .meta b {
+    display: block;
+    font-size: 12.5px
+}
+
+.sw .meta code {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--slate)
+}
+
+.sw .role {
+    font-size: 11px;
+    color: var(--slate);
+    display: block;
+    margin-top: 2px
+}
+
+/* ---------- Type specimen ---------- */
+.spec-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s5);
+    padding: var(--s3) 0;
+    border-bottom: 1px solid var(--line)
+}
+
+.spec-row .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--slate);
+    width: 120px;
+    flex: none
+}
+
+.spec-row .demo {
+    line-height: 1
+}
+
+/* ---------- Component demo surface ---------- */
+.demo-stage {
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: var(--s6);
+    margin: var(--s4) 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3);
+    align-items: center
+}
+
+.demo-stage.col {
+    flex-direction: column;
+    align-items: stretch
+}
+
+/* buttons */
+.btn {
+    font-family: var(--ui);
+    font-weight: 550;
+    font-size: 14px;
+    border-radius: var(--r-sm);
+    padding: 10px 18px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px
+}
+
+.btn-primary {
+    background: var(--green-700);
+    color: #F4F2EB;
+    box-shadow: var(--e1)
+}
+
+.btn-primary:hover {
+    background: var(--green-600)
+}
+
+.btn-accent {
+    background: var(--copper-600);
+    color: #FDFCF8
+}
+
+.btn-accent:hover {
+    background: var(--copper-700)
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--green-700);
+    border-color: var(--line-strong)
+}
+
+.btn-outline:hover {
+    border-color: var(--green-600);
+    background: var(--green-050)
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--ink-2)
+}
+
+.btn-ghost:hover {
+    background: var(--paper-2)
+}
+
+.btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border-color: var(--danger-100)
+}
+
+/* badges / status */
+.badge {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: .02em;
+    padding: 3px 9px 3px 8px;
+    border-radius: var(--r-pill);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px
+}
+
+.badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%
+}
+
+.b-info {
+    background: var(--info-100);
+    color: var(--info)
+}
+
+.b-info .dot {
+    background: var(--info)
+}
+
+.b-ok {
+    background: var(--ok-100);
+    color: var(--ok)
+}
+
+.b-ok .dot {
+    background: var(--ok)
+}
+
+.b-warn {
+    background: var(--warn-100);
+    color: var(--warn)
+}
+
+.b-warn .dot {
+    background: var(--warn)
+}
+
+.b-danger {
+    background: var(--danger-100);
+    color: var(--danger)
+}
+
+.b-danger .dot {
+    background: var(--danger)
+}
+
+.b-ship {
+    background: var(--ship-100);
+    color: var(--ship)
+}
+
+.b-ship .dot {
+    background: var(--ship)
+}
+
+/* input */
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 220px
+}
+
+.field label {
+    font-size: 12.5px;
+    font-weight: 550;
+    color: var(--ink-2)
+}
+
+.field input,
+.field select {
+    font-family: var(--ui);
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--surface-2);
+    color: var(--ink)
+}
+
+.field input:focus {
+    outline: 2px solid var(--green-600);
+    outline-offset: 1px;
+    border-color: transparent
+}
+
+.field .mono-in {
+    font-family: var(--mono)
+}
+
+/* ASCII wireframe block */
+.wire {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.5;
+    background: var(--ink);
+    color: #C9C5B6;
+    border-radius: var(--r-lg);
+    padding: var(--s5);
+    overflow-x: auto;
+    margin: var(--s4) 0;
+    white-space: pre;
+    box-shadow: var(--e2)
+}
+
+.wire .hl {
+    color: var(--green-500)
+}
+
+.wire .ac {
+    color: var(--copper-600)
+}
+
+.wire .dim {
+    color: #6E6B5E
+}
+
+/* ledger table demo */
+.ltab {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin: var(--s4) 0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    overflow: hidden
+}
+
+.ltab th {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--slate);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line-strong);
+    background: var(--paper-2)
+}
+
+.ltab td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-2)
+}
+
+.ltab tr:last-child td {
+    border-bottom: 0
+}
+
+.ltab .num {
+    font-family: var(--mono);
+    text-align: right;
+    color: var(--ink)
+}
+
+.ltab .id {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--slate)
+}
+
+/* callout */
+.callout {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--green-600);
+    background: var(--green-050);
+    border-radius: var(--r);
+    padding: var(--s4) var(--s5);
+    margin: var(--s4) 0
+}
+
+.callout.warn {
+    border-left-color: var(--copper-600);
+    background: var(--copper-100)
+}
+
+.callout p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ink-2)
+}
+
+.callout b {
+    color: var(--ink)
+}
+
+/* page-spec header */
+.page-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: var(--s3);
+    border-bottom: 1.5px solid var(--ink);
+    margin-bottom: var(--s4)
+}
+
+.page-head .route {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--green-700);
+    background: var(--green-050);
+    padding: 4px 10px;
+    border-radius: var(--r-sm)
+}
+
+.two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s5)
+}
+
+@media(max-width:880px) {
+    .shell {
+        grid-template-columns: 1fr
+    }
+
+    .nav {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line)
+    }
+
+    .two {
+        grid-template-columns: 1fr
+    }
+
+    .content {
+        padding: var(--s6) var(--s5)
+    }
+}
+
+footer {
+    margin-top: var(--s9);
+    padding-top: var(--s6);
+    border-top: 1px solid var(--line);
+    color: var(--slate);
+    font-size: 13px
+}
+
+</style></head><body><div class="shell">< !--=====================STICKY NAV=====================--><nav class="nav"><div class="brand"><div class="mark">C</div><div><b>Corpass</b><small>Design System</small></div></div><div class="eyebrow">Foundations</div><a href="#thesis"><span class="n">00</span>Design thesis</a><a href="#voice"><span class="n">01</span>Brand &amp;
+voice</a><a href="#color"><span class="n">02</span>Color</a><a href="#type"><span class="n">03</span>Typography</a><a href="#space"><span class="n">04</span>Space &amp;
+grid</a><a href="#depth"><span class="n">05</span>Depth &amp;
+the rule</a><a href="#motion"><span class="n">06</span>Motion</a><div class="eyebrow">Components</div><a href="#components"><span class="n">07</span>Component library</a><a href="#status"><span class="n">08</span>Status system</a><div class="eyebrow">Public</div><a href="#landing"><span class="n">09</span>Landing</a><a href="#login"><span class="n">10</span>Login</a><a href="#register"><span class="n">11</span>Register</a><div class="eyebrow">Buyer workspace</div><a href="#buyer-shell"><span class="n">12</span>App shell</a><a href="#buyer-overview"><span class="n">13</span>Overview</a><a href="#buyer-market"><span class="n">14</span>Marketplace</a><a href="#buyer-messages"><span class="n">15</span>Messages</a><a href="#buyer-orders"><span class="n">16</span>Orders &amp;
+invoices</a><a href="#buyer-assets"><span class="n">17</span>Assets</a><a href="#buyer-profile"><span class="n">18</span>Profile</a><div class="eyebrow">Seller workspace</div><a href="#seller-overview"><span class="n">19</span>Overview</a><a href="#seller-catalog"><span class="n">20</span>Catalog</a><a href="#seller-stock"><span class="n">21</span>Stock</a><a href="#seller-orders"><span class="n">22</span>Orders</a><a href="#seller-profile"><span class="n">23</span>Profile</a><div class="eyebrow">Shared</div><a href="#support"><span class="n">24</span>Support</a><a href="#patterns"><span class="n">25</span>Patterns &amp;
+states</a></nav><main class="content">< !--==============00 THESIS==============--><section class="section" id="thesis"><div class="kicker">Corpass · B2B Procurement &amp;
+Asset Platform</div><h1>A procurement platform that reads like a ledger,
+not a brochure.</h1><p class="lead">Corpass moves real corporate money between companies. The design language is built for that weight: precise,
+auditable,
+and calm — closer to a well-kept financial ledger than a consumer marketplace.</p><h3>The single idea everything hangs on</h3><p>Most B2B SaaS looks the same because it decorates first and decides later. Corpass decides first. The product is about <strong>quantities,
+prices,
+identifiers,
+and the state of a transaction over time</strong>— so those are the things we typeset with the most care.</p><div class="callout"><p><b>The Ledger.</b>Every monetary value,
+quantity,
+order ID,
+GSTIN,
+pincode,
+and stock count is rendered in a monospaced face (IBM Plex Mono),
+right-aligned when numeric,
+and separated by hairline rules. Money lines up. Numbers tabulate. The eye can scan a column the way an accountant does. This one decision is the through-line from the landing hero to the stock table — it is what makes Corpass recognizably itself.</p></div><h3>What we are deliberately <em>not</em>building</h3><ul class="clean"><li><strong>Not the SaaS-indigo template.</strong>No violet gradient hero,
+no rounded-everything,
+no purple primary. Our identity color is evergreen — it reads as money,
+stability,
+and growth,
+and it is uncommon enough to own.</li><li><strong>Not a sea of identical cards.</strong>Dashboards use asymmetric bento tiles with a clear focal point and dense,
+elegant tables — the discipline of SAP Fiori with the finish of Stripe — never a uniform 4×4 grid of equal boxes.</li><li><strong>Not lists for the sake of lists.</strong>Where data is relational and scannable (orders, stock, catalog) we use a real ledger table. Lists are reserved for genuinely linear content (a conversation, an activity feed).</li></ul><div class="bento" style="grid-template-columns:1.4fr 1fr 1fr"><div class="card"><h4>Precision over polish</h4><p>If a number is wrong by a rupee,
+the design has failed. Alignment,
+tabular figures,
+and clear state come before flourish.</p></div><div class="card"><h4>Density done well</h4><p>Procurement teams scan a lot at once. We earn density with hierarchy,
+rhythm,
+and rules — not by cramming.</p></div><div class="card"><h4>Two audiences,
+one grammar</h4><p>Buyer and seller share the same components and tokens;
+only the verbs and accents change. One product,
+two doors.</p></div></div></section>< !--==============01 VOICE==============--><section class="section" id="voice"><div class="kicker">01 — Brand &amp;
+Voice</div><h2>Plain,
+exact,
+and quietly confident.</h2><p>Corpass talks the way a good procurement manager does: it never oversells,
+it is specific about money and timelines,
+and it tells you exactly what a button will do before you press it.</p><div class="two"><div><h4>Tone principles</h4><ul class="clean"><li><strong>Name actions by their consequence.</strong>"Place order",
+"Request quote",
+"Mark shipped" — not "Submit" or "Confirm" .</li><li><strong>One verb,
+end to end.</strong>The button that says "Place order" produces a toast that says "Order placed" . The vocabulary never drifts.</li><li><strong>Sentence case everywhere.</strong>Titles,
+buttons,
+labels. Title Case reads as marketing;
+we are an instrument.</li><li><strong>Empty states give direction</strong>,
+not mood. "No requests yet — browse the marketplace to start one." </li></ul></div><div><h4>Numbers are first-class words</h4><p>Currency always shows the symbol and thousands separators in mono: <em>₹ 1,
+84,
+500</em>. Counts are mono and bold. Dates are <em>14 Jun 2026</em>,
+never "06/14" . IDs keep their prefix: <em>ORD-20493</em>,
+<em>INV-A-0071</em>.</p><div class="ledger-note">Rule: anything a buyer could dispute — price,
+quantity,
+tax,
+ID,
+date — is monospaced so two figures can be compared character-for-character.</div></div></div></section>< !--==============02 COLOR==============--><section class="section" id="color"><div class="kicker">02 — Color</div><h2>Warm paper,
+warm ink,
+evergreen money.</h2><p>The palette starts from a warm ivory paper and warm near-black ink — the surface of a ledger,
+not the cold blue-white of generic dashboards. The identity color is a deep <strong>evergreen</strong>;
+<strong>copper</strong>is the single warm accent. Status colors are a disciplined,
+desaturated set tuned to sit calmly on paper.</p><h4>Neutrals — the paper &amp;
+the ink</h4><div class="swatches"><div class="sw"><div class="chip" style="background:var(--ink)"></div><div class="meta"><b>Ink</b><code>#1C1B17</code><span class="role">Primary text,
+dark surfaces</span></div></div><div class="sw"><div class="chip" style="background:var(--slate)"></div><div class="meta"><b>Slate</b><code>#6B6960</code><span class="role">Muted / caption text</span></div></div><div class="sw"><div class="chip" style="background:var(--line);border-bottom:1px solid #ccc"></div><div class="meta"><b>Line</b><code>#E4E0D6</code><span class="role">Hairline rules,
+borders</span></div></div><div class="sw"><div class="chip" style="background:var(--paper);border-bottom:1px solid #ddd"></div><div class="meta"><b>Paper</b><code>#F4F2EB</code><span class="role">App+marketing canvas</span></div></div><div class="sw"><div class="chip" style="background:var(--surface);border-bottom:1px solid #ddd"></div><div class="meta"><b>Surface</b><code>#FDFCF8</code><span class="role">Cards &amp;
+panels</span></div></div></div><h4>Identity — Evergreen</h4><div class="swatches"><div class="sw"><div class="chip" style="background:var(--green-900)"></div><div class="meta"><b>Green 900</b><code>#13352A</code><span class="role">Deep wells,
+sidebar</span></div></div><div class="sw"><div class="chip" style="background:var(--green-700)"></div><div class="meta"><b>Green 700 · brand</b><code>#1E4D3A</code><span class="role">Primary buttons,
+logo</span></div></div><div class="sw"><div class="chip" style="background:var(--green-600)"></div><div class="meta"><b>Green 600</b><code>#2C6B50</code><span class="role">Hover / interactive</span></div></div><div class="sw"><div class="chip" style="background:var(--green-100)"></div><div class="meta"><b>Green 100</b><code>#DCE8DF</code><span class="role">Active-nav wash,
+tints</span></div></div></div><h4>Accent — Copper</h4><div class="swatches"><div class="sw"><div class="chip" style="background:var(--copper-700)"></div><div class="meta"><b>Copper 700</b><code>#9A4F22</code><span class="role">Accent hover</span></div></div><div class="sw"><div class="chip" style="background:var(--copper-600)"></div><div class="meta"><b>Copper 600 · accent</b><code>#B5632E</code><span class="role">Eyebrows,
+secondary CTA,
+highlights</span></div></div><div class="sw"><div class="chip" style="background:var(--copper-100)"></div><div class="meta"><b>Copper 100</b><code>#F1E1D2</code><span class="role">Accent tint backgrounds</span></div></div></div><h4>Status — the procurement state machine</h4><div class="swatches"><div class="sw"><div class="chip" style="background:var(--info)"></div><div class="meta"><b>Placed / Info</b><code>#2D5C86</code><span class="role">Order created,
+neutral</span></div></div><div class="sw"><div class="chip" style="background:var(--ok)"></div><div class="meta"><b>Confirmed / OK</b><code>#2C6B50</code><span class="role">Confirmed,
+In&nbsp;
+stock,
+Delivered</span></div></div><div class="sw"><div class="chip" style="background:var(--ship)"></div><div class="meta"><b>Shipped</b><code>#6B4F9A</code><span class="role">In transit</span></div></div><div class="sw"><div class="chip" style="background:var(--warn)"></div><div class="meta"><b>Pending / Low</b><code>#9C7211</code><span class="role">Awaiting,
+low stock</span></div></div><div class="sw"><div class="chip" style="background:var(--danger)"></div><div class="meta"><b>Rejected / Out</b><code>#A8392F</code><span class="role">Rejected,
+out of stock,
+dispute</span></div></div></div><div class="callout warn"><p><b>Why not the cream-and-terracotta look?</b>Warm paper alone drifts toward a now-common AI default. We avoid it by making <b>evergreen</b>— not terracotta — the load-bearing color,
+by anchoring every screen in ledger rules and tabular data rather than editorial whitespace,
+and by keeping copper a supporting accent. The combination of warm paper+deep green+copper+mono numerals is the recognizable fingerprint.</p></div></section>< !--==============03 TYPE==============--><section class="section" id="type"><div class="kicker">03 — Typography</div><h2>Fraunces,
+Inter,
+Plex Mono.</h2><p>Three roles,
+chosen for procurement specifically: a characterful serif for moments of confidence,
+a neutral workhorse for dense UI,
+and a monospace that <em>is</em>the ledger voice.</p><div class="spec-row"><span class="tag">Display · Fraunces</span><span class="demo" style="font-family:var(--display);font-weight:600;font-size:44px;letter-spacing:-.02em">Managed in one place</span></div><div class="spec-row"><span class="tag">H2 · Fraunces 600</span><span class="demo" style="font-family:var(--display);font-weight:600;font-size:30px;letter-spacing:-.015em">Recent procurement requests</span></div><div class="spec-row"><span class="tag">Body · Inter 400</span><span class="demo" style="font-family:var(--ui);font-size:18px">Track every order from quote to delivery,
+with a full audit trail.</span></div><div class="spec-row"><span class="tag">Label · Inter 550</span><span class="demo" style="font-family:var(--ui);font-weight:550;font-size:14px">Shipping address</span></div><div class="spec-row"><span class="tag">Data · Plex Mono</span><span class="demo" style="font-family:var(--mono);font-size:18px">₹ 1,
+84,
+500 · ORD-20493 · 14 Jun 2026</span></div><div class="spec-row" style="border-bottom:0"><span class="tag">Eyebrow · Mono caps</span><span class="demo" style="font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--copper-600)">Enterprise-grade procurement</span></div><h4>Type scale (rem @ 16px root)</h4><table class="ltab"><thead><tr><th>Token</th><th>Size / line</th><th>Face · weight</th><th>Use</th></tr></thead><tbody><tr><td class="id">display</td><td class="num">3.5–4.25rem / 1.02</td><td>Fraunces 600</td><td>Landing hero,
+page wordmarks</td></tr><tr><td class="id">h1</td><td class="num">2.25rem / 1.1</td><td>Fraunces 600</td><td>Page titles in app</td></tr><tr><td class="id">h2</td><td class="num">1.5rem / 1.15</td><td>Fraunces 600</td><td>Card &amp;
+section headers</td></tr><tr><td class="id">body-lg</td><td class="num">1.125rem / 1.5</td><td>Inter 400</td><td>Lead paragraphs,
+hero sub</td></tr><tr><td class="id">body</td><td class="num">0.9375rem / 1.6</td><td>Inter 400</td><td>Default UI text</td></tr><tr><td class="id">label</td><td class="num">0.8125rem / 1.4</td><td>Inter 550</td><td>Form labels,
+table headers</td></tr><tr><td class="id">data</td><td class="num">0.875rem / 1.4</td><td>Plex Mono 500</td><td>Money,
+IDs,
+counts,
+dates</td></tr><tr><td class="id">eyebrow</td><td class="num">0.75rem / 1,
++.16em</td><td>Plex Mono · caps</td><td>Kickers,
+section labels</td></tr></tbody></table></section>< !--==============04 SPACE==============--><section class="section" id="space"><div class="kicker">04 — Space &amp;
+Grid</div><h2>A 4-point rhythm and an asymmetric grid.</h2><p>Spacing steps in multiples of 4: <em>4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 96</em>. Section gaps are generous (32–48);
+intra-component gaps are tight (8–12). The discipline is what lets density read as calm.</p><h4>Breakpoints</h4><table class="ltab"><thead><tr><th>Name</th><th>Width</th><th>Layout behaviour</th></tr></thead><tbody><tr><td>Mobile</td><td class="num">&lt;
+640</td><td>Sidebar collapses to drawer;
+bento stacks to single column;
+tables become stacked record cards.</td></tr><tr><td>Tablet</td><td class="num">640–1024</td><td>Sidebar overlays;
+bento drops to 2 columns;
+tables scroll horizontally with sticky first column.</td></tr><tr><td>Desktop</td><td class="num">1024–1440</td><td>Fixed 260px sidebar+fluid content;
+full bento &amp;
+tables.</td></tr><tr><td>Wide</td><td class="num">&gt;
+1440</td><td>Content max-width caps;
+extra space becomes margin,
+not stretched cards.</td></tr></tbody></table><div class="callout"><p><b>The anti-grid rule.</b>Dashboard tiles are sized by importance,
+not by a tidy matrix. A typical overview is one wide focal tile (the number that matters most) paired with two or three smaller satellites — a 12-column track where tiles span <b>5 / 3 / 4</b>or <b>7 / 5</b>,
+never six identical 2-wide boxes.</p></div></section>< !--==============05 DEPTH==============--><section class="section" id="depth"><div class="kicker">05 — Depth &amp;
+the Rule</div><h2>Hairlines first,
+shadow last.</h2><p>Corpass separates content with <strong>hairline rules</strong>(the ledger),
+not heavy shadows. Elevation is reserved for things that genuinely float — drawers,
+modals,
+the bundle tray,
+dropdowns. Shadows are warm-tinted (rgba of ink),
+never the default blue-gray.</p><div class="bento" style="grid-template-columns:repeat(3,1fr)"><div class="card" style="box-shadow:var(--e1)"><h4>e1 · resting</h4><p>Cards,
+table containers,
+inputs. Barely there.</p></div><div class="card" style="box-shadow:var(--e2)"><h4>e2 · raised</h4><p>Dropdowns,
+popovers,
+the bundle quote tray.</p></div><div class="card" style="box-shadow:var(--e3)"><h4>e3 · floating</h4><p>Slide-over drawers and centered modals over a scrim.</p></div></div><h4>The ledger rule in practice</h4><div class="ledger-note">A hairline (1px var(--line)) sits under every row of values. Section totals get a slightly heavier rule (var(--line-strong)) above them and a double-weight ink rule for a grand total. This is borrowed straight from accounting and is the most recognizable Corpass detail.</div><table class="ltab"><thead><tr><th>Item</th><th style="text-align:right">Qty</th><th style="text-align:right">Unit</th><th style="text-align:right">Amount</th></tr></thead><tbody><tr><td>Ergonomic chair — Aria</td><td class="num">12</td><td class="num">₹ 8,
+900</td><td class="num">₹ 1,
+06,
+800</td></tr><tr><td>Standing desk — Loft 140</td><td class="num">6</td><td class="num">₹ 12,
+950</td><td class="num">₹ 77,
+700</td></tr><tr style="border-top:2px solid var(--ink)"><td style="font-weight:600">Order total</td><td></td><td></td><td class="num" style="font-weight:600;color:var(--ink)">₹ 1,
+84,
+500</td></tr></tbody></table></section>< !--==============06 MOTION==============--><section class="section" id="motion"><div class="kicker">06 — Motion</div><h2>Brisk,
+functional,
+reduced-motion safe.</h2><ul class="clean"><li><strong>State changes</strong>(hover, focus, badge updates): 120–160ms ease-out. Quick enough to feel instant.</li><li><strong>Drawers &amp;
+the bundle tray</strong>: 220ms slide with a soft ease;
+the scrim fades in parallel.</li><li><strong>Row expansion</strong>(order detail, table record): height+opacity,
+200ms;
+chevron rotates 90°.</li><li><strong>Page-load on landing</strong>: one orchestrated reveal — the ledger rows stagger in at 40ms intervals. Used once,
+on the hero,
+never repeated.</li><li><strong>prefers-reduced-motion</strong>: all transitions drop to instant;
+the staggered reveal renders fully formed. No exceptions.</li></ul></section>< !--==============07 COMPONENTS==============--><section class="section" id="components"><div class="kicker">07 — Component Library</div><h2>The vocabulary.</h2><p>Every screen is assembled from these. Buyer and seller share them exactly;
+only labels and accents differ.</p><h3>Buttons</h3><p>Four ranks. There is at most <strong>one primary per view</strong>— the single most likely action. Copper is reserved for affirmative commerce moments (request quote, place order) where we want warmth without competing with the green primary.</p><div class="demo-stage"><button class="btn btn-primary">Place order</button><button class="btn btn-accent">Request quote</button><button class="btn btn-outline">Inquire</button><button class="btn btn-ghost">Cancel</button><button class="btn btn-danger">Dispute invoice</button></div><ul class="clean"><li><strong>Primary (green 700):</strong>the main commit on a page — Sign in,
+Place order,
+Save.</li><li><strong>Accent (copper):</strong>commerce affirmations — Request quote,
+Buy now,
+Acknowledge.</li><li><strong>Outline:</strong>secondary,
+equal-frequency actions — Inquire,
+Edit,
+Message.</li><li><strong>Ghost:</strong>low-stakes — Cancel,
+Close,
+View all.</li><li><strong>Danger (text/border only):</strong>destructive or adversarial — Reject,
+Cancel order,
+Dispute. Never a solid red fill;
+we don't shout.</li>
+ </ul><h3>Inputs &amp;
+fields</h3><p>Label above field,
+6px gap. 1px border at rest,
+2px evergreen focus ring offset by 1px. Numeric and identifier fields (price, pincode, GSTIN, quantity) use the mono face so typed values match how they'll display.</p>
+ <div class="demo-stage"><div class="field"><label>Email</label><input type="email" placeholder="procurement@company.com"></div><div class="field"><label>Pincode</label><input class="mono-in" maxlength="6" placeholder="560001"></div><div class="field"><label>Category</label><select><option>IT &amp;
+Hardware</option><option>Furniture</option><option>Pantry</option></select></div></div><h3>Status badges</h3><p>Pill,
+mono text,
+a leading status dot. The dot does the color-coding so the system stays legible for color-blind users and in dense tables.</p><div class="demo-stage"><span class="badge b-info"><span class="dot"></span>Placed</span><span class="badge b-ok"><span class="dot"></span>Confirmed</span><span class="badge b-ship"><span class="dot"></span>Shipped</span><span class="badge b-ok"><span class="dot"></span>Delivered</span><span class="badge b-warn"><span class="dot"></span>Pending</span><span class="badge b-danger"><span class="dot"></span>Rejected</span></div><h3>The ledger table</h3><p>The workhorse of the app — orders,
+invoices,
+catalog,
+stock. Mono uppercase column headers on a recessed paper header row;
+hairline rules between records;
+numeric columns right-aligned and mono;
+IDs in muted mono;
+one row action set revealed on hover. Rows expand in place rather than navigating away.</p><table class="ltab"><thead><tr><th>Order</th><th>Product</th><th>Status</th><th style="text-align:right">Qty</th><th style="text-align:right">Total</th></tr></thead><tbody><tr><td class="id">ORD-20493</td><td>Ergonomic chair — Aria</td><td><span class="badge b-ship"><span class="dot"></span>Shipped</span></td><td class="num">12</td><td class="num">₹ 1,
+06,
+800</td></tr><tr><td class="id">ORD-20488</td><td>Standing desk — Loft 140</td><td><span class="badge b-ok"><span class="dot"></span>Confirmed</span></td><td class="num">6</td><td class="num">₹ 77,
+700</td></tr><tr><td class="id">ORD-20480</td><td>Whiteboard glass 4×3</td><td><span class="badge b-info"><span class="dot"></span>Placed</span></td><td class="num">3</td><td class="num">₹ 18,
+450</td></tr></tbody></table><h3>Cards,
+drawers,
+modals,
+toasts</h3><ul class="clean"><li><strong>Card:</strong>surface,
+1px line,
+16px radius,
+e1. Header is a Fraunces h2 with an optional ghost "View all" .</li><li><strong>Slide-over drawer (right, 480px):</strong>for inquiries,
+add-product,
+edit-profile. e3 over a 40%-ink scrim. Header=title+close;
+sticky footer holds the commit button.</li><li><strong>Centered modal (max 520px):</strong>for short focused tasks — update stock,
+leave a review,
+manual invoice.</li><li><strong>Bundle tray:</strong>a docked bar (not a modal) that rises from the viewport bottom when catalog items are selected — e2,
+copper "Request quote" CTA.</li><li><strong>Toast:</strong>bottom-left,
+ink surface,
+mono detail line ("Order ORD-20495 placed"). Auto-dismiss 4s;
+never blocks.</li></ul></section>< !--==============08 STATUS==============--><section class="section" id="status"><div class="kicker">08 — Status System</div><h2>One state machine,
+two vantage points.</h2><p>An order is the same object whether a buyer or seller looks at it. The status colors never change;
+only the available actions flip. This shared truth is why the table component is identical on both sides.</p><table class="ltab"><thead><tr><th>State</th><th>Badge</th><th>Buyer can</th><th>Seller can</th></tr></thead><tbody><tr><td>Placed</td><td><span class="badge b-info"><span class="dot"></span>Placed</span></td><td>Cancel · Message</td><td>Confirm · Reject · Negotiate</td></tr><tr><td>Confirmed</td><td><span class="badge b-ok"><span class="dot"></span>Confirmed</span></td><td>Message</td><td>Mark shipped</td></tr><tr><td>Shipped</td><td><span class="badge b-ship"><span class="dot"></span>Shipped</span></td><td>Message</td><td>Mark delivered</td></tr><tr><td>Delivered</td><td><span class="badge b-ok"><span class="dot"></span>Delivered</span></td><td>Leave a review</td><td>Rate buyer</td></tr></tbody></table><h4>Stock states</h4><div class="demo-stage"><span class="badge b-ok"><span class="dot"></span>In stock</span><span class="badge b-warn"><span class="dot"></span>Low stock</span><span class="badge b-danger"><span class="dot"></span>Out of stock</span></div><h4>Asset condition</h4><div class="demo-stage"><span class="badge b-ok"><span class="dot"></span>Perfect</span><span class="badge b-ok" style="opacity:.75"><span class="dot"></span>Good</span><span class="badge b-warn"><span class="dot"></span>Fair</span><span class="badge b-danger" style="opacity:.8"><span class="dot"></span>Poor</span><span class="badge b-danger"><span class="dot"></span>Broken</span></div><h4>Invoice acknowledgement (dual indicator)</h4><p>Auto and manual invoices carry a two-party acknowledgement. Render it as a pair of dots — buyer side and supplier side — that fill from hollow to solid as each party acknowledges. A dispute turns the relevant dot danger-red.</p></section>< !--==============09 LANDING==============--><section class="section" id="landing"><div class="kicker">Public · 09</div><div class="page-head"><h2 style="margin:0">Landing</h2><span class="route">/</span></div><p>The hero is the thesis. Instead of a stock illustration,
+the right side shows a <strong>live,
+self-typesetting procurement ledger</strong>— order rows streaming in with their statuses — so a visitor understands in three seconds that Corpass is about tracked,
+auditable transactions. The left holds the argument in big Fraunces.</p><h4>Layout — asymmetric editorial,
+not centered-everything</h4><div class="wire">┌──────────────────────────────────────────────────────────────┐ │ <span class="hl">[C] Corpass</span>Sign in <span class="ac">[ Create account]</span>│ ├──────────────────────────────────────────────────────────────┤ │ │ │ <span class="dim">· enterprise-grade procurement ·</span>┌───────────────────┐ │ │ │ <span class="dim">LIVE LEDGER</span>│ │ │ <span class="hl">Procurement and</span>│ ORD-20493 Shipped │ │ │ <span class="hl">assets,
+</span><span class="ac">managed</span>│ ORD-20488 Confirm │ │ │ <span class="ac">in one place.</span>│ ORD-20480 Placed │ │ │ │ ──────────────────│ │ │ Quote,
+approve,
+order,
+and track │ Spend YTD │ │ │ every asset's life — on one ledger.     │ <span class="hl">₹ 4.82 Cr</span>          │ │
+ │ └───────────────────┘ │ │ <span class="ac">[ Get started free]</span>Log in to portal → │ └──────────────────────────────────────────────────────────────┘</div><ul class="clean"><li><strong>Header:</strong>compact white logo box (rounded 14px, e1, hairline border) left;
+"Sign in" text-link+copper "Create account" button right. Mobile: hamburger expands a full-width sheet with both actions stacked.</li><li><strong>Hero copy:</strong>mono eyebrow with a pulsing copper dot;
+Fraunces headline at <em>clamp(40px, 6vw, 68px)</em>with "managed in one place" set in evergreen;
+Inter sub-paragraph.</li><li><strong>Hero visual (the signature):</strong>the animated ledger card — rows stagger in on load (40ms each),
+a hairline total rule,
+and a YTD spend figure in mono. This replaces the generic dashboard screenshot.</li><li><strong>Features — staggered,
+not a 1×3 of equal boxes:</strong>three cards offset vertically (a gentle stair),
+each with a distinct icon treatment: <em>Curated marketplace</em>(green),
+<em>Workflow &amp;
+approvals</em>(copper),
+<em>Asset lifecycle</em>(ink). Card hover lifts to e2 and reveals a one-line "how it works" .</li><li><strong>Closing CTA band:</strong>full-width green-900 strip with the ledger motif faint in the background;
+copper "Get started free"+ghost "Log in to portal →" .</li></ul><div class="callout"><p><b>Risk we're taking:</b> a live ledger instead of a hero image. It' s the one bold move;
+everything around it stays quiet so it lands.</p></div></section>< !--==============10 LOGIN==============--><section class="section" id="login"><div class="kicker">Public · 10</div><div class="page-head"><h2 style="margin:0">Login</h2><span class="route">/login</span></div><p>A single centered card on warm paper. The role switcher is the defining control: a full-width pill with a sliding evergreen highlight that physically moves between "I am a Company" and "I am a Seller",
+and the submit label rewrites itself in lockstep.</p><div class="wire">┌─────────────────────────────┐ │ <span class="hl">[ C]</span>│ │ <span class="hl">Welcome back</span>│ <span class="dim">Fraunces serif</span>│ Sign in to your Corpass space │ │ │ │ ┌──────────────┬────────────┐ │ │ │<span class="hl">I am a Company</span>│ I am a Sel… │ │ <span class="dim">sliding pill</span>│ └──────────────┴────────────┘ │ │ Login ID or mobile │ │ [___________________________]│ │ Password (👁) │ │ [___________________________]│ │ <span class="hl">[ Sign in as Company]</span>│ <span class="dim">label tracks role</span>│ No account? Register your store│ └─────────────────────────────┘</div><ul class="clean"><li><strong>Logo</strong>in a <em>mix-blend-multiply</em>box so it sits naturally on paper.</li><li><strong>Role pill:</strong>the active half carries a solid evergreen fill with the slide transition (220ms);
+inactive half is ink text on surface.</li><li><strong>Fields:</strong>"Login ID or mobile"(text),
+"Password" with a reveal eye toggle. The submit button reads <em>Sign in as Company</em>/ <em>Sign in as Seller</em>and changes the request context.</li><li><strong>On load,
+</strong>strip any security/redirect query tokens from the URL silently.</li><li><strong>Footer:</strong>"Don't have an account? Register your company or store" → /register,
+preserving the selected role.</li></ul></section>< !--==============11 REGISTER==============--><section class="section" id="register"><div class="kicker">Public · 11</div><div class="page-head"><h2 style="margin:0">Register</h2><span class="route">/register</span></div><p>A two-part wizard inside one card. Section 1 (personal) is shared;
+section 2 swaps its entire field set based on the role pill. The swap animates as a cross-fade so it reads as "the form is adapting to you",
+not "the page reloaded" .</p><div class="two"><div><h4>Section 1 — personal (both roles)</h4><ul class="clean"><li>Two-column field grid on desktop,
+single column on mobile.</li><li><strong>Full name</strong>,
+<strong>Login ID</strong>,
+<strong>Email</strong>.</li><li><strong>Mobile</strong>with a dial-code selector (<em>+91</em>, <em>+1</em>…) docked to its left edge as one unit.</li><li><strong>Password</strong>(full width),
+<strong>Address</strong>(full width),
+then <strong>City</strong>&amp;
+<strong>Pincode</strong>side by side. Pincode is mono.</li></ul></div><div><h4>Section 2 — conditional</h4><ul class="clean"><li><strong>Company (buyer):</strong>Company name,
+Company address,
+Company type (LLC / Corporation / Partnership / Sole proprietorship),
+Employee count range (1–10 … 500+).</li><li><strong>Seller:</strong>GSTIN (mono, format-validated),
+Delivery range capability — three selectable cards: <em>Hyper-local · ≤20km</em>,
+<em>Local · ≤100km</em>,
+<em>Shipping · pan-region</em>.</li><li>Submit reads <em>Complete Company registration</em>/ <em>Complete Seller registration</em>.</li></ul></div></div><div class="ledger-note">Validation: live pattern checks on Email,
+GSTIN,
+and mobile. GSTIN shows its 15-char mask as you type and turns the field-rule green on a valid match.</div></section>< !--==============12 BUYER SHELL==============--><section class="section" id="buyer-shell"><div class="kicker">Buyer · 12</div><div class="page-head"><h2 style="margin:0">App shell</h2><span class="route">/dashboard/buyer
+/*</span></div>
+  <p>A fixed evergreen-tinted sidebar, a slim utility header, and a single independently-scrolling work canvas. The chrome stays out of the way; the content does the talking.</p>
+  <div class="wire">┌────────────┬─────────────────────────────────────────────────┐
+│ <span class="hl">[C]</span>        │  ☰        Marketplace            <span class="dim">(SK) ▾</span>      │ <span class="dim">header</span>
+│ <span class="dim">WORKSPACE</span>  ├─────────────────────────────────────────────────┤
+│ ▸ Overview │                                                 │
+│ <span class="hl">▸ Marketplace</span>│      ( independently scrolling canvas )         │
+│ ▸ Messages │                                                 │
+│ ▸ Orders   │                                                 │
+│ ▸ Assets   │                                                 │
+│ ▸ Profile  │                                                 │
+│ ▸ Support  │                                                 │
+│            │                                                 │
+│ <span class="ac">⎋ Sign out</span> │                                                 │
+└────────────┴─────────────────────────────────────────────────┘</div>
+  <ul class="clean">
+    <li><strong>Sidebar (260px, drawer on mobile):</strong> green-900 background, paper-tone text. White compact logo box at top, mono "WORKSPACE" eyebrow, then the nav stack: Overview, Marketplace, Messages, Orders, Assets, Profile, Support.</li>
+    <li><strong>Active item:</strong> green-100 wash, ink text, a 3px copper indicator bar on the left edge, and the icon switches to its filled variant. One active item only.</li>
+    <li><strong>Sign out</strong> pinned to the bottom, copper text treatment to read as "exit".</li>
+    <li><strong>Mobile:</strong> the sidebar becomes a drawer (<em>-translate-x-full → 0</em>) triggered by the header hamburger over a scrim.</li>
+    <li><strong>Header:</strong> shows the current page name; right corner holds a circular initials avatar (e.g. <em>SK</em>) linking to Profile. Counts (unread messages, pending approvals) ride as small copper count-dots on the relevant nav items.</li>
+  </ul>
+</section>
+
+<!-- ============== 13 BUYER OVERVIEW ============== -->
+<section class="section" id="buyer-overview">
+  <div class="kicker">Buyer · 13</div>
+  <div class="page-head"><h2 style="margin:0">Overview</h2><span class="route">/dashboard/buyer</span></div>
+  <p>Not three equal metric cards. A <strong>focal spend tile</strong> dominates, with two smaller operational satellites beside it, then the recent-requests ledger fills the width below.</p>
+  <div class="wire">┌───────────────────────────┬──────────────┬──────────────┐
+│ <span class="dim">TOTAL SPEND · YTD</span>           │ Active orders│ Pending appr.│
+│ <span class="hl">₹ 4.82 Cr</span>                   │   <span class="hl">14</span>         │    <span class="hl">3</span>         │ <span class="dim">7/3/2 spans</span>
+│ ▁▂▃▅▆█ <span class="dim">sparkline +12% MoM</span>   │ in flight    │ awaiting you │
+└───────────────────────────┴──────────────┴──────────────┘
+┌──────────────────────────────────────────────────────────┐
+│ Recent procurement requests                    View all → │
+│ ─────────────────────────────────────────────────────────│
+│ Ergonomic chair — Aria   ORD-20493 · 14 Jun  ₹1,06,800 ●Shp│
+│ Standing desk — Loft     ORD-20488 · 12 Jun  ₹  77,700 ●Cnf│
+│ Whiteboard glass         ORD-20480 · 09 Jun  ₹  18,450 ●Plc│
+└──────────────────────────────────────────────────────────┘</div>
+  <ul class="clean">
+    <li><strong>Focal tile — Total spend YTD:</strong> spans ~7/12, mono figure at display scale, a small evergreen sparkline and a MoM delta. The colored bottom-bar indicator from the spec becomes this tile's evergreen baseline rule.</li>
+    <li><strong>Satellites — Active orders &amp; Pending approvals:</strong> compact, neutral, mono counts with a one-line context label.</li>
+    <li><strong>Recent procurement requests:</strong> a tight ledger list (Product bold · ORD-id + date in mono · amount right-aligned · status badge), header with a ghost "View all".</li>
+    <li><strong>Empty state:</strong> centered inquiry icon, "No requests yet", a line of direction, and a copper "Browse marketplace" button — an invitation, not a shrug.</li>
+  </ul>
+</section>
+
+<!-- ============== 14 BUYER MARKETPLACE ============== -->
+<section class="section" id="buyer-market">
+  <div class="kicker">Buyer · 14</div>
+  <div class="page-head"><h2 style="margin:0">Marketplace</h2><span class="route">/dashboard/buyer/catalog</span></div>
+  <p>The most complex buyer surface. A persistent fulfillment bar establishes <em>where</em> goods can reach, a sticky filter rail narrows the catalog, and product cards have real anatomy. Selecting items raises a docked bundle tray rather than scattering modals.</p>
+
+  <h4>Layout — sticky rail + fluid catalog (not a flat 4×4)</h4>
+  <div class="wire">┌──────────────────────────────────────────────────────────┐
+│ Pincode [560001] <span class="hl">Apply</span>  ⦿Company ⦿Personal  ☐ show out-of-range │
+├──────────────────────────────────────────────────────────┤
+│ 🔍 Search products…   [Category▾][Rating▾][Sort▾]  Clear   │
+│ ( IT )( Furniture )( Pantry )( Cleaning )( Software ) →     │ <span class="dim">chip slider</span>
+├────────────┬─────────────────────────────────────────────┤
+│ <span class="dim">POPULAR</span>     │ ┌─────────┐ ┌─────────┐ ┌─────────┐         │
+│ IT &amp; HW    │ │ [img] ⊕│ │ [img]  │ │[OUT OF │         │
+│ Furniture  │ │ Aria    │ │ Loft    │ │ RANGE] │         │
+│ Pantry     │ │ ⭐4.8 📍 │ │ ⭐4.6   │ │ Bagru  │         │
+│ Cleaning   │ │ <span class="hl">₹8,900</span>/pc│ │<span class="hl">from Quote</span>│ │ ₹…     │         │
+│ Software   │ │<span class="ac">Buy</span>·Inq │ │<span class="ac">Buy</span>·Inq │ │ Inquire│         │
+│            │ └─────────┘ └─────────┘ └─────────┘         │
+└────────────┴─────────────────────────────────────────────┘
+        ┌────────────────────────────────────────────┐
+        │ 3 items · Aria Furnishings · ~₹2.4L  <span class="ac">[Request quote]</span>│  <span class="dim">bundle tray</span>
+        └────────────────────────────────────────────┘</div>
+
+  <ul class="clean">
+    <li><strong>Fulfillment &amp; location bar:</strong> 6-digit mono pincode input + "Apply"; shortcut badges for saved profiles (Company / Personal default addresses); "Show out-of-range products" toggle for inquiry/RFQ beyond the shipping zone.</li>
+    <li><strong>Search &amp; filter row:</strong> full-width search with an inset loupe; Category, Rating (Any · 4.5+ · 4.0+ · 3.0+), and Sort (Newest · Top rated · Price ↑ · Price ↓) selects; a "Clear filters" ghost appears only when filters are active.</li>
+    <li><strong>Quick-category chip slider:</strong> horizontally scrollable capsule chips above the grid.</li>
+    <li><strong>Popular categories</strong> live in the left rail as selectable entries — not a separate 2×5 block competing with products.</li>
+    <li><strong>Product card anatomy:</strong> aspect-square image with category tags layered top-left; a bundle FAB (circular checkbox) revealed on hover at the image's lower edge; an "Out of range" overlay greys the image and disables Buy when shipping is blocked (Inquire stays live). Info area: name, one-line description, supplier row (avatar · name · location pin · ⭐rating). Price area: large mono price + unit ("per piece" / "from Quote"). Actions: copper <em>Buy now</em> + outline <em>Inquire</em>.</li>
+  </ul>
+
+  <h4>Overlays</h4>
+  <ul class="clean">
+    <li><strong>Bundle tray (docked, e2):</strong> rises when items from one supplier are selected — supplier name, item count, estimated total (mono), copper "Request quote". Single-supplier bundles only; selecting a second supplier's item prompts to start a new bundle.</li>
+    <li><strong>Inquiry drawer (right slide-over):</strong> header lists item(s) + supplier; an inquiry-type tab selector (Get quote · Feasibility · Availability), a message textarea, and a submit. Reachable from "Inquire" or the bundle tray.</li>
+    <li><strong>Buy-now order sheet:</strong> header shows price · unit · MOQ. Fields: Quantity (validated against MOQ), Shipping address (textarea), a "Bill to same address" toggle that reveals a billing textarea when off, and a note to supplier. A live total (price × qty, mono) updates as you type; the commit button is the green primary "Place order".</li>
+  </ul>
+</section>
+
+<!-- ============== 15 BUYER MESSAGES ============== -->
+<section class="section" id="buyer-messages">
+  <div class="kicker">Buyer · 15</div>
+  <div class="page-head"><h2 style="margin:0">Messages</h2><span class="route">/dashboard/buyer/messages</span></div>
+  <p>A focused two-column conversation workspace where every thread is bound to a specific order or inquiry. Negotiation isn't free text — counter-offers render as structured, actionable cards inline in the stream.</p>
+  <div class="wire">┌──────────────────┬───────────────────────────────────────┐
+│ Aria Furnishings │ Aria Furnishings · Supplier   Thread ▾ │
+│   2 threads · 4m │ ──────────────────────────────────────│
+│ ─────────────────│           Can you do 15 units? ▕buyer▏ │
+│ <span class="hl">Bagru Textiles</span>   │ ▕supplier▏ ┌───────────────────────┐    │
+│   1 thread · 1h  │           │ <span class="ac">COUNTER-OFFER</span>           │    │
+│ ─────────────────│           │ ₹ 8,400/pc × 15        │    │
+│ Loft Works       │           │ "Best we can do this Q"│    │
+│   3 threads · 2d │           │ <span class="hl">[Accept offer]</span> [Decline] │    │
+│                  │           └───────────────────────┘    │
+│                  │ [ Type a message………………………  ] <span class="hl">Send</span> │
+└──────────────────┴───────────────────────────────────────┘</div>
+  <ul class="clean">
+    <li><strong>Left list:</strong> conversations grouped by supplier — initials/logo, last-update timestamp, and a thread-count indicator (one supplier can hold several order/inquiry threads).</li>
+    <li><strong>Right panel header:</strong> counterparty name, a "Supplier" role label, and a thread-selector dropdown to jump between that supplier's order/inquiry threads.</li>
+    <li><strong>Body:</strong> auto-scrolling history; buyer messages right-aligned in evergreen, supplier left-aligned on surface with a hairline border. All prices/quantities inside messages are mono.</li>
+    <li><strong>Counter-offer card:</strong> copper eyebrow, proposed price &amp; quantity in mono, a justification note, then an emerald "Accept offer" and a ghost "Decline". Accepting writes the new terms back to the linked order.</li>
+    <li><strong>Input bar:</strong> single-line field + green "Send".</li>
+  </ul>
+</section>
+
+<!-- ============== 16 BUYER ORDERS ============== -->
+<section class="section" id="buyer-orders">
+  <div class="kicker">Buyer · 16</div>
+  <div class="page-head"><h2 style="margin:0">Orders &amp; invoices</h2><span class="route">/dashboard/buyer/orders</span></div>
+  <p>Two ledgers behind one tab switch. Orders are expandable rows (no card soup); invoices carry the dual-acknowledgement indicator and the accept/dispute decision.</p>
+
+  <h4>Orders tab</h4>
+  <ul class="clean">
+    <li><strong>Filter row:</strong> date-range fields + a sort select, all mono-aware.</li>
+    <li><strong>Order row (collapsed):</strong> ORD-id · product · supplier · status badge · quantity · total (right-aligned mono). Click expands the row in place to reveal the quantity breakdown, buyer note, supplier detail, and any inline review.</li>
+    <li><strong>Conditional actions</strong> follow the state machine: <em>Cancel order</em> only while Placed; <em>Message / Negotiate</em> always (jumps to the linked thread); <em>Leave a review</em> reveals a star card once Delivered.</li>
+  </ul>
+
+  <h4>Invoices tab</h4>
+  <ul class="clean">
+    <li><strong>"Create invoice"</strong> button launches the manual invoice creator.</li>
+    <li><strong>Invoice row:</strong> INV-number (mono) · type badge (Auto vs Manual) · total · the dual acknowledgement indicator (Buyer ● / Supplier ●).</li>
+    <li><strong>Actions:</strong> emerald "Acknowledge" and danger "Dispute".</li>
+  </ul>
+
+  <h4>Modals</h4>
+  <ul class="clean">
+    <li><strong>Manual invoice creator:</strong> supplier select, product name, unit price (mono), quantity, unit-type select, notes.</li>
+    <li><strong>Review dialog:</strong> a 1–5 star selection row + a comment textarea.</li>
+  </ul>
+</section>
+
+<!-- ============== 17 BUYER ASSETS ============== -->
+<section class="section" id="buyer-assets">
+  <div class="kicker">Buyer · 17</div>
+  <div class="page-head"><h2 style="margin:0">Asset management</h2><span class="route">/dashboard/buyer/assets</span></div>
+  <p>Registered corporate assets, each tracked by condition. Because an asset can hold a mix of conditions (e.g. 8 perfect, 2 fair), the card foregrounds a small <strong>condition distribution bar</strong> rather than a single flat pill.</p>
+  <div class="wire">┌─────────────────────────────┐  ┌─────────────────────────────┐
+│ <span class="hl">Ergonomic chair — Aria</span>      │  │ <span class="hl">Laptop — ThinkPad T14</span>       │
+│ Furniture                   │  │ IT &amp; Hardware               │
+│ ████████░░ <span class="dim">8 Perfect · 2 Fair</span>│  │ ██████████ <span class="dim">24 Perfect</span>      │
+│ Qty 10 · from ORD-20493 →   │  │ Qty 24 · from ORD-19980 →   │
+│ <span class="dim">SN AC-2291…  · Floor 3 team</span>   │  │ <span class="dim">Assigned · Eng &amp; Design</span>      │
+│ <span class="dim">Edit · Delete</span>                │  │ <span class="dim">Edit · Delete</span>                │
+└─────────────────────────────┘  └─────────────────────────────┘</div>
+  <ul class="clean">
+    <li><strong>Asset card:</strong> name + type; a segmented condition bar (Perfect / Good / Fair / Poor / Broken, using the status palette); total quantity + a source link back to the originating order; a notes snippet (serial numbers, assignments); Edit / Delete footer links.</li>
+    <li><strong>Add / edit dialog:</strong> asset name, type selector (with a custom "Other" option), quantity split across condition states, and notes. The split inputs sum live and validate against the total.</li>
+  </ul>
+</section>
+
+<!-- ============== 18 BUYER PROFILE ============== -->
+<section class="section" id="buyer-profile">
+  <div class="kicker">Buyer · 18</div>
+  <div class="page-head"><h2 style="margin:0">Profile settings</h2><span class="route">/dashboard/buyer/profile</span></div>
+  <p>Identity, company details, and the supplier-ratings the buyer has given — kept as distinct cards, with the ratings rendered as a real distribution chart, not a number floating alone.</p>
+  <ul class="clean">
+    <li><strong>Overview header:</strong> entity verification tags and the buyer's aggregate supplier-feedback score.</li>
+    <li><strong>Contact info card:</strong> name, email, mobile, personal address.</li>
+    <li><strong>Company details card:</strong> HQ / billing address, company type, size.</li>
+    <li><strong>Suppliers rating dashboard:</strong> average score (mono, large) beside a horizontal 5→1 star breakdown bar chart and total review count.</li>
+    <li><strong>Edit profile slide-over:</strong> a two-column editing workspace covering personal and corporate details, with a sticky "Save changes" footer.</li>
+  </ul>
+</section>
+<!-- ============== 19 SELLER OVERVIEW ============== -->
+<section class="section" id="seller-overview">
+  <div class="kicker">Seller · 19</div>
+  <div class="page-head"><h2 style="margin:0">Overview</h2><span class="route">/dashboard/seller</span></div>
+  <p>The seller shell is identical to the buyer's, swapping the nav to Overview · Product catalog · Messages · Orders · Stock · Profile · Support. The overview leads with an action prompt, not vanity metrics: if delivery isn't configured, nothing else matters yet.</p>
+  <div class="wire">┌──────────────────────────────────────────────────────────┐
+│ <span class="ac">⚠ Set your delivery capability to start receiving orders →</span>  │ <span class="dim">amber, only if unset</span>
+└──────────────────────────────────────────────────────────┘
+┌──────────────┬──────────────┬──────────────┬─────────────┐
+│<span class="hl">PENDING ORDERS</span>│ Sales YTD    │ Active items │ Rating      │
+│   <span class="hl">5</span>          │ ₹ 3.1 Cr     │   48         │ ⭐ 4.6      │ <span class="dim">focal=pending</span>
+└──────────────┴──────────────┴──────────────┴─────────────┘
+┌───────────────────────────┬──────────────────────────────┐
+│ Recent orders             │ Top active items             │
+│ ORD… · ₹… · 14Jun ●Plc    │ [img] Aria chair · ₹8,900·in │
+│ ORD… · ₹… · 13Jun ●Cnf    │ [img] Loft desk  · Quote ·low│
+└───────────────────────────┴──────────────────────────────┘</div>
+  <ul class="clean">
+    <li><strong>Alert banner:</strong> amber, top of page, shown only when delivery capability is unconfigured — links straight to the profile fulfillment settings.</li>
+    <li><strong>Metrics row:</strong> Pending orders is the focal tile (theme-highlighted, it's the thing demanding action); Total sales YTD, Active items, and Review rating follow as quieter satellites.</li>
+    <li><strong>Analytics grid (two cards):</strong> Recent orders (product · ORD-id · amount · date · status) and Top active items (image · name · category · pricing · stock level).</li>
+  </ul>
+</section>
+
+<!-- ============== 20 SELLER CATALOG ============== -->
+<section class="section" id="seller-catalog">
+  <div class="kicker">Seller · 20</div>
+  <div class="page-head"><h2 style="margin:0">Product catalog</h2><span class="route">/dashboard/seller/catalog</span></div>
+  <p>This is a management view, so it's a true ledger table — not the visual card grid buyers see. Density and editability win here.</p>
+  <table class="ltab">
+    <thead><tr><th>Product</th><th>Category</th><th style="text-align:right">Stock</th><th>Pricing</th><th>Delivery</th></tr></thead>
+    <tbody>
+      <tr><td>▢ Ergonomic chair — Aria<br><span class="id">premium mesh task chair</span></td><td>Furniture</td><td class="num">120</td><td class="id">Fixed · ₹8,900/pc</td><td>3 days</td></tr>
+      <tr><td>▢ Standing desk — Loft 140<br><span class="id">electric height-adjust</span></td><td>Furniture</td><td class="num" style="color:var(--danger)">4</td><td class="id">Quote</td><td>7 days</td></tr>
+      <tr><td>▢ Whiteboard glass 4×3<br><span class="id">magnetic tempered</span></td><td>Office</td><td class="num">36</td><td class="id">Fixed · ₹6,150/pc</td><td>Pickup</td></tr>
+    </tbody>
+  </table>
+  <ul class="clean">
+    <li><strong>Columns:</strong> product (thumbnail · name · description) · category pill · stock (mono, red when low) · pricing (Fixed vs Quote + unit) · delivery (days or service indicator).</li>
+    <li><strong>Add-product slide-over (right):</strong> name &amp; description; category &amp; subcategory selects; a pricing-structure tab toggle (Fixed price vs Contact for quote); pricing inputs (value, unit-of-measure group, pieces-per-unit); logistics (stock level, MOQ, min order value, physical-delivery toggle, delivery time in days); and an image gallery grid — up to 5 uploaded image cards with hover-delete plus a dashed upload card.</li>
+  </ul>
+</section>
+
+<!-- ============== 21 SELLER STOCK ============== -->
+<section class="section" id="seller-stock">
+  <div class="kicker">Seller · 21</div>
+  <div class="page-head"><h2 style="margin:0">Stock management</h2><span class="route">/dashboard/seller/stock</span></div>
+  <p>A fast-update ledger built for one job: scan status and adjust quantities. Product IDs are mono so SKUs stay scannable.</p>
+  <table class="ltab">
+    <thead><tr><th>SKU</th><th>Product</th><th>Status</th><th style="text-align:right">In stock</th><th></th></tr></thead>
+    <tbody>
+      <tr><td class="id">SKU-AC-2291</td><td>Ergonomic chair — Aria</td><td><span class="badge b-ok"><span class="dot"></span>In stock</span></td><td class="num" style="font-weight:600">120</td><td><button class="btn btn-outline" style="padding:5px 12px;font-size:12px">Update stock</button></td></tr>
+      <tr><td class="id">SKU-LD-1140</td><td>Standing desk — Loft 140</td><td><span class="badge b-warn"><span class="dot"></span>Low stock</span></td><td class="num" style="font-weight:600">4</td><td><button class="btn btn-outline" style="padding:5px 12px;font-size:12px">Update stock</button></td></tr>
+      <tr><td class="id">SKU-WG-0403</td><td>Whiteboard glass 4×3</td><td><span class="badge b-danger"><span class="dot"></span>Out of stock</span></td><td class="num" style="font-weight:600">0</td><td><button class="btn btn-outline" style="padding:5px 12px;font-size:12px">Update stock</button></td></tr>
+    </tbody>
+  </table>
+  <ul class="clean">
+    <li><strong>Status pills:</strong> Out of stock (danger), Low stock (warn), In stock (ok) — dot-coded.</li>
+    <li><strong>Update-stock modal:</strong> a compact centered dialog with a single "New stock quantity" input and an instant save; the row's status badge re-derives immediately.</li>
+  </ul>
+</section>
+
+<!-- ============== 22 SELLER ORDERS ============== -->
+<section class="section" id="seller-orders">
+  <div class="kicker">Seller · 22</div>
+  <div class="page-head"><h2 style="margin:0">Orders &amp; invoices</h2><span class="route">/dashboard/seller/orders</span></div>
+  <p>The same ledger and tab system as the buyer side, with the action set mirrored to the seller's role — proving the value of one shared component.</p>
+  <ul class="clean">
+    <li><strong>Placed:</strong> Confirm · Reject · Negotiate (jumps to Messages).</li>
+    <li><strong>Confirmed:</strong> Mark shipped.</li>
+    <li><strong>Shipped:</strong> Mark delivered.</li>
+    <li><strong>Delivered:</strong> Rate buyer.</li>
+    <li><strong>Invoices:</strong> create manual invoices or view auto-generated summaries; Acknowledge / Dispute for incoming disputes — same dual-indicator as the buyer.</li>
+  </ul>
+  <div class="ledger-note">Confirm and Mark-shipped are green primaries (the forward path). Reject is danger-text. The destructive and the progressive never look alike.</div>
+</section>
+
+<!-- ============== 23 SELLER PROFILE ============== -->
+<section class="section" id="seller-profile">
+  <div class="kicker">Seller · 23</div>
+  <div class="page-head"><h2 style="margin:0">Profile settings</h2><span class="route">/dashboard/seller/profile</span></div>
+  <ul class="clean">
+    <li><strong>Overview:</strong> initials avatar, store name, location address, GSTIN (mono).</li>
+    <li><strong>Fulfillment settings:</strong> the configured delivery range (Hyper-local / Regional / National) shown as a selected capability with its radius.</li>
+    <li><strong>Feedback ratings panel:</strong> buyer reviews, a rating-distribution bar chart, and a comments stream.</li>
+    <li><strong>Edit settings modal:</strong> store name, mobile, address, city, pincode, GSTIN, and the delivery-range select.</li>
+  </ul>
+</section>
+
+<!-- ============== 24 SUPPORT ============== -->
+<section class="section" id="support">
+  <div class="kicker">Shared · 24</div>
+  <div class="page-head"><h2 style="margin:0">Support</h2><span class="route">/dashboard/{role}/support</span></div>
+  <p>One shared help-desk surface for both roles: a row of contact cards (WhatsApp / email escalation) paired with a submit-a-query form. Buyer copy is procurement-flavoured; seller copy is vendor-flavoured; the layout is identical.</p>
+  <div class="bento" style="grid-template-columns:1fr 1fr">
+    <div class="card"><h4>Contact cards</h4><p>WhatsApp and email escalation tiles with response-time expectations stated plainly ("typically within 2 business hours").</p></div>
+    <div class="card"><h4>Submit a query</h4><p>Subject, category select, message, optional order/INV reference (mono). Confirmation toast names the ticket ID.</p></div>
+  </div>
+</section>
+
+<!-- ============== 25 PATTERNS ============== -->
+<section class="section" id="patterns">
+  <div class="kicker">Shared · 25</div>
+  <div class="page-head"><h2 style="margin:0">Patterns &amp; states</h2><span class="route">cross-cutting</span></div>
+
+  <h4>Empty states</h4>
+  <p>Centered: a quiet line-icon, a plain title, one sentence of direction, and a single primary action. Never an apology, never decorative. "No orders yet — your purchase orders will appear here once buyers place them."</p>
+
+  <h4>Loading</h4>
+  <p>Tables and ledgers use <strong>skeleton rows</strong> with the real column rhythm (hairlines visible) so the layout doesn't jump. Metric tiles shimmer the number block only. No full-page spinners on navigation.</p>
+
+  <h4>Errors</h4>
+  <p>Inline, at the field or row that failed, in danger color with a plain fix instruction ("GSTIN must be 15 characters"). System-level failures use a dismissible banner that states what happened and the retry action — in the interface's voice, not an apology.</p>
+
+  <h4>Responsive collapse of tables</h4>
+  <p>Below tablet, each ledger row becomes a stacked record card: the primary identifier and status on top, secondary fields as label→value pairs, money kept mono and right-of-label. The action set moves into a row overflow menu.</p>
+
+  <h4>Accessibility floor (non-negotiable)</h4>
+  <ul class="clean">
+    <li>Status is never color-only — every badge carries a text label and a shape-distinct dot.</li>
+    <li>Visible 2px evergreen focus ring on every interactive element; full keyboard paths through drawers and modals (focus trap + Esc to close).</li>
+    <li>Body text meets WCAG AA on paper; the evergreen primary meets AA for button text.</li>
+    <li><em>prefers-reduced-motion</em> honored everywhere; the landing reveal renders fully formed.</li>
+  </ul>
+</section>
+
+<footer>
+  <p><strong>Corpass Design System &amp; Specification</strong> — v1. Foundations, components, and 16 page specs across the public, buyer, and seller surfaces. The constant across all of them is the ledger: warm paper, evergreen identity, copper accent, and every value typeset to be compared character-for-character.</p>
+</footer>
+
+</main>
+</div>
+</body>
+</html>

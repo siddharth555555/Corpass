@@ -1,9 +1,10 @@
 import './globals.css'
-import { Inter, DM_Serif_Display } from 'next/font/google'
+import { Inter, Fraunces, IBM_Plex_Mono } from 'next/font/google'
 import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
-const dmSerif = DM_Serif_Display({ weight: '400', subsets: ['latin'], variable: '--font-serif' })
+const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-serif' })
+const ibmPlexMono = IBM_Plex_Mono({ weight: ['400', '500', '600'], subsets: ['latin'], variable: '--font-mono' })
 
 import { Toaster } from 'react-hot-toast'
 
@@ -14,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${dmSerif.variable} ${inter.className} text-text-primary antialiased bg-canvas`}>
+      <body className={`${inter.variable} ${fraunces.variable} ${ibmPlexMono.variable} ${inter.className} text-ink antialiased bg-paper`}>
         <Toaster position="top-right" />
         {children}
         <Script

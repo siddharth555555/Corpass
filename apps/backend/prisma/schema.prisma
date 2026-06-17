@@ -68,10 +68,12 @@ model User {
 model SellerProfile {
   id            Int             @id @default(autoincrement())
   userId        Int             @unique
-  gstin         String
-  deliveryRange DeliveryRange
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  gstin            String
+  deliveryRange    DeliveryRange
+  deliveryCities   Json?
+  deliveryPincodes Json?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   catalogs      ProductCatalog[]
@@ -120,6 +122,9 @@ model ProductCatalog {
   pricingUnit       PricingUnit   @default(PIECE)
   piecesPerUnit     Int?
   isDeliverable     Boolean       @default(true)
+  deliveryRange     DeliveryRange?
+  deliveryCities    Json?
+  deliveryPincodes  Json?
   minQtyPurchase    Int
   minAmountPurchase Decimal
   deliveryTimeDays  Int           @default(0)
@@ -175,6 +180,35 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum PaymentMode {
+  BANK_TRANSFER
+  UPI
+  CASH
+  CHEQUE
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING_ACKNOWLEDGEMENT
+  ACKNOWLEDGED
+  DISPUTED
+}
+
+model PaymentRecord {
+  id          Int           @id @default(autoincrement())
+  orderId     Int?
+  invoiceId   Int?
+  amount      Decimal
+  paymentDate DateTime
+  utr         String?
+  status      PaymentStatus @default(PENDING_ACKNOWLEDGEMENT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  order       Order?        @relation("OrderPayments", fields: [orderId], references: [id], onDelete: Cascade)
+  invoice     Invoice?      @relation("InvoicePayments", fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
 enum InvoiceType {
   AUTO
   MANUAL
@@ -208,6 +242,9 @@ model Order {
   buyerNote         String?        @db.Text
   latestProposerId  Int?
 
+  paymentMode       PaymentMode?
+  advanceRequested  Decimal?
+
   status            OrderStatus    @default(PLACED)
 
   createdAt         DateTime       @default(now())
@@ -220,6 +257,7 @@ model Order {
   messages          OrderMessage[]
   asset             Asset?
   reviews           Review[]
+  payments          PaymentRecord[] @relation("OrderPayments")
 }
 
 enum OrderMessageType {
@@ -284,6 +322,7 @@ model Invoice {
   createdBy         User           @relation("CreatedInvoices", fields: [createdByUserId], references: [id])
   buyer             User           @relation("BuyerInvoices", fields: [buyerId], references: [id])
   sellerProfile     SellerProfile  @relation("SellerInvoices", fields: [sellerProfileId], references: [id])
+  payments          PaymentRecord[] @relation("InvoicePayments")
 }
 
 // ── Asset Management ──

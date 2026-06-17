@@ -9,6 +9,7 @@ import { AssetsModule } from './assets/assets.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { SupportModule } from './support/support.module';
+import { CitiesModule } from './cities/cities.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { SupportModule } from './support/support.module';
     ReviewsModule,
     CloudinaryModule,
     SupportModule,
+    CitiesModule,
   ],
   controllers: [],
   providers: [],

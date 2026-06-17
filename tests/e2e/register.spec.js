@@ -13,7 +13,7 @@ test('register page role toggle test', async ({ page }) => {
   await page.goto('http://localhost:3000/register');
 
   console.log('Page loaded. Checking subtitle...');
-  let subtitle = await page.textContent('p.text-text-secondary');
+  let subtitle = await page.textContent('p.text-slate');
   console.log(`Initial subtitle: "${subtitle?.trim()}"`);
 
   // Click "I am a Seller" button
@@ -24,7 +24,7 @@ test('register page role toggle test', async ({ page }) => {
   await page.waitForTimeout(1000);
 
   // Check the subtitle again
-  subtitle = await page.textContent('p.text-text-secondary');
+  subtitle = await page.textContent('p.text-slate');
   console.log(`Subtitle after click: "${subtitle?.trim()}"`);
 
   // Assert it changed correctly

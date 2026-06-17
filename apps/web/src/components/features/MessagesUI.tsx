@@ -40,6 +40,7 @@ export function MessagesUI({ role }: { role: Role }) {
   const [counterQuantity, setCounterQuantity] = useState("");
   const [counterNote, setCounterNote] = useState("");
   
+  const [isThreadDropdownOpen, setIsThreadDropdownOpen] = useState(false);
   const [alertConfig, setAlertConfig] = useState<{message: string} | null>(null);
 
   const fetchThreads = async () => {
@@ -254,23 +255,27 @@ export function MessagesUI({ role }: { role: Role }) {
   };
 
   const filteredCounterparties = counterparties.map(cp => {
-    const ft = cp.threads.filter(t => filter === "ALL" || t.type === filter.slice(0, -1));
+    const filterType = filter === "ORDERS" ? "ORDER" : filter === "INQUIRIES" ? "INQUIRY" : "ALL";
+    const ft = cp.threads.filter(t => filter === "ALL" || t.type === filterType);
     return { ...cp, threads: ft };
   }).filter(cp => cp.threads.length > 0);
 
+  const activeFilteredCp = filteredCounterparties.find(cp => cp.id === activeCounterparty?.id);
+  const activeThreadsToDisplay = activeFilteredCp?.threads || [];
+
   return (
-    <div className="flex h-[calc(100vh-140px)] bg-surface border border-border-subtle rounded-xl overflow-hidden shadow-sm">
+    <div className="flex h-[calc(100vh-140px)] bg-paper border border-border rounded overflow-hidden shadow-sm">
       {/* Sidebar List (Counterparties) */}
-      <div className={`w-full md:w-1/3 border-r border-border-subtle flex flex-col bg-surface-raised shrink-0 ${activeCounterparty ? 'hidden md:flex' : 'flex'}`}>
-        <div className="p-4 border-b border-border-subtle bg-surface">
-          <h2 className="text-lg font-bold text-text-primary">Messages & Negotiations</h2>
+      <div className={`w-full md:w-1/3 border-r border-border flex flex-col bg-paper-2 shrink-0 ${activeCounterparty ? 'hidden md:flex' : 'flex'}`}>
+        <div className="p-4 border-b border-border bg-paper">
+          <h2 className="text-lg font-bold text-ink">Messages & Negotiations</h2>
           <div className="flex gap-2 mt-3">
             {(["ALL", "ORDERS", "INQUIRIES"] as const).map(f => (
               <button
                 key={f}
                 onClick={() => { setFilter(f); setActiveThread(null); }}
                 className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
-                  filter === f ? "bg-primary-500 text-white shadow-sm" : "bg-surface text-text-secondary hover:bg-border-subtle border border-border-subtle"
+                  filter === f ? "bg-ink text-white shadow-sm" : "bg-paper text-slate hover:bg-border-subtle border border-border"
                 }`}
               >
                 {f.charAt(0) + f.slice(1).toLowerCase()}
@@ -280,9 +285,9 @@ export function MessagesUI({ role }: { role: Role }) {
         </div>
         <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="p-6 text-center text-text-tertiary text-sm">Loading...</div>
+            <div className="p-6 text-center text-slate text-sm">Loading...</div>
           ) : filteredCounterparties.length === 0 ? (
-            <div className="p-6 text-center text-text-tertiary text-sm">No conversations found.</div>
+            <div className="p-6 text-center text-slate text-sm">No conversations found.</div>
           ) : (
             filteredCounterparties.map(cp => (
               <button
@@ -293,18 +298,18 @@ export function MessagesUI({ role }: { role: Role }) {
                     setActiveThread(cp.threads[0]); 
                   }
                 }}
-                className={`w-full text-left p-4 border-b border-border-subtle transition-all duration-200 ${
-                  activeCounterparty?.id === cp.id ? "bg-primary-50 border-l-4 border-l-primary-500" : "hover:bg-surface border-l-4 border-l-transparent"
+                className={`w-full text-left p-4 border-b border-border transition-all duration-200 ${
+                  activeCounterparty?.id === cp.id ? "bg-paper-2 border-l-4 border-l-primary-500" : "hover:bg-paper border-l-4 border-l-transparent"
                 }`}
               >
                 <div className="flex justify-between items-start mb-1">
-                  <span className="text-sm font-semibold text-text-primary truncate pr-2">{cp.name}</span>
-                  <span className="text-[10px] text-text-tertiary whitespace-nowrap">
+                  <span className="text-sm font-semibold text-ink truncate pr-2">{cp.name}</span>
+                  <span className="text-[10px] text-slate whitespace-nowrap">
                     {new Date(cp.updatedAt).toLocaleDateString()}
                   </span>
                 </div>
-                <div className="text-xs text-text-secondary flex items-center gap-2">
-                  <span className="bg-surface border border-border-subtle rounded px-1.5 py-0.5">{cp.threads.length} active threads</span>
+                <div className="text-xs text-slate flex items-center gap-2">
+                  <span className="bg-paper border border-border rounded px-1.5 py-0.5">{cp.threads.length} active threads</span>
                 </div>
               </button>
             ))
@@ -317,45 +322,72 @@ export function MessagesUI({ role }: { role: Role }) {
         {activeCounterparty ? (
           <>
             {/* Header: Counterparty Info & Asset Filter */}
-            <div className="bg-surface border-b border-border-subtle shadow-sm z-10 flex flex-col">
+            <div className="bg-paper border-b border-border shadow-sm z-20 relative flex flex-col">
               <div className="p-4 flex items-center gap-3">
                 <button 
                   onClick={() => setActiveCounterparty(null)}
-                  className="md:hidden h-8 w-8 -ml-2 rounded-full flex items-center justify-center text-text-tertiary hover:bg-surface-raised"
+                  className="md:hidden h-8 w-8 -ml-2 rounded-full flex items-center justify-center text-slate hover:bg-paper-2"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-bold text-lg shrink-0">
+                <div className="h-10 w-10 rounded-full bg-paper-2 flex items-center justify-center text-ink font-bold text-lg shrink-0">
                   {activeCounterparty.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-base font-bold text-text-primary truncate">{activeCounterparty.name}</h3>
-                  <p className="text-xs text-text-secondary">{role === 'SELLER' ? 'Buyer Company' : 'Supplier Company'}</p>
+                  <h3 className="text-base font-bold text-ink truncate">{activeCounterparty.name}</h3>
+                  <p className="text-xs text-slate">{role === 'SELLER' ? 'Buyer Company' : 'Supplier Company'}</p>
                 </div>
               </div>
               
               {/* Asset Dropdown Filter */}
               <div className="px-4 pb-3">
-                <div className="relative flex items-center bg-surface-raised border border-border-subtle rounded-xl overflow-hidden shadow-sm">
-                  <span className="pl-3 pr-2 text-xs font-bold text-text-tertiary uppercase tracking-wider shrink-0 bg-surface-raised">Asset</span>
-                  <select 
-                    value={activeThread?.id || ''}
-                    onChange={(e) => {
-                      const t = activeCounterparty.threads.find(th => th.id === e.target.value);
-                      if (t) setActiveThread(t);
-                    }}
-                    className="flex-1 w-full py-2.5 pr-8 pl-2 bg-transparent text-sm font-semibold text-text-primary focus:outline-none appearance-none truncate"
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsThreadDropdownOpen(!isThreadDropdownOpen)}
+                    className="w-full flex items-center bg-surface border border-border rounded-lg overflow-hidden shadow-sm hover:border-slate-300 transition-colors text-left"
                   >
-                    {activeCounterparty.threads.map(t => (
-                      <option key={t.id} value={t.id}>
-                        {t.title.replace('Order: ', 'Order: ').replace('Inquiry: ', 'Inquiry: ')} 
-                        ({t.status})
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-tertiary">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                  </div>
+                    <span className="pl-3 pr-2 py-2 text-[10px] font-bold text-slate uppercase tracking-widest shrink-0 bg-paper-2 border-r border-border">
+                      {activeThread?.type || 'ASSET'}
+                    </span>
+                    <div className="flex-1 py-2 pr-8 pl-3 bg-transparent text-sm font-semibold text-ink truncate">
+                      {activeThread 
+                        ? `${activeThread.title.replace(/^Order:\s*/i, '').replace(/^Inquiry:\s*/i, '')} (${activeThread.status})` 
+                        : 'Select a thread...'}
+                    </div>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate">
+                      <svg className={`w-4 h-4 transition-transform duration-200 ${isThreadDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </div>
+                  </button>
+
+                  {isThreadDropdownOpen && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setIsThreadDropdownOpen(false)}></div>
+                      <div className="absolute z-20 w-full mt-1 bg-paper border border-border rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                        {activeThreadsToDisplay.length > 0 ? (
+                          activeThreadsToDisplay.map(t => (
+                            <button
+                              key={t.id}
+                              onClick={() => {
+                                setActiveThread(t);
+                                setIsThreadDropdownOpen(false);
+                              }}
+                              className={`w-full text-left px-4 py-2.5 text-sm hover:bg-paper-2 transition-colors border-b border-border/50 last:border-0 flex justify-between items-center ${activeThread?.id === t.id ? 'bg-paper-2 font-semibold text-ink' : 'text-slate'}`}
+                            >
+                              <div className="flex items-center gap-2 truncate">
+                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${t.type === 'ORDER' ? 'bg-money/10 text-money border-money/20' : 'bg-ink/10 text-ink border-ink/20'} uppercase tracking-wider`}>
+                                  {t.type}
+                                </span>
+                                <span className={`truncate ${activeThread?.id === t.id ? 'text-ink' : ''}`}>{t.title.replace(/^Order:\s*/i, '').replace(/^Inquiry:\s*/i, '')}</span>
+                              </div>
+                              <span className="text-[10px] text-slate ml-2 shrink-0 bg-surface px-1.5 py-0.5 rounded border border-border uppercase font-semibold">{t.status}</span>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="px-4 py-3 text-sm text-slate text-center">No threads found.</div>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -364,15 +396,20 @@ export function MessagesUI({ role }: { role: Role }) {
               <>
                 {/* Active Thread Banner (if order) */}
                 {activeThread.type === "ORDER" && (
-                  <div className="px-4 py-2 bg-primary-50/50 border-b border-primary-100 flex justify-between items-center z-10">
+                  <div className="px-4 py-2 bg-paper-2/50 border-b border-border flex justify-between items-center relative z-10">
                     <div className="flex items-center gap-3">
-                      <div className="text-sm font-semibold text-text-primary">Order Total: ₹{Number(activeThread.data.totalAmount).toLocaleString('en-IN')}</div>
-                      <div className="text-xs text-text-tertiary">({activeThread.data.quantity} {activeThread.data.pricingUnit} @ ₹{Number(activeThread.data.unitPrice).toLocaleString('en-IN')})</div>
+                      <div className="text-sm font-semibold text-ink">Order Total: ₹{Number(activeThread.data.totalAmount).toLocaleString('en-IN')}</div>
+                      <div className="text-xs text-slate">({activeThread.data.quantity} {activeThread.data.pricingUnit} @ ₹{Number(activeThread.data.unitPrice).toLocaleString('en-IN')})</div>
                     </div>
                     {activeThread.data.status === 'PLACED' || activeThread.data.status === 'COUNTER_OFFERED' ? (
                       <button 
-                        onClick={() => setShowCounterModal(true)}
-                        className="px-3 py-1.5 bg-primary-500 hover:bg-primary-600 text-white shadow-sm text-xs font-medium rounded-md transition-colors"
+                        onClick={() => {
+                          setCounterPrice(activeThread.data.unitPrice || "");
+                          setCounterQuantity(activeThread.data.quantity || "");
+                          setCounterNote("");
+                          setShowCounterModal(true);
+                        }}
+                        className="px-3 py-1.5 bg-ink hover:bg-ink text-white shadow-sm text-xs font-medium rounded-md transition-colors"
                       >
                         Make Counter Offer
                       </button>
@@ -383,7 +420,7 @@ export function MessagesUI({ role }: { role: Role }) {
                 {/* Messages List */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {messages.length === 0 ? (
-                    <div className="flex h-full items-center justify-center text-text-tertiary text-sm">
+                    <div className="flex h-full items-center justify-center text-slate text-sm">
                       Send a message to start the conversation for this asset.
                     </div>
                   ) : (
@@ -393,8 +430,8 @@ export function MessagesUI({ role }: { role: Role }) {
                         const isMine = msg.sender.role === role;
                         return (
                           <div key={idx} className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
-                            <div className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                              isMine ? 'bg-primary-500 text-white rounded-br-sm shadow-sm' : 'bg-surface border border-border-subtle text-text-primary rounded-bl-sm shadow-sm'
+                            <div className={`max-w-[70%] rounded px-4 py-2 ${
+                              isMine ? 'bg-ink text-white rounded-br-sm shadow-sm' : 'bg-paper border border-border text-ink rounded-bl-sm shadow-sm'
                             }`}>
                               {msg.type === 'COUNTER_OFFER' ? (
                                 <div className="space-y-2">
@@ -410,9 +447,9 @@ export function MessagesUI({ role }: { role: Role }) {
                                   {msg.message && <div className="mt-2 text-sm italic opacity-90">"{msg.message}"</div>}
                                   
                                   {!isMine && activeThread.data.status === 'COUNTER_OFFERED' && idx === lastCounterOfferIdx && (
-                                    <div className="flex gap-2 mt-3 pt-3 border-t border-border-subtle/50">
-                                      <button onClick={handleAccept} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm text-xs py-2 rounded-md font-bold transition-colors">Accept Offer</button>
-                                      <button onClick={handleDecline} className="flex-1 bg-surface text-text-primary hover:bg-surface-raised border border-border-subtle text-xs py-2 rounded-md font-bold transition-colors">Decline</button>
+                                    <div className="flex gap-2 mt-3 pt-3 border-t border-border/50">
+                                      <button onClick={handleAccept} className="flex-1 bg-money hover:bg-money text-white shadow-sm text-xs py-2 rounded-md font-bold transition-colors">Accept Offer</button>
+                                      <button onClick={handleDecline} className="flex-1 bg-paper text-ink hover:bg-paper-2 border border-border text-xs py-2 rounded-md font-bold transition-colors">Decline</button>
                                     </div>
                                   )}
                               </div>
@@ -430,7 +467,7 @@ export function MessagesUI({ role }: { role: Role }) {
                               <div className="text-sm whitespace-pre-wrap leading-relaxed">{msg.message}</div>
                             )}
                           </div>
-                          <span className="text-[10px] text-text-tertiary mt-1 px-1">
+                          <span className="text-[10px] text-slate mt-1 px-1">
                             {new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                           </span>
                         </div>
@@ -442,7 +479,7 @@ export function MessagesUI({ role }: { role: Role }) {
                 </div>
 
                 {/* Message Input */}
-                <div className="p-4 bg-surface border-t border-border-subtle">
+                <div className="p-4 bg-paper border-t border-border">
                   <form onSubmit={handleSendMessage} className="flex gap-2">
                     <Input
                       value={inputText}
@@ -453,7 +490,7 @@ export function MessagesUI({ role }: { role: Role }) {
                     <button
                       type="submit"
                       disabled={!inputText.trim()}
-                      className="px-6 py-2.5 bg-primary-500 text-white rounded-xl font-medium text-sm hover:bg-primary-600 focus:ring-2 focus:ring-primary-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+                      className="px-6 py-2.5 bg-ink text-white rounded font-medium text-sm hover:bg-ink focus:ring-2 focus:ring-primary-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
                     >
                       Send
                     </button>
@@ -461,18 +498,18 @@ export function MessagesUI({ role }: { role: Role }) {
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-text-secondary bg-surface-raised/30">
+              <div className="flex-1 flex flex-col items-center justify-center text-slate bg-paper-2/30">
                 <p className="text-sm font-medium">Select an asset from the top bar to view messages.</p>
               </div>
             )}
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-text-secondary bg-surface-raised/30">
+          <div className="flex-1 flex flex-col items-center justify-center text-slate bg-paper-2/30">
             <svg className="w-16 h-16 text-border-default mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            <p className="text-sm font-medium text-text-primary">Select a Supplier</p>
-            <p className="text-xs text-text-tertiary mt-1">Choose a company from the sidebar to view your negotiations</p>
+            <p className="text-sm font-medium text-ink">Select a Supplier</p>
+            <p className="text-xs text-slate mt-1">Choose a company from the sidebar to view your negotiations</p>
           </div>
         )}
       </div>
@@ -480,10 +517,10 @@ export function MessagesUI({ role }: { role: Role }) {
       {/* Counter Offer Modal */}
       {showCounterModal && activeThread && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-surface w-full max-w-md rounded-2xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-border-subtle flex justify-between items-center bg-surface">
-              <h3 className="text-lg font-bold text-text-primary">Make a Counter Offer</h3>
-              <button onClick={() => setShowCounterModal(false)} className="h-8 w-8 rounded-full bg-surface-raised flex items-center justify-center text-text-tertiary hover:text-text-primary transition-colors">
+          <div className="bg-paper w-full max-w-md rounded shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-paper">
+              <h3 className="text-lg font-bold text-ink">Make a Counter Offer</h3>
+              <button onClick={() => setShowCounterModal(false)} className="h-8 w-8 rounded-full bg-paper-2 flex items-center justify-center text-slate hover:text-ink transition-colors">
                 <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
               </button>
             </div>
@@ -514,8 +551,8 @@ export function MessagesUI({ role }: { role: Role }) {
                 placeholder="Explain why you are proposing these terms..."
               />
               <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => setShowCounterModal(false)} className="flex-1 px-4 py-2 bg-surface hover:bg-surface-raised border border-border-subtle text-text-primary text-sm font-medium rounded-xl transition-colors">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium rounded-xl shadow-sm transition-colors">Send Offer</button>
+                <button type="button" onClick={() => setShowCounterModal(false)} className="flex-1 px-4 py-2 bg-paper hover:bg-paper-2 border border-border text-ink text-sm font-medium rounded transition-colors">Cancel</button>
+                <button type="submit" className="flex-1 px-4 py-2 bg-ink hover:bg-ink text-white text-sm font-medium rounded shadow-sm transition-colors">Send Offer</button>
               </div>
             </form>
           </div>
@@ -526,14 +563,14 @@ export function MessagesUI({ role }: { role: Role }) {
       {alertConfig && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setAlertConfig(null)}></div>
-          <div className="relative bg-surface rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center animate-in zoom-in-95 duration-200">
+          <div className="relative bg-paper rounded shadow-2xl w-full max-w-sm p-6 text-center animate-in zoom-in-95 duration-200">
             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
               <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-bold text-text-primary mb-2">Error</h3>
-            <p className="text-sm text-text-secondary mb-6">{alertConfig.message}</p>
+            <h3 className="text-lg font-bold text-ink mb-2">Error</h3>
+            <p className="text-sm text-slate mb-6">{alertConfig.message}</p>
             <button onClick={() => setAlertConfig(null)} className="w-full btn-primary bg-red-600 hover:bg-red-700 border-none text-sm py-2.5">
               Dismiss
             </button>

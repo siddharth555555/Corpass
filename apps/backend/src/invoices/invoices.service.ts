@@ -67,7 +67,8 @@ export class InvoicesService {
         include: {
           sellerProfile: { include: { user: { select: { name: true, company: true } } } },
           createdBy: { select: { name: true } },
-          order: true
+          order: { include: { payments: { orderBy: { createdAt: 'desc' } } } },
+          payments: { orderBy: { createdAt: 'desc' } }
         }
       });
     } else {
@@ -79,7 +80,8 @@ export class InvoicesService {
         include: {
           buyer: { select: { name: true, company: true } },
           createdBy: { select: { name: true } },
-          order: true
+          order: { include: { payments: { orderBy: { createdAt: 'desc' } } } },
+          payments: { orderBy: { createdAt: 'desc' } }
         }
       });
     }
@@ -130,6 +132,57 @@ export class InvoicesService {
 
     return this.prisma.invoice.update({
       where: { id: invoiceId },
+      data: { status: 'DISPUTED' }
+    });
+  }
+
+  async addPayment(userId: number, role: string, invoiceId: number, data: { amount: number, paymentDate: string, utr?: string }) {
+    const invoice = await this.prisma.invoice.findUnique({ where: { id: invoiceId } });
+    if (!invoice) throw new BadRequestException('Invoice not found');
+    
+    if (role === 'BUYER' && invoice.buyerId !== userId) throw new ForbiddenException('Not your invoice');
+    if (role === 'SELLER') {
+      const sp = await this.prisma.sellerProfile.findUnique({ where: { userId } });
+      if (!sp || invoice.sellerProfileId !== sp.id) throw new ForbiddenException('Not your invoice');
+    }
+    
+    return this.prisma.paymentRecord.create({
+      data: {
+        invoiceId,
+        amount: data.amount,
+        paymentDate: new Date(data.paymentDate),
+        utr: data.utr || null,
+        status: 'PENDING_ACKNOWLEDGEMENT'
+      }
+    });
+  }
+
+  async acknowledgePayment(userId: number, role: string, paymentId: number) {
+    const payment = await this.prisma.paymentRecord.findUnique({ where: { id: paymentId }, include: { invoice: true } });
+    if (!payment || !payment.invoiceId) throw new BadRequestException('Payment not found or not linked to an invoice');
+    
+    if (role === 'BUYER') throw new ForbiddenException('Only sellers can acknowledge payments');
+    
+    const sp = await this.prisma.sellerProfile.findUnique({ where: { userId } });
+    if (!sp || payment.invoice.sellerProfileId !== sp.id) throw new ForbiddenException('Not your payment record');
+    
+    return this.prisma.paymentRecord.update({
+      where: { id: paymentId },
+      data: { status: 'ACKNOWLEDGED' }
+    });
+  }
+
+  async disputePayment(userId: number, role: string, paymentId: number) {
+    const payment = await this.prisma.paymentRecord.findUnique({ where: { id: paymentId }, include: { invoice: true } });
+    if (!payment || !payment.invoiceId) throw new BadRequestException('Payment not found or not linked to an invoice');
+    
+    if (role === 'BUYER') throw new ForbiddenException('Only sellers can dispute payments');
+    
+    const sp = await this.prisma.sellerProfile.findUnique({ where: { userId } });
+    if (!sp || payment.invoice.sellerProfileId !== sp.id) throw new ForbiddenException('Not your payment record');
+    
+    return this.prisma.paymentRecord.update({
+      where: { id: paymentId },
       data: { status: 'DISPUTED' }
     });
   }

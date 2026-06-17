@@ -40,4 +40,12 @@ export class ProductsController {
     }
     return this.productsService.updateStock(req.user.sub, parseInt(id, 10), stockQuantity);
   }
+
+  @Patch(':id')
+  update(@Request() req, @Param('id') id: string, @Body() updateProductDto: any) {
+    if (req.user.role !== 'SELLER') {
+      throw new BadRequestException('Only sellers can update products');
+    }
+    return this.productsService.update(req.user.sub, parseInt(id, 10), updateProductDto);
+  }
 }

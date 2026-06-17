@@ -51,40 +51,40 @@ export default function BuyerDashboardOverview() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl text-text-primary tracking-tight">Overview</h2>
-        <p className="text-sm text-text-secondary mt-1">Here's what's happening with your procurement today.</p>
+        <h2 className="text-2xl text-ink tracking-tight">Overview</h2>
+        <p className="text-sm text-slate mt-1">Here's what's happening with your procurement today.</p>
       </div>
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-surface border border-border-subtle rounded-xl py-5 px-6 relative overflow-hidden card-hover opacity-0 animate-fade-up">
+        <div className="bg-paper border border-border rounded py-5 px-6 relative overflow-hidden card-hover opacity-0 animate-fade-up">
           <div className="flex justify-between items-start">
             <div>
               <h3 className="section-label mb-2">Total Spend (YTD)</h3>
-              <p className="text-3xl font-semibold text-text-primary font-sans">
+              <p className="text-3xl font-semibold text-ink font-sans">
                 {loading ? "..." : `₹${stats.totalSpend.toLocaleString('en-IN')}`}
               </p>
             </div>
           </div>
-          <div className="absolute bottom-0 left-0 w-full h-[3px] bg-primary-500"></div>
+          <div className="absolute bottom-0 left-0 w-full h-[3px] bg-ink"></div>
         </div>
 
-        <div className="bg-surface border border-border-subtle rounded-xl py-5 px-6 card-hover opacity-0 animate-fade-up-1">
+        <div className="bg-paper border border-border rounded py-5 px-6 card-hover opacity-0 animate-fade-up-1">
           <div className="flex justify-between items-start">
             <div>
               <h3 className="section-label mb-2">Active Orders</h3>
-              <p className="text-3xl font-semibold text-text-primary font-sans">
+              <p className="text-3xl font-semibold text-ink font-sans">
                 {loading ? "..." : stats.activeOrders}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-surface border border-border-subtle rounded-xl py-5 px-6 card-hover opacity-0 animate-fade-up-2">
+        <div className="bg-paper border border-border rounded py-5 px-6 card-hover opacity-0 animate-fade-up-2">
           <div className="flex justify-between items-start">
             <div>
               <h3 className="section-label mb-2">Pending Approvals</h3>
-              <p className="text-3xl font-semibold text-text-primary font-sans">
+              <p className="text-3xl font-semibold text-ink font-sans">
                 {loading ? "..." : stats.pendingApprovals}
               </p>
             </div>
@@ -93,38 +93,38 @@ export default function BuyerDashboardOverview() {
       </div>
 
       {/* Recent Activity Section */}
-      <div className="bg-surface border border-border-subtle rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-border-subtle flex justify-between items-center">
-          <h3 className="text-sm font-semibold text-text-primary font-sans">Recent Procurement Requests</h3>
-          <Link href="/dashboard/buyer/orders" className="text-xs font-semibold text-primary-500 hover:text-accent-500 transition-colors">View All</Link>
+      <div className="bg-paper border border-border rounded overflow-hidden">
+        <div className="px-6 py-4 border-b border-border flex justify-between items-center">
+          <h3 className="text-sm font-semibold text-ink font-sans">Recent Procurement Requests</h3>
+          <Link href="/dashboard/buyer/orders" className="text-xs font-semibold text-ink hover:text-copper transition-colors">View All</Link>
         </div>
 
         {loading ? (
-          <div className="py-12 flex justify-center"><div className="animate-spin h-6 w-6 border-2 border-primary-500 border-t-transparent rounded-full"></div></div>
+          <div className="py-12 flex justify-center"><div className="animate-spin h-6 w-6 border-2 border-ink border-t-transparent rounded-full"></div></div>
         ) : recentOrders.length > 0 ? (
-          <div className="divide-y divide-border-subtle">
+          <div className="divide-y divide-border">
             {recentOrders.map(order => (
-              <div key={order.id} className="px-6 py-4 flex items-center justify-between hover:bg-surface-raised transition-colors">
+              <div key={order.id} className="px-6 py-4 flex items-center justify-between hover:bg-paper-2 transition-colors">
                 <div>
-                  <p className="text-sm font-semibold text-text-primary">{order.productName}</p>
-                  <p className="text-xs text-text-secondary mt-0.5">{order.orderNumber} • {new Date(order.createdAt).toLocaleDateString()}</p>
+                  <p className="text-sm font-semibold text-ink">{order.productName}</p>
+                  <p className="text-xs text-slate mt-0.5">{order.orderNumber} • {new Date(order.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold text-text-primary">₹{Number(order.totalAmount).toLocaleString('en-IN')}</p>
-                  <p className="text-xs font-semibold text-primary-500 mt-0.5">{order.status}</p>
+                  <p className="text-sm font-bold text-ink">₹{Number(order.totalAmount).toLocaleString('en-IN')}</p>
+                  <p className="text-xs font-semibold text-money mt-0.5">{order.status}</p>
                 </div>
               </div>
             ))}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-            <div className="h-10 w-10 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center mb-3">
-              <svg className="h-5 w-5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="h-10 w-10 rounded-full bg-paper-2 border border-border flex items-center justify-center mb-3">
+              <svg className="h-5 w-5 text-money" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
               </svg>
             </div>
-            <h3 className="text-base font-semibold text-text-primary font-sans">No requests found</h3>
-            <p className="mt-1 text-sm text-text-secondary max-w-sm mx-auto">
+            <h3 className="text-base font-semibold text-ink font-sans">No requests found</h3>
+            <p className="mt-1 text-sm text-slate max-w-sm mx-auto">
               You haven't made any procurement requests yet. Ready to source products for your company?
             </p>
             <Link href="/dashboard/buyer/catalog" className="mt-4 btn-primary text-sm inline-block">

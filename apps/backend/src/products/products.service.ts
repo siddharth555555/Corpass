@@ -57,12 +57,58 @@ export class ProductsService {
         pricingUnit: data.pricingUnit || 'PIECE',
         piecesPerUnit: data.piecesPerUnit ? parseInt(data.piecesPerUnit, 10) : null,
         isDeliverable: data.isDeliverable !== undefined ? data.isDeliverable : true,
+        deliveryRange: data.deliveryRange || null,
+        deliveryCities: data.deliveryCities || null,
+        deliveryPincodes: data.deliveryPincodes || null,
         minQtyPurchase: parseInt(data.minQtyPurchase, 10),
         minAmountPurchase: parseFloat(data.minAmountPurchase),
         deliveryTimeDays: data.deliveryTimeDays ? parseInt(data.deliveryTimeDays, 10) : 0,
         stockQuantity: data.stockQuantity ? parseInt(data.stockQuantity, 10) : 0,
         images: data.images || [],
       },
+    });
+  }
+
+  async update(userId: number, productId: number, data: any) {
+    const sellerProfile = await this.prisma.sellerProfile.findUnique({
+      where: { userId },
+    });
+
+    if (!sellerProfile) {
+      throw new BadRequestException('Seller profile not found');
+    }
+
+    const product = await this.prisma.productCatalog.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product || product.sellerProfileId !== sellerProfile.id) {
+      throw new BadRequestException('Product not found or not owned by seller');
+    }
+
+    const updateData: any = {
+      name: data.name,
+      description: data.description,
+      category: data.category,
+      subCategory: data.subCategory,
+      priceType: data.priceType,
+      pricingUnit: data.pricingUnit,
+      isDeliverable: data.isDeliverable,
+      deliveryRange: data.deliveryRange || null,
+      deliveryCities: data.deliveryCities !== undefined ? data.deliveryCities : undefined,
+      deliveryPincodes: data.deliveryPincodes !== undefined ? data.deliveryPincodes : undefined,
+      images: data.images,
+    };
+
+    if (data.price !== undefined) updateData.price = data.price ? parseFloat(data.price) : null;
+    if (data.piecesPerUnit !== undefined) updateData.piecesPerUnit = data.piecesPerUnit ? parseInt(data.piecesPerUnit, 10) : null;
+    if (data.minQtyPurchase !== undefined) updateData.minQtyPurchase = parseInt(data.minQtyPurchase, 10);
+    if (data.minAmountPurchase !== undefined) updateData.minAmountPurchase = parseFloat(data.minAmountPurchase);
+    if (data.deliveryTimeDays !== undefined) updateData.deliveryTimeDays = parseInt(data.deliveryTimeDays, 10);
+
+    return this.prisma.productCatalog.update({
+      where: { id: productId },
+      data: updateData,
     });
   }
 
@@ -97,14 +143,6 @@ export class ProductsService {
       where.category = category;
     }
 
-    if (city) {
-      where.sellerProfile = {
-        user: {
-          city: { contains: city }
-        }
-      };
-    }
-
     let orderBy: any = { createdAt: 'desc' };
     if (sortBy === 'price_asc') {
       orderBy = { price: 'asc' };
@@ -129,20 +167,21 @@ export class ProductsService {
       }
     });
 
-    const maxDistanceMap: Record<string, number> = {
-      LOCAL_100KM: 100 * 1.2,
-      HYPER_LOCAL_20KM: 20 * 1.2,
-      SHIPPING_AVAILABLE: Infinity
-    };
-
     const isShowUndeliverable = showUndeliverable === 'true';
 
     const processedProducts = products.map(p => {
       let isOutOfRange = false;
-      if (buyerPincode && p.sellerProfile?.user?.pincode) {
-        const dist = calculateDistanceKm(buyerPincode, p.sellerProfile.user.pincode);
-        const maxDist = maxDistanceMap[p.sellerProfile.deliveryRange] || Infinity;
-        if (dist > maxDist) {
+      const productRange = p.deliveryRange || p.sellerProfile.deliveryRange;
+      
+      if (productRange === 'LOCAL_100KM') {
+        const effectiveCities = (p.deliveryCities as any[]) || (p.sellerProfile.deliveryCities as any[]) || [{ name: p.sellerProfile.user?.city }];
+        if (city && !effectiveCities.some(c => c.name?.toLowerCase() === city.toLowerCase())) {
+          isOutOfRange = true;
+        }
+      } else if (productRange === 'HYPER_LOCAL_20KM') {
+        const effectivePincodes = (p.deliveryPincodes as string[]) || (p.sellerProfile.deliveryPincodes as string[]) || [p.sellerProfile.user?.pincode];
+        console.log(`Product ${p.id} HYPER_LOCAL matching: buyerPincode=${buyerPincode}, effectivePincodes=`, effectivePincodes);
+        if (!buyerPincode || !effectivePincodes.includes(buyerPincode)) {
           isOutOfRange = true;
         }
       }

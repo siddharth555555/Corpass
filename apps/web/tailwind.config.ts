@@ -10,22 +10,41 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        serif: ['DM Serif Display', 'Georgia', 'serif'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-serif)', 'DM Serif Display', 'Georgia', 'serif'],
+        sans: ['var(--font-sans)', 'Inter', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-mono)', 'monospace'],
       },
       colors: {
-        canvas: '#FAF8F5',
+        ink: {
+          DEFAULT: 'var(--ink)',
+          2: 'var(--ink-2)',
+        },
+        slate: 'var(--slate)',
+        paper: {
+          DEFAULT: 'var(--paper)',
+          2: 'var(--paper-2)',
+        },
+        money: {
+          DEFAULT: 'var(--money)',
+          hover: 'var(--money-hover)',
+          bg: 'var(--money-bg)',
+        },
+        copper: {
+          DEFAULT: 'var(--copper)',
+          bg: 'var(--copper-bg)',
+        },
+        canvas: 'var(--paper)',
         surface: {
           DEFAULT: '#FFFFFF',
-          raised: '#F7F6F3',
+          raised: 'var(--paper-2)',
           overlay: '#FFFFFF',
         },
         primary: {
-          50:  '#ECEAFE',
+          50:  'var(--paper-2)',
           100: '#D5D3F8',
           200: '#B0AAEF',
-          500: '#0D0A3E',
-          600: '#0A0830',
+          500: 'var(--ink)',
+          600: 'var(--ink-2)',
           700: '#070522',
           900: '#030214',
         },
@@ -46,30 +65,31 @@ const config: Config = {
           700: '#6B253B',
         },
         cta: {
-          50:  '#FEF0EF',
+          50:  'var(--copper-bg)',
           100: '#FDD5D3',
           200: '#FCB3B0',
-          500: '#F9564F',
+          500: 'var(--copper)',
           600: '#E03E38',
           700: '#C72F29',
         },
         text: {
-          primary:   '#0F172A',
-          secondary: '#64748B',
-          tertiary:  '#94A3B8',
-          'on-brand': '#FFFFFF',
-          'on-canvas': '#1E293B',
+          primary:   'var(--ink)',
+          secondary: 'var(--ink-2)',
+          tertiary:  'var(--slate)',
+          'on-brand': 'var(--paper)',
+          'on-canvas': 'var(--ink)',
         },
         border: {
-          subtle:  '#E2E0DC',
-          default: '#D1D5DB',
-          strong:  '#94A3B8',
-          brand:   '#0D0A3E',
+          DEFAULT: 'var(--border)',
+          focus: 'var(--border-focus)',
+          subtle:  'var(--border)',
+          strong:  'var(--ink-2)',
+          brand:   'var(--ink)',
         },
         success: {
-          50:  '#F0FDF4',
-          500: '#22C55E',
-          700: '#15803D'
+          50:  'var(--money-bg)',
+          500: 'var(--money)',
+          700: 'var(--money-hover)'
         },
         warning: {
           50:  '#FFFBEB',
@@ -77,8 +97,8 @@ const config: Config = {
           700: '#B45309'
         },
         danger: {
-          50:  '#FEF2F2',
-          500: '#EF4444',
+          50:  'var(--copper-bg)',
+          500: 'var(--copper)',
           700: '#B91C1C'
         }
       },

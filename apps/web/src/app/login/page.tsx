@@ -53,46 +53,46 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-canvas p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-paper p-4 sm:p-6 lg:p-8 relative overflow-hidden">
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
             <LogoLink src="/logo.png" className="h-40 w-auto object-contain mix-blend-multiply" priority={true} />
           </div>
-          <h2 className="text-3xl font-serif font-bold text-text-primary tracking-tight">
+          <h2 className="text-3xl font-serif font-bold text-ink tracking-tight">
             Welcome back
           </h2>
-          <p className="mt-2 text-sm text-text-secondary">
+          <p className="mt-2 text-sm text-slate">
             Sign in to your Corpass workspace.
           </p>
         </div>
 
         {/* Role Switch Bar */}
-        <div className="flex p-1 bg-surface-raised rounded-xl mb-8 border border-border-subtle">
+        <div className="flex p-1 bg-paper-2 mb-8 border border-border">
           <button
             onClick={() => setRole('BUYER')}
-            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 ${
+            className={`flex-1 py-2.5 text-sm font-medium transition-all duration-300 ${
               role === 'BUYER' 
-                ? 'bg-primary-500 text-white shadow-sm' 
-                : 'text-text-secondary hover:text-text-primary'
+                ? 'bg-ink text-paper shadow-sm' 
+                : 'text-slate hover:text-ink'
             }`}
           >
             I am a Company
           </button>
           <button
             onClick={() => setRole('SELLER')}
-            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-300 ${
+            className={`flex-1 py-2.5 text-sm font-medium transition-all duration-300 ${
               role === 'SELLER' 
-                ? 'bg-primary-500 text-white shadow-sm' 
-                : 'text-text-secondary hover:text-text-primary'
+                ? 'bg-ink text-paper shadow-sm' 
+                : 'text-slate hover:text-ink'
             }`}
           >
             I am a Seller
           </button>
         </div>
 
-        <form onSubmit={handleLogin} method="post" action="" className="space-y-5">
-          {error && <div className="p-3 bg-cta-50 text-cta-600 text-sm rounded-xl border border-cta-200">{error}</div>}
+        <form onSubmit={handleLogin} className="space-y-5">
+          {error && <div className="p-3 bg-copper-bg text-copper text-sm border border-copper">{error}</div>}
           
           <div>
             <Input
@@ -129,8 +129,8 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-8 text-center text-sm">
-          <span className="text-text-secondary">Don't have an account? </span>
-          <a href="/register" className="font-medium text-primary-500 hover:text-accent-500 transition-colors">
+          <span className="text-slate">Don't have an account? </span>
+          <a href="/register" className="font-medium text-ink hover:text-copper transition-colors">
             Register your company or store
           </a>
         </div>

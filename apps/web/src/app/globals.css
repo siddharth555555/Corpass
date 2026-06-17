@@ -5,9 +5,30 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --ink:        #1C1B17;
+    --ink-2:      #3A3934;
+    --slate:      #6B695E;
+    --paper:      #F5F4F0;
+    --paper-2:    #EBEAE4;
+    --money:      #117B56;
+    --money-hover:#0B6143;
+    --money-bg:   #E4F2EC;
+    --copper:     #B56A45;
+    --copper-bg:  #F7EBE5;
+    --border:     #D8D7D0;
+    --border-focus: #1C1B17;
+  }
+
   /* Serif headings */
   h1, h2, h3 {
-    font-family: 'DM Serif Display', Georgia, serif;
+    font-family: var(--font-serif), 'DM Serif Display', Georgia, serif;
+    color: var(--ink);
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
   }
 
   /* Remove arrows/spinners from number inputs globally */
@@ -29,10 +50,7 @@
   input[type="url"],
   textarea,
   select {
-    @apply rounded-xl border border-border-default bg-surface-raised
-           transition-all duration-300 ease-out
-           focus:bg-white focus:border-primary-500 focus:shadow-[0_0_0_3px_rgba(13,10,62,0.08)]
-           focus:outline-none;
+    @apply rounded-none border border-border bg-paper transition-all duration-300 ease-out focus:bg-white focus:border-border-focus focus:shadow-none focus:outline-none;
   }
 }
 
@@ -42,43 +60,34 @@
     @apply transition-all duration-300 ease-out;
   }
   .card-hover:hover {
-    @apply -translate-y-0.5 shadow-md;
+    @apply -translate-y-0.5 shadow-sm;
   }
 
   /* Premium button base */
   .btn-primary {
-    @apply bg-primary-500 text-white font-medium rounded-xl px-5 py-2.5
-           transition-all duration-200 ease-out
-           hover:bg-primary-600 hover:shadow-lg hover:-translate-y-px
-           active:translate-y-0 active:shadow-sm;
+    @apply bg-ink text-paper font-medium rounded-none px-5 py-2.5 transition-all duration-200 ease-out hover:bg-ink-2 active:translate-y-0;
   }
 
   .btn-cta {
-    @apply bg-cta-500 text-white font-medium rounded-xl px-5 py-2.5
-           transition-all duration-200 ease-out
-           hover:bg-cta-600 hover:shadow-lg hover:-translate-y-px
-           active:translate-y-0 active:shadow-sm;
+    @apply bg-copper text-white font-medium rounded-none px-5 py-2.5 transition-all duration-200 ease-out hover:bg-[#A05C3A] active:translate-y-0;
   }
 
   .btn-outline {
-    @apply bg-white text-text-primary font-medium rounded-xl px-5 py-2.5
-           border border-border-default
-           transition-all duration-200 ease-out
-           hover:bg-surface-raised hover:border-border-strong;
+    @apply bg-paper text-ink font-medium rounded-none px-5 py-2.5 border border-border transition-all duration-200 ease-out hover:bg-paper-2 hover:border-slate;
   }
 
   /* Status badge pills */
   .badge {
-    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium;
+    @apply inline-flex items-center gap-1.5 rounded-none px-3 py-1 text-xs font-medium border border-border;
   }
-  .badge-pending { @apply bg-accent-50 text-accent-500; }
-  .badge-confirmed { @apply bg-primary-50 text-primary-500; }
-  .badge-shipped { @apply bg-highlight-50 text-highlight-500; }
-  .badge-delivered { @apply bg-success-50 text-success-700; }
-  .badge-cancelled { @apply bg-cta-50 text-cta-500; }
+  .badge-pending { @apply bg-paper-2 text-ink-2 border-transparent; }
+  .badge-confirmed { @apply bg-paper-2 text-ink border-transparent; }
+  .badge-shipped { @apply bg-paper-2 text-ink border-transparent; }
+  .badge-delivered { @apply bg-money-bg text-money border-transparent; }
+  .badge-cancelled { @apply bg-copper-bg text-copper border-transparent; }
 
   /* Editorial section label */
   .section-label {
-    @apply text-[11px] uppercase tracking-[0.15em] font-semibold text-text-secondary;
+    @apply text-[11px] uppercase tracking-[0.15em] font-semibold text-slate;
   }
 }

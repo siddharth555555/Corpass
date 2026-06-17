@@ -61,4 +61,24 @@ export class OrdersController {
   cancel(@Request() req, @Param('id') id: string) {
     return this.ordersService.cancel(req.user.sub, parseInt(id, 10), req.user.role);
   }
+
+  @Patch(':id/request-advance')
+  requestAdvance(@Request() req, @Param('id') id: string, @Body() data: { amount: number }) {
+    return this.ordersService.requestAdvance(req.user.sub, parseInt(id, 10), data.amount);
+  }
+
+  @Post(':id/payments')
+  addPayment(@Request() req, @Param('id') id: string, @Body() data: { amount: number, paymentDate: string, utr?: string }) {
+    return this.ordersService.addPayment(req.user.sub, parseInt(id, 10), data);
+  }
+
+  @Patch('/payments/:id/acknowledge')
+  acknowledgePayment(@Request() req, @Param('id') id: string) {
+    return this.ordersService.acknowledgePayment(req.user.sub, parseInt(id, 10));
+  }
+
+  @Patch('/payments/:id/dispute')
+  disputePayment(@Request() req, @Param('id') id: string) {
+    return this.ordersService.disputePayment(req.user.sub, parseInt(id, 10));
+  }
 }

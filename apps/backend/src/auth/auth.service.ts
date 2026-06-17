@@ -71,7 +71,9 @@ export class AuthService {
         data: {
           userId: user.id,
           gstin: data.gstin,
-          deliveryRange: data.deliveryRange || 'LOCAL_100KM'
+          deliveryRange: data.deliveryRange || 'LOCAL_100KM',
+          deliveryCities: data.deliveryCities || null,
+          deliveryPincodes: data.deliveryPincodes || null,
         }
       });
     }
@@ -160,15 +162,18 @@ export class AuthService {
       }
     }
 
-    if (data.gstin) {
+    if (data.gstin !== undefined || data.deliveryRange !== undefined || data.deliveryCities !== undefined || data.deliveryPincodes !== undefined) {
       const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { sellerProfile: true }});
       if (user.sellerProfile) {
+        const profileUpdate: any = {};
+        if (data.gstin !== undefined) profileUpdate.gstin = data.gstin;
+        if (data.deliveryRange !== undefined) profileUpdate.deliveryRange = data.deliveryRange;
+        if (data.deliveryCities !== undefined) profileUpdate.deliveryCities = data.deliveryCities;
+        if (data.deliveryPincodes !== undefined) profileUpdate.deliveryPincodes = data.deliveryPincodes;
+
         await this.prisma.sellerProfile.update({
           where: { id: user.sellerProfile.id },
-          data: {
-            gstin: data.gstin,
-            deliveryRange: data.deliveryRange
-          }
+          data: profileUpdate
         });
       }
     }

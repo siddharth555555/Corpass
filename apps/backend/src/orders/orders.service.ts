@@ -63,6 +63,7 @@ export class OrdersService {
         shippingAddress: data.shippingAddress,
         billingAddress: data.billingAddress,
         buyerNote: data.buyerNote || null,
+        paymentMode: data.paymentMode || null,
         status: 'PLACED',
       },
       include: { buyer: { select: { name: true, email: true, city: true, company: true } }, sellerProfile: { include: { user: { select: { name: true, company: true } } } }, product: true }
@@ -75,10 +76,11 @@ export class OrdersService {
         where: { buyerId: userId },
         orderBy: { createdAt: 'desc' },
         include: {
-          sellerProfile: { include: { user: { select: { name: true, company: true, city: true } } } },
+          sellerProfile: { include: { user: { select: { name: true, company: true, city: true, email: true, mobile: true } } } },
           product: true,
           invoice: true,
-          reviews: true
+          reviews: true,
+          payments: { orderBy: { createdAt: 'desc' } }
         }
       });
     } else {
@@ -88,13 +90,81 @@ export class OrdersService {
         where: { sellerProfileId: sp.id },
         orderBy: { createdAt: 'desc' },
         include: {
-          buyer: { select: { name: true, email: true, city: true, company: true } },
+          buyer: { select: { name: true, email: true, mobile: true, city: true, company: true } },
           product: true,
           invoice: true,
-          reviews: true
+          reviews: true,
+          payments: { orderBy: { createdAt: 'desc' } }
         }
       });
     }
+  }
+
+  async requestAdvance(userId: number, orderId: number, amount: number) {
+    const sp = await this.prisma.sellerProfile.findUnique({ where: { userId } });
+    if (!sp) throw new ForbiddenException('Not a seller');
+    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    if (!order || order.sellerProfileId !== sp.id) throw new ForbiddenException('Not your order');
+    if (!['PLACED', 'COUNTER_OFFERED', 'CONFIRMED'].includes(order.status)) {
+      throw new BadRequestException('Cannot request advance at this stage');
+    }
+    
+    return this.prisma.order.update({
+      where: { id: orderId },
+      data: { advanceRequested: amount }
+    });
+  }
+
+  async addPayment(userId: number, orderId: number, data: { amount: number, paymentDate: string, utr?: string }) {
+    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    if (!order || order.buyerId !== userId) throw new ForbiddenException('Not your order');
+    
+    return this.prisma.paymentRecord.create({
+      data: {
+        orderId,
+        amount: data.amount,
+        paymentDate: new Date(data.paymentDate),
+        utr: data.utr || null,
+        status: 'PENDING_ACKNOWLEDGEMENT'
+      }
+    });
+  }
+
+  async acknowledgePayment(userId: number, paymentId: number) {
+    const sp = await this.prisma.sellerProfile.findUnique({ where: { userId } });
+    if (!sp) throw new ForbiddenException('Not a seller');
+    
+    const payment = await this.prisma.paymentRecord.findUnique({ where: { id: paymentId }, include: { order: true } });
+    if (!payment || payment.order.sellerProfileId !== sp.id) throw new ForbiddenException('Not your payment record');
+    
+    return this.prisma.paymentRecord.update({
+      where: { id: paymentId },
+      data: { status: 'ACKNOWLEDGED' }
+    });
+  }
+
+  async disputePayment(userId: number, paymentId: number) {
+    const sp = await this.prisma.sellerProfile.findUnique({ where: { userId } });
+    if (!sp) throw new ForbiddenException('Not a seller');
+    
+    const payment = await this.prisma.paymentRecord.findUnique({ where: { id: paymentId }, include: { order: true } });
+    if (!payment || payment.order.sellerProfileId !== sp.id) throw new ForbiddenException('Not your payment record');
+    
+    const updatedPayment = await this.prisma.paymentRecord.update({
+      where: { id: paymentId },
+      data: { status: 'DISPUTED' }
+    });
+
+    await this.prisma.orderMessage.create({
+      data: {
+        orderId: payment.orderId,
+        senderId: userId,
+        type: 'MESSAGE',
+        message: `🚨 Payment of ₹${payment.amount} dated ${payment.paymentDate.toLocaleDateString()} (UTR: ${payment.utr || 'N/A'}) has been DISPUTED by the seller. Please verify.`,
+      }
+    });
+
+    return updatedPayment;
   }
 
   async counterOffer(userId: number, orderId: number, data: any, role: string) {
@@ -283,9 +353,16 @@ export class OrdersService {
   async ship(userId: number, orderId: number) {
     const sp = await this.prisma.sellerProfile.findUnique({ where: { userId } });
     if (!sp) throw new ForbiddenException('Not a seller');
-    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    const order = await this.prisma.order.findUnique({ where: { id: orderId }, include: { payments: true } });
     if (!order || order.sellerProfileId !== sp.id) throw new ForbiddenException('Not your order');
     if (order.status !== 'CONFIRMED') throw new BadRequestException('Can only ship CONFIRMED orders');
+
+    if (order.advanceRequested) {
+      const ackPaid = order.payments.filter(p => p.status === 'ACKNOWLEDGED').reduce((sum, p) => sum + Number(p.amount), 0);
+      if (ackPaid < Number(order.advanceRequested)) {
+        throw new BadRequestException(`Advance of ₹${order.advanceRequested} has not been fully acknowledged yet.`);
+      }
+    }
 
     return this.prisma.$transaction(async (prisma) => {
       const updatedOrder = await prisma.order.update({

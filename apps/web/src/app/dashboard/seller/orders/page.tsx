@@ -5,16 +5,22 @@ import { useRouter } from "next/navigation";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   PLACED: { label: "New Order", color: "text-amber-700", bg: "bg-amber-50" },
-  COUNTER_OFFERED: { label: "Counter Sent", color: "text-orange-700", bg: "bg-orange-50" },
-  CONFIRMED: { label: "Confirmed", color: "text-primary-500", bg: "bg-primary-50" },
+  COUNTER_OFFERED: { label: "Counter Offer", color: "text-orange-700", bg: "bg-orange-50" },
+  CONFIRMED: { label: "Confirmed", color: "text-ink", bg: "bg-paper-2" },
   SHIPPED: { label: "Shipped", color: "text-violet-700", bg: "bg-violet-50" },
-  DELIVERED: { label: "Delivered", color: "text-emerald-700", bg: "bg-emerald-50" },
+  DELIVERED: { label: "Delivered", color: "text-money", bg: "bg-paper-2 border border-money text-money" },
   CANCELLED: { label: "Cancelled", color: "text-red-700", bg: "bg-red-50" },
 };
 
 const INV_STATUS: Record<string, { label: string; color: string; bg: string }> = {
   PENDING: { label: "Pending", color: "text-amber-700", bg: "bg-amber-50" },
-  ACKNOWLEDGED: { label: "Acknowledged", color: "text-emerald-700", bg: "bg-emerald-50" },
+  ACKNOWLEDGED: { label: "Acknowledged", color: "text-money", bg: "bg-paper-2 border border-money text-money" },
+  DISPUTED: { label: "Disputed", color: "text-red-700", bg: "bg-red-50" },
+};
+
+const PAY_STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+  PENDING_ACKNOWLEDGEMENT: { label: "Pending Ack", color: "text-amber-700", bg: "bg-amber-50" },
+  ACKNOWLEDGED: { label: "Acknowledged", color: "text-money", bg: "bg-money/10" },
   DISPUTED: { label: "Disputed", color: "text-red-700", bg: "bg-red-50" },
 };
 
@@ -34,24 +40,31 @@ export default function SellerOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
 
+  // Split view state
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+  const [detailTab, setDetailTab] = useState<"overview" | "journey" | "payments" | "reviews">("overview");
+
   // Filters
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "highest_amount" | "lowest_amount">("newest");
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
 
-  // Counter Offer Modal
-  const [counterOrder, setCounterOrder] = useState<any>(null);
-  const [counterForm, setCounterForm] = useState({ counterPrice: "", counterQuantity: "", counterNote: "" });
-
-  // Manual Invoice Modal
+  // Modals
   const [showInvModal, setShowInvModal] = useState(false);
   const [invForm, setInvForm] = useState({ buyerId: "", productName: "", unitPrice: "", quantity: "1", pricingUnit: "PIECE", notes: "" });
   const [buyers, setBuyers] = useState<any[]>([]);
 
-  // Review Modal
+  const [showCounterModal, setShowCounterModal] = useState(false);
+  const [counterOrder, setCounterOrder] = useState<any>(null);
+  const [counterForm, setCounterForm] = useState({ price: "", quantity: "", note: "" });
+
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewOrder, setReviewOrder] = useState<any>(null);
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
-  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+
+  // Advance Form
+  const [advanceAmount, setAdvanceAmount] = useState("");
 
   const token = () => localStorage.getItem("access_token");
   const api = (path: string, opts?: any) => fetch(`http://${window.location.hostname}:3001${path}`, { ...opts, headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}`, ...opts?.headers } });
@@ -60,18 +73,47 @@ export default function SellerOrdersPage() {
     setLoading(true);
     try {
       const [oRes, iRes] = await Promise.all([api("/orders"), api("/invoices")]);
-      if (oRes.ok) setOrders(await oRes.json());
-      if (iRes.ok) setInvoices(await iRes.json());
+      if (oRes.ok) {
+        const oData = await oRes.json();
+        setOrders(oData);
+        if (selectedOrder) {
+          const updated = oData.find((o: any) => o.id === selectedOrder.id);
+          if (updated) setSelectedOrder(updated);
+        }
+      }
+      if (iRes.ok) {
+        const iData = await iRes.json();
+        setInvoices(iData);
+        if (selectedInvoice) {
+          const updatedInv = iData.find((i: any) => i.id === selectedInvoice.id);
+          if (updatedInv) setSelectedInvoice(updatedInv);
+        }
+      }
     } catch (e) { console.error(e); } finally { setLoading(false); }
+  };
+
+  const fetchBuyers = async () => {
+    try {
+      const res = await api("/orders");
+      if (res.ok) {
+        const oData = await res.json();
+        const map = new Map();
+        oData.forEach((o: any) => { if (o.buyer) map.set(o.buyer.id, { id: o.buyer.id, name: o.buyer.company?.name || o.buyer.name }); });
+        setBuyers(Array.from(map.values()));
+      }
+    } catch (e) { console.error(e); }
   };
 
   useEffect(() => { fetchData(); }, []);
 
-  const orderAction = async (orderId: number, action: string, body?: any) => {
+  const orderAction = async (orderId: number, action: string) => {
     setActionLoading(orderId);
     try {
-      await api(`/orders/${orderId}/${action}`, { method: "PATCH", body: body ? JSON.stringify(body) : undefined });
-      setCounterOrder(null);
+      const res = await api(`/orders/${orderId}/${action}`, { method: "PATCH" });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.message || "Action failed");
+      }
       fetchData();
     } catch (e) { console.error(e); } finally { setActionLoading(null); }
   };
@@ -84,64 +126,62 @@ export default function SellerOrdersPage() {
     } catch (e) { console.error(e); } finally { setActionLoading(null); }
   };
 
+  const paymentAction = async (paymentId: number, action: string, isInvoicePayment: boolean = false) => {
+    setActionLoading(paymentId);
+    try {
+      const endpoint = isInvoicePayment ? `/invoices/payments/${paymentId}/${action}` : `/orders/payments/${paymentId}/${action}`;
+      const res = await api(endpoint, { method: "PATCH" });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.message || "Action failed");
+      }
+      fetchData();
+    } catch (e) { console.error(e); } finally { setActionLoading(null); }
+  };
+
+  const handleRequestAdvance = async (e: any) => {
+    e.preventDefault();
+    if (!selectedOrder || !advanceAmount) return;
+    setActionLoading(selectedOrder.id);
+    try {
+      const res = await api(`/orders/${selectedOrder.id}/request-advance`, { method: "PATCH", body: JSON.stringify({ amount: Number(advanceAmount) }) });
+      if (res.ok) {
+        setAdvanceAmount("");
+        fetchData();
+      } else {
+        const err = await res.json(); alert(err.message || "Failed to request advance");
+      }
+    } catch (e) { console.error(e); } finally { setActionLoading(null); }
+  };
+
+  const handleCounterOffer = async (e: any) => {
+    e.preventDefault();
+    setActionLoading(counterOrder.id);
+    try {
+      await api(`/orders/${counterOrder.id}/counter`, { method: "PATCH", body: JSON.stringify(counterForm) });
+      setShowCounterModal(false); setCounterOrder(null); setCounterForm({ price: "", quantity: "", note: "" }); fetchData();
+    } catch (e) { console.error(e); } finally { setActionLoading(null); }
+  };
+
   const handleCreateInvoice = async (e: any) => {
     e.preventDefault();
     try {
       await api("/invoices", { method: "POST", body: JSON.stringify(invForm) });
-      setShowInvModal(false);
-      setInvForm({ buyerId: "", productName: "", unitPrice: "", quantity: "1", pricingUnit: "PIECE", notes: "" });
-      fetchData();
+      setShowInvModal(false); setInvForm({ buyerId: "", productName: "", unitPrice: "", quantity: "1", pricingUnit: "PIECE", notes: "" }); fetchData();
     } catch (e) { console.error(e); }
   };
 
   const handleReviewSubmit = async (e: any) => {
     e.preventDefault();
-    setReviewSubmitting(true);
     try {
-      const res = await api('/reviews', {
-        method: 'POST',
-        body: JSON.stringify({
-          orderId: reviewOrder.id,
-          rating: reviewForm.rating,
-          comment: reviewForm.comment
-        })
-      });
-      if (res.ok) {
-        setShowReviewModal(false);
-        setReviewOrder(null);
-        alert('Review submitted successfully!');
-        fetchData();
-      } else {
-        const err = await res.json();
-        alert(err.message || 'Failed to submit review');
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setReviewSubmitting(false);
-    }
-  };
-
-  const openCounter = (o: any) => {
-    setCounterOrder(o);
-    setCounterForm({ counterPrice: o.unitPrice.toString(), counterQuantity: o.quantity.toString(), counterNote: "" });
-  };
-
-  const submitCounter = (e: any) => {
-    e.preventDefault();
-    if (counterOrder) orderAction(counterOrder.id, 'counter', counterForm);
-  };
-
-  // Extract unique buyers from orders for manual invoice
-  const fetchBuyers = () => {
-    const map = new Map();
-    orders.forEach((o: any) => {
-      if (o.buyer && !map.has(o.buyerId)) map.set(o.buyerId, { id: o.buyerId, name: o.buyer.company?.name || o.buyer.name });
-    });
-    setBuyers(Array.from(map.values()));
+      const res = await api('/reviews', { method: 'POST', body: JSON.stringify({ orderId: reviewOrder.id, rating: reviewForm.rating, comment: reviewForm.comment }) });
+      if (res.ok) { setShowReviewModal(false); setReviewOrder(null); alert('Review submitted successfully!'); fetchData(); }
+      else { const err = await res.json(); alert(err.message || 'Failed to submit review'); }
+    } catch (e) { console.error(e); }
   };
 
   const processedOrders = orders
+    .filter(o => statusFilter === "ALL" || o.status === statusFilter)
     .filter(o => {
       if (!dateRange.start && !dateRange.end) return true;
       const d = new Date(o.createdAt);
@@ -160,258 +200,454 @@ export default function SellerOrdersPage() {
       return 0;
     });
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-text-primary tracking-tight">Orders & Invoices</h2>
-          <p className="text-sm text-text-secondary mt-0.5">Manage incoming orders and generate invoices.</p>
-        </div>
-        {tab === "invoices" && (
-          <button onClick={() => { setShowInvModal(true); fetchBuyers(); }}
-            className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-sm">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            Create Invoice
-          </button>
-        )}
-      </div>
+  const stats = orders.reduce((acc, o) => {
+    acc[o.status] = (acc[o.status] || 0) + 1;
+    acc.ALL = (acc.ALL || 0) + 1;
+    return acc;
+  }, { ALL: 0 } as Record<string, number>);
 
-      {/* Tabs & Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex gap-1 bg-surface-raised rounded-xl p-1 w-fit">
-          <button onClick={() => setTab("orders")} className={`px-5 py-2 text-sm font-semibold rounded-xl transition-all ${tab === "orders" ? "bg-surface text-text-primary shadow-sm" : "text-text-secondary hover:text-text-primary"}`}>
-            Orders {orders.length > 0 && <span className="ml-1.5 text-xs bg-surface-raised text-text-secondary px-1.5 py-0.5 rounded-full">{orders.length}</span>}
-          </button>
-          <button onClick={() => setTab("invoices")} className={`px-5 py-2 text-sm font-semibold rounded-xl transition-all ${tab === "invoices" ? "bg-surface text-text-primary shadow-sm" : "text-text-secondary hover:text-text-primary"}`}>
-            Invoices {invoices.length > 0 && <span className="ml-1.5 text-xs bg-surface-raised text-text-secondary px-1.5 py-0.5 rounded-full">{invoices.length}</span>}
+  return (
+    <div className="flex h-full gap-4 relative max-w-7xl mx-auto pb-10">
+      {/* LEFT PANE: Orders List */}
+      <div className={`flex flex-col h-[calc(100vh-100px)] overflow-y-auto pr-2 pb-10 space-y-4 ${selectedOrder || selectedInvoice ? 'w-[55%] hidden md:flex' : 'w-full'}`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-ink tracking-tight">Sales & Orders</h2>
+            <p className="text-sm text-slate mt-0.5">Manage incoming orders and invoices.</p>
+          </div>
+          {tab === "invoices" && (
+            <button onClick={() => { setShowInvModal(true); fetchBuyers(); }} className="bg-ink hover:bg-ink text-white px-4 py-2 rounded text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-sm">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+              Create Invoice
+            </button>
+          )}
+        </div>
+
+        <div className="flex gap-2 bg-paper-2 rounded-lg p-1 w-fit shadow-inner">
+          <button onClick={() => setTab("orders")} className={`px-5 py-2 text-sm font-bold rounded-md transition-all duration-300 ease-out transform ${tab === "orders" ? "bg-white text-ink shadow-sm scale-105" : "text-slate hover:bg-slate-200/50 hover:text-ink active:scale-95"}`}>Orders</button>
+          <button onClick={() => setTab("invoices")} className={`px-5 py-2 text-sm font-bold rounded-md transition-all duration-300 ease-out transform flex items-center ${tab === "invoices" ? "bg-white text-ink shadow-sm scale-105" : "text-slate hover:bg-slate-200/50 hover:text-ink active:scale-95"}`}>
+            Invoices {invoices.length > 0 && <span className="ml-2 text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">{invoices.length}</span>}
           </button>
         </div>
 
         {tab === "orders" && (
-          <div className="flex gap-3 items-center">
-            <div className="flex gap-2 items-center bg-surface border border-border-subtle rounded-xl px-3 py-1.5 shadow-sm">
-              <span className="text-xs font-semibold text-text-secondary">From</span>
-              <input type="date" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} className="text-xs text-text-primary outline-none" />
-              <span className="text-xs font-semibold text-text-secondary ml-1">To</span>
-              <input type="date" value={dateRange.end} onChange={e => setDateRange({...dateRange, end: e.target.value})} className="text-xs text-text-primary outline-none" />
+          <div className="bg-surface border border-border rounded-lg overflow-hidden flex flex-col h-[calc(100vh-220px)] shadow-sm">
+            {/* Filters Header */}
+            <div className="p-3 border-b border-border bg-paper flex flex-wrap gap-2 items-center justify-between">
+              <div className="flex flex-wrap gap-1">
+                {['ALL', 'PLACED', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map(s => (
+                  <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors ${statusFilter === s ? 'bg-ink text-white' : 'bg-paper-2 text-slate hover:text-ink'}`}>
+                    {s === 'ALL' ? 'All' : STATUS_CONFIG[s]?.label || s} <span className="opacity-70 ml-1">{stats[s] || 0}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input type="date" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} className="px-2 py-1.5 bg-paper-2 border border-border rounded text-xs outline-none text-ink" />
+                <select value={sortOrder} onChange={e => setSortOrder(e.target.value as any)} className="px-2 py-1.5 bg-paper-2 border border-border rounded text-xs outline-none text-ink font-semibold">
+                  <option value="newest">Newest First</option>
+                  <option value="highest_amount">Highest Amt</option>
+                </select>
+              </div>
             </div>
-            <select value={sortOrder} onChange={e => setSortOrder(e.target.value as any)} className="bg-surface border border-border-subtle rounded-xl px-3 py-1.5 text-xs font-semibold text-text-primary shadow-sm outline-none">
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="highest_amount">Highest Amount</option>
-              <option value="lowest_amount">Lowest Amount</option>
-            </select>
+
+            {/* List */}
+            <div className="flex-1 overflow-y-auto bg-paper-2/30 p-2 space-y-1.5">
+              {loading ? (
+                <div className="p-8 text-center text-slate text-sm">Loading orders...</div>
+              ) : processedOrders.length === 0 ? (
+                <div className="p-8 text-center text-slate text-sm">No orders found.</div>
+              ) : processedOrders.map(o => {
+                const st = STATUS_CONFIG[o.status] || STATUS_CONFIG.PLACED;
+                const isSelected = selectedOrder?.id === o.id;
+                const buyerName = o.buyer?.company?.name || o.buyer?.name || '--';
+                return (
+                  <button key={o.id} onClick={() => { setSelectedOrder(o); setDetailTab("overview"); }} className={`w-full text-left p-3 rounded border transition-all flex items-center justify-between gap-3 ${isSelected ? 'bg-indigo-50/50 border-indigo-200 shadow-sm' : 'bg-surface border-border hover:border-slate-300'}`}>
+                    <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${st.color} ${st.bg}`}>{st.label}</span>
+                        <span className="text-[11px] font-mono text-slate bg-paper-2 px-1 rounded border border-border">{o.orderNumber}</span>
+                        <span className="text-[10px] text-slate ml-auto">{new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                      </div>
+                      <div className="flex justify-between items-end">
+                        <div className="truncate pr-4">
+                          <p className="text-sm font-semibold text-ink truncate">{o.productName}</p>
+                          <p className="text-[11px] text-slate truncate">Buyer: <b className="text-ink">{buyerName}</b></p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-sm font-bold text-ink tabular-nums">₹{Number(o.totalAmount).toLocaleString('en-IN')}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-slate">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {tab === "invoices" && (
+          <div className="space-y-3">
+             {invoices.length > 0 ? invoices.map(inv => {
+              const st = INV_STATUS[inv.status] || INV_STATUS.PENDING;
+              const buyerName = inv.buyer?.company?.name || inv.buyer?.name || '--';
+              return (
+                <button key={inv.id} onClick={() => setSelectedInvoice(inv)} className={`w-full text-left bg-surface border rounded p-4 transition-all flex flex-col ${selectedInvoice?.id === inv.id ? 'bg-indigo-50/50 border-indigo-200 shadow-sm' : 'border-border hover:border-slate-300'}`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-bold text-slate font-mono">{inv.invoiceNumber}</span>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${st.color} ${st.bg}`}>{st.label}</span>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${inv.type === 'AUTO' ? 'bg-paper-2 text-ink' : 'bg-paper-2 text-slate'}`}>{inv.type === 'AUTO' ? 'Auto' : 'Manual'}</span>
+                      </div>
+                      <h3 className="text-sm font-bold text-ink">{inv.productName}</h3>
+                      <p className="text-xs text-slate mt-0.5">Buyer: <b className="text-slate">{buyerName}</b></p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-extrabold text-ink">₹{Number(inv.totalAmount).toLocaleString('en-IN')}</p>
+                      <p className="text-[11px] text-slate">{inv.quantity} × ₹{Number(inv.unitPrice).toLocaleString('en-IN')} / {UOM[inv.pricingUnit] || inv.pricingUnit}</p>
+                    </div>
+                  </div>
+                  {inv.status !== 'DISPUTED' && (
+                    <div className="flex items-center gap-3 mb-3 p-2.5 bg-paper-2 border border-border rounded">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`inline-flex items-center justify-center h-4 w-4 rounded-full text-[9px] ${inv.sellerAcknowledged ? 'bg-emerald-100 text-money' : 'bg-paper-2 text-slate'}`}>{inv.sellerAcknowledged ? '✓' : '—'}</span>
+                        <span className="text-[11px] text-slate">You</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`inline-flex items-center justify-center h-4 w-4 rounded-full text-[9px] ${inv.buyerAcknowledged ? 'bg-emerald-100 text-money' : 'bg-paper-2 text-slate'}`}>{inv.buyerAcknowledged ? '✓' : '—'}</span>
+                        <span className="text-[11px] text-slate">Buyer</span>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
+                    <span className="text-[11px] text-slate mr-auto">{new Date(inv.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                    {inv.status === 'PENDING' && !inv.sellerAcknowledged && (
+                      <>
+                        <button disabled={actionLoading === inv.id} onClick={() => invoiceAction(inv.id, 'acknowledge')} className="px-3 py-1.5 text-xs font-semibold bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors">Acknowledge</button>
+                        <button disabled={actionLoading === inv.id} onClick={() => invoiceAction(inv.id, 'dispute')} className="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded hover:bg-red-100 transition-colors">Dispute</button>
+                      </>
+                    )}
+                  </div>
+                </button>
+              );
+            }) : (
+              <div className="py-16 text-center bg-paper border border-border rounded"><p className="text-sm text-slate">No invoices yet</p></div>
+            )}
           </div>
         )}
       </div>
 
-      {loading ? (
-        <div className="py-16 flex items-center justify-center bg-surface border border-border-subtle rounded-xl">
-          <svg className="animate-spin h-6 w-6 text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-        </div>
-      ) : tab === "orders" ? (
-        processedOrders.length > 0 ? (
-          <div className="space-y-3">
-            {processedOrders.map(o => {
-              const st = STATUS_CONFIG[o.status] || STATUS_CONFIG.PLACED;
-              const buyerName = o.buyer?.company?.name || o.buyer?.name || '--';
-              return (
-                <div key={o.id} className="bg-surface border border-border-subtle rounded-xl p-5 hover:shadow-sm transition-shadow">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-bold text-text-tertiary font-mono">{o.orderNumber}</span>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${st.color} ${st.bg}`}>{st.label}</span>
+      {/* RIGHT PANE: Detail View */}
+      {selectedOrder && tab === "orders" && (
+        <div className="w-full md:w-[45%] h-[calc(100vh-100px)] sticky top-[80px] bg-surface border border-border rounded-xl shadow-lg flex flex-col overflow-hidden animate-in slide-in-from-right-4">
+          {/* Header */}
+          <div className="p-5 border-b border-border bg-paper relative">
+            <button onClick={() => setSelectedOrder(null)} className="absolute top-4 right-4 h-8 w-8 bg-paper-2 rounded-full flex items-center justify-center text-slate hover:text-ink transition-colors md:hidden">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div className="flex items-center gap-2 mb-3">
+              <span className={`inline-flex px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${STATUS_CONFIG[selectedOrder.status]?.color} ${STATUS_CONFIG[selectedOrder.status]?.bg}`}>{STATUS_CONFIG[selectedOrder.status]?.label}</span>
+              <span className="text-xs font-mono text-slate">{selectedOrder.orderNumber}</span>
+            </div>
+            <h2 className="text-lg font-bold text-ink leading-tight">{selectedOrder.productName}</h2>
+            <p className="text-xs text-slate mt-1">Buyer: <b className="text-ink">{selectedOrder.buyer?.company?.name || selectedOrder.buyer?.name}</b></p>
+            
+            <div className="mt-4 pt-4 border-t border-border flex justify-between items-end">
+              <div>
+                <p className="text-2xl font-extrabold text-ink tabular-nums leading-none">₹{Number(selectedOrder.totalAmount).toLocaleString('en-IN')}</p>
+                <p className="text-[11px] text-slate mt-1">{selectedOrder.quantity} × ₹{Number(selectedOrder.unitPrice).toLocaleString('en-IN')} / {UOM[selectedOrder.pricingUnit] || selectedOrder.pricingUnit}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[11px] text-slate">Placed on</p>
+                <p className="text-xs font-semibold text-ink">{new Date(selectedOrder.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex border-b border-border bg-paper-2/50 px-2">
+            {['overview', 'journey', 'payments', 'reviews'].map(t => (
+              <button key={t} onClick={() => setDetailTab(t as any)} className={`px-4 py-3 text-xs font-bold capitalize border-b-2 transition-colors ${detailTab === t ? 'border-ink text-ink' : 'border-transparent text-slate hover:text-ink'}`}>
+                {t}
+              </button>
+            ))}
+          </div>
+
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto p-5 bg-paper-2/30">
+            {detailTab === 'overview' && (
+              <div className="space-y-4">
+                <div className="bg-surface border border-border rounded p-4">
+                  <h4 className="text-xs font-bold text-slate uppercase tracking-wider mb-3">Order Details</h4>
+                  <div className="space-y-3 text-sm">
+                    <div className="grid grid-cols-3 gap-2"><span className="text-slate">Product</span><span className="col-span-2 font-medium text-ink">{selectedOrder.productName}</span></div>
+                    <div className="grid grid-cols-3 gap-2"><span className="text-slate">Shipping To</span><span className="col-span-2 font-medium text-ink whitespace-pre-wrap leading-snug">{selectedOrder.shippingAddress}</span></div>
+                    <div className="grid grid-cols-3 gap-2"><span className="text-slate">Contact Email</span><span className="col-span-2 font-medium text-ink">{selectedOrder.buyer?.email || '--'}</span></div>
+                    <div className="grid grid-cols-3 gap-2"><span className="text-slate">Contact Phone</span><span className="col-span-2 font-medium text-ink">{selectedOrder.buyer?.mobile || '--'}</span></div>
+                  </div>
+                </div>
+                {selectedOrder.buyerNote && (
+                  <div className="bg-surface border border-border rounded p-4">
+                    <h4 className="text-xs font-bold text-slate uppercase tracking-wider mb-2">Buyer's Note</h4>
+                    <p className="text-sm text-ink italic">"{selectedOrder.buyerNote}"</p>
+                  </div>
+                )}
+                {selectedOrder.invoice && (
+                   <div className="bg-surface border border-border rounded p-4 flex items-center justify-between">
+                     <div>
+                       <h4 className="text-xs font-bold text-slate uppercase tracking-wider mb-1">Invoice Attached</h4>
+                       <p className="text-sm font-mono text-ink">{selectedOrder.invoice.invoiceNumber}</p>
+                     </div>
+                     <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold ${INV_STATUS[selectedOrder.invoice.status]?.bg} ${INV_STATUS[selectedOrder.invoice.status]?.color}`}>{INV_STATUS[selectedOrder.invoice.status]?.label}</span>
+                   </div>
+                )}
+              </div>
+            )}
+
+            {detailTab === 'journey' && (
+              <div className="py-4">
+                <div className="relative">
+                  {/* Stepper logic */}
+                  {['PLACED', ...(selectedOrder.status === 'COUNTER_OFFERED' ? ['COUNTER_OFFERED'] : []), 'CONFIRMED', 'SHIPPED', 'DELIVERED'].map((step, idx, arr) => {
+                    const isCompleted = arr.indexOf(selectedOrder.status) >= idx;
+                    const isActive = selectedOrder.status === step;
+                    const isCancelled = selectedOrder.status === 'CANCELLED';
+                    return (
+                      <div key={step} className="flex gap-4 mb-8 relative">
+                        {idx !== arr.length - 1 && <div className={`absolute left-3 top-8 bottom-[-24px] w-0.5 ${isCompleted && !isCancelled ? 'bg-indigo-500' : 'bg-border'}`}></div>}
+                        <div className={`relative z-10 w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1 border-2 ${isCompleted && !isCancelled ? 'bg-indigo-500 border-indigo-500 text-white' : 'bg-paper border-border text-transparent'}`}>
+                          {isCompleted && !isCancelled && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                        </div>
+                        <div>
+                          <h4 className={`text-sm font-bold ${isActive && !isCancelled ? 'text-indigo-600' : isCompleted && !isCancelled ? 'text-ink' : 'text-slate'}`}>{STATUS_CONFIG[step]?.label || step}</h4>
+                          <p className="text-xs text-slate mt-0.5">
+                            {idx === 0 ? new Date(selectedOrder.createdAt).toLocaleDateString() : 
+                             isActive ? new Date(selectedOrder.updatedAt).toLocaleDateString() : 
+                             isCompleted ? '--' : 'Pending'}
+                          </p>
+                        </div>
                       </div>
-                      <h3 className="text-sm font-bold text-text-primary">{o.productName}</h3>
-                      <p className="text-xs text-text-secondary mt-0.5">Buyer: <b className="text-text-secondary">{buyerName}</b> • {o.buyer?.city}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-extrabold text-text-primary">₹{Number(o.totalAmount).toLocaleString('en-IN')}</p>
-                      <p className="text-[11px] text-text-tertiary">{o.quantity} × ₹{Number(o.unitPrice).toLocaleString('en-IN')} / {UOM[o.pricingUnit] || o.pricingUnit}</p>
+                    );
+                  })}
+                  {selectedOrder.status === 'CANCELLED' && (
+                     <div className="flex gap-4 relative">
+                       <div className="relative z-10 w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1 border-2 bg-red-500 border-red-500 text-white">
+                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
+                       </div>
+                       <div>
+                         <h4 className="text-sm font-bold text-red-600">Cancelled</h4>
+                         <p className="text-xs text-slate mt-0.5">{new Date(selectedOrder.updatedAt).toLocaleDateString()}</p>
+                       </div>
+                     </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {detailTab === 'payments' && (
+              <div className="space-y-4">
+                <div className="bg-surface border border-border rounded p-4">
+                  <h4 className="text-xs font-bold text-slate uppercase tracking-wider mb-3">Payment Summary</h4>
+                  <div className="space-y-3 text-sm">
+                    <div className="grid grid-cols-2 gap-2"><span className="text-slate">Mode</span><span className="font-semibold text-ink text-right">{selectedOrder.paymentMode || 'Not Specified'}</span></div>
+                    <div className="grid grid-cols-2 gap-2"><span className="text-slate">Total Amount</span><span className="font-bold text-ink text-right">₹{Number(selectedOrder.totalAmount).toLocaleString('en-IN')}</span></div>
+                    {selectedOrder.advanceRequested && (
+                      <div className="grid grid-cols-2 gap-2"><span className="text-slate">Advance Requested</span><span className="font-semibold text-orange-600 text-right">₹{Number(selectedOrder.advanceRequested).toLocaleString('en-IN')}</span></div>
+                    )}
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
+                      <span className="text-slate font-bold">Total Paid (Ack'd)</span>
+                      <span className="font-extrabold text-money text-right">
+                        ₹{selectedOrder.payments?.filter((p:any)=>p.status==='ACKNOWLEDGED').reduce((sum:number, p:any)=>sum+Number(p.amount), 0).toLocaleString('en-IN') || '0'}
+                      </span>
                     </div>
                   </div>
+                </div>
 
-                  {o.buyerNote && (
-                    <div className="p-2.5 bg-surface-raised border border-border-subtle rounded-xl mb-3 text-xs text-text-secondary">
-                      <b className="text-text-primary">Buyer Note:</b> {o.buyerNote}
-                    </div>
-                  )}
-
-                  {o.status === 'COUNTER_OFFERED' && (
-                    <div className="p-2.5 bg-orange-50 border border-orange-100 rounded-xl mb-3 text-xs text-orange-700">
-                      <b>Your counter-offer:</b> ₹{Number(o.counterPrice).toLocaleString('en-IN')} / {UOM[o.pricingUnit] || o.pricingUnit}
-                      {o.counterNote && <span> — "{o.counterNote}"</span>}
-                      <span className="block mt-0.5 text-orange-500">Waiting for buyer response...</span>
-                    </div>
-                  )}
-
-                  {/* Reviews Display */}
-                  {o.reviews?.length > 0 && (
-                    <div className="flex flex-col gap-2 mb-3 mt-1">
-                      {o.reviews.map((r: any) => (
-                        <div key={r.id} className="p-2.5 bg-surface-raised border border-border-subtle rounded-xl text-xs">
-                          <p className="font-semibold text-text-primary mb-1 flex items-center gap-1">
-                            {r.reviewerRole === 'SELLER' ? 'Your Review' : 'Buyer\'s Review'}
-                            <span className="text-amber-500 flex ml-1">
-                              {Array.from({length: r.rating}).map((_, i) => <svg key={i} className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>)}
-                            </span>
-                          </p>
-                          {r.comment && <p className="text-text-secondary">"{r.comment}"</p>}
+                <div className="bg-surface border border-border rounded p-4">
+                  <h4 className="text-xs font-bold text-slate uppercase tracking-wider mb-3">Payment History</h4>
+                  {selectedOrder.payments?.length > 0 ? (
+                    <div className="space-y-2">
+                      {selectedOrder.payments.map((p: any) => (
+                        <div key={p.id} className="p-2.5 bg-paper-2 rounded border border-border text-sm flex items-center justify-between">
+                          <div>
+                            <p className="font-bold text-ink">₹{Number(p.amount).toLocaleString('en-IN')}</p>
+                            <p className="text-[11px] text-slate">{new Date(p.paymentDate).toLocaleDateString()} {p.utr ? `• UTR: ${p.utr}` : ''}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {p.status === 'PENDING_ACKNOWLEDGEMENT' ? (
+                              <div className="flex gap-1">
+                                <button disabled={actionLoading === p.id} onClick={() => paymentAction(p.id, 'acknowledge', false)} className="px-2 py-1 bg-emerald-600 text-white rounded text-[10px] font-bold hover:bg-emerald-700">ACK</button>
+                                <button disabled={actionLoading === p.id} onClick={() => paymentAction(p.id, 'dispute', false)} className="px-2 py-1 bg-red-600 text-white rounded text-[10px] font-bold hover:bg-red-700">DISPUTE</button>
+                              </div>
+                            ) : (
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${PAY_STATUS_CONFIG[p.status]?.bg} ${PAY_STATUS_CONFIG[p.status]?.color}`}>{PAY_STATUS_CONFIG[p.status]?.label}</span>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
+                  ) : (
+                    <p className="text-xs text-slate italic">No payments recorded yet.</p>
                   )}
-
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border-subtle">
-                    <span className="text-[11px] text-text-tertiary mr-auto">{new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-
-                    {o.status === 'PLACED' && (
-                      <>
-                        <button disabled={actionLoading === o.id} onClick={() => orderAction(o.id, 'confirm')} className="px-3 py-1.5 text-xs font-semibold bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors disabled:opacity-50">Confirm</button>
-                        <button onClick={() => router.push(`/dashboard/seller/messages?threadId=order-${o.id}`)} className="px-3 py-1.5 text-xs font-semibold bg-primary-50 hover:bg-primary-100 text-primary-600 rounded-xl transition-colors">Negotiate / View Messages</button>
-                        <button disabled={actionLoading === o.id} onClick={() => orderAction(o.id, 'cancel')} className="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-50">Reject</button>
-                      </>
-                    )}
-                    {o.status === 'COUNTER_OFFERED' && (
-                      <button onClick={() => router.push(`/dashboard/seller/messages?threadId=order-${o.id}`)} className="px-3 py-1.5 text-xs font-semibold bg-primary-50 hover:bg-primary-100 text-primary-600 rounded-xl transition-colors">View Offer / Messages</button>
-                    )}
-                    {o.status === 'CONFIRMED' && (
-                      <button disabled={actionLoading === o.id} onClick={() => orderAction(o.id, 'ship')} className="px-3 py-1.5 text-xs font-semibold bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors disabled:opacity-50">Mark Shipped</button>
-                    )}
-                    {o.status === 'SHIPPED' && (
-                      <button disabled={actionLoading === o.id} onClick={() => orderAction(o.id, 'deliver')} className="px-3 py-1.5 text-xs font-semibold bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors disabled:opacity-50">Mark Delivered</button>
-                    )}
-                    {o.status === 'DELIVERED' && !o.reviews?.some((r: any) => r.reviewerRole === 'SELLER') && (
-                      <button onClick={() => { setReviewOrder(o); setReviewForm({ rating: 5, comment: "" }); setShowReviewModal(true); }} className="px-3 py-1.5 text-xs font-semibold bg-primary-50 text-primary-600 rounded-xl hover:bg-primary-100 transition-colors">Rate Buyer</button>
-                    )}
-                    {o.invoice && (
-                      <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                        {o.invoice.invoiceNumber}
-                      </span>
-                    )}
-                  </div>
                 </div>
-              );
-            })}
+
+                {/* Demand Advance Form */}
+                {['PLACED', 'COUNTER_OFFERED', 'CONFIRMED'].includes(selectedOrder.status) && (
+                  <form onSubmit={handleRequestAdvance} className="bg-surface border border-border rounded p-4">
+                    <h4 className="text-xs font-bold text-slate uppercase tracking-wider mb-3">Demand Advance</h4>
+                    <p className="text-[11px] text-slate mb-3">Require a partial payment before shipping. This will be shown to the buyer.</p>
+                    <div className="flex gap-2">
+                      <input required type="number" min="1" max={selectedOrder.totalAmount} value={advanceAmount} onChange={e => setAdvanceAmount(e.target.value)} className="flex-1 px-3 py-1.5 bg-paper-2 border border-border rounded text-sm outline-none" placeholder="Amount (₹)" />
+                      <button type="submit" disabled={actionLoading === selectedOrder.id} className="px-4 py-1.5 bg-ink text-white rounded text-sm font-semibold hover:bg-ink/90 disabled:opacity-50">Request</button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            )}
+
+            {detailTab === 'reviews' && (
+              <div className="space-y-3">
+                {selectedOrder.reviews?.length > 0 ? selectedOrder.reviews.map((r: any) => (
+                  <div key={r.id} className="bg-surface border border-border rounded p-4 text-sm">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-bold text-ink">{r.reviewerRole === 'SELLER' ? 'Your Review' : "Buyer's Review"}</span>
+                      <span className="text-amber-500 flex">{Array.from({length: r.rating}).map((_, i) => <svg key={i} className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>)}</span>
+                    </div>
+                    {r.comment && <p className="text-slate mt-1">"{r.comment}"</p>}
+                  </div>
+                )) : (
+                  <div className="text-center py-8 text-slate text-sm">No reviews yet.</div>
+                )}
+                {selectedOrder.status === 'DELIVERED' && !selectedOrder.reviews?.some((r: any) => r.reviewerRole === 'SELLER') && (
+                  <button onClick={() => { setReviewOrder(selectedOrder); setShowReviewModal(true); }} className="w-full py-2 bg-paper-2 text-ink border border-border rounded text-sm font-semibold hover:bg-slate-50 transition-colors">Rate Buyer</button>
+                )}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="py-16 text-center bg-surface border border-border-subtle rounded-xl">
-            <div className="h-12 w-12 rounded-full bg-surface-raised flex items-center justify-center mx-auto mb-3">
-              <svg className="h-6 w-6 text-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+
+          {/* Bottom Action Bar */}
+          <div className="p-4 border-t border-border bg-paper flex flex-wrap items-center justify-end gap-2 shrink-0">
+            {selectedOrder.status === 'PLACED' && (
+              <>
+                <button disabled={actionLoading === selectedOrder.id} onClick={() => orderAction(selectedOrder.id, 'reject')} className="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded transition-colors mr-auto">Reject Order</button>
+                <button disabled={actionLoading === selectedOrder.id} onClick={() => { setCounterOrder(selectedOrder); setCounterPrice(selectedOrder.unitPrice || ""); setCounterQuantity(selectedOrder.quantity || ""); setShowCounterModal(true); }} className="px-4 py-2 text-sm font-semibold bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200 rounded transition-colors">Counter Offer</button>
+                <button disabled={actionLoading === selectedOrder.id} onClick={() => orderAction(selectedOrder.id, 'confirm')} className="px-4 py-2 text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 rounded transition-colors">Confirm Order</button>
+              </>
+            )}
+            {selectedOrder.status === 'CONFIRMED' && (
+              <>
+                <button disabled={actionLoading === selectedOrder.id} onClick={() => router.push(`/dashboard/seller/messages?threadId=order-${selectedOrder.id}`)} className="px-4 py-2 text-sm font-semibold bg-paper-2 hover:bg-slate-100 text-ink border border-border rounded transition-colors mr-auto">Message</button>
+                <button disabled={actionLoading === selectedOrder.id} onClick={() => orderAction(selectedOrder.id, 'ship')} className="px-4 py-2 text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 rounded transition-colors">Mark Shipped</button>
+              </>
+            )}
+            {selectedOrder.status === 'SHIPPED' && (
+              <>
+                <button disabled={actionLoading === selectedOrder.id} onClick={() => router.push(`/dashboard/seller/messages?threadId=order-${selectedOrder.id}`)} className="px-4 py-2 text-sm font-semibold bg-paper-2 hover:bg-slate-100 text-ink border border-border rounded transition-colors mr-auto">Message</button>
+                <button disabled={actionLoading === selectedOrder.id} onClick={() => orderAction(selectedOrder.id, 'deliver')} className="px-4 py-2 text-sm font-semibold bg-money text-white hover:bg-emerald-600 rounded transition-colors">Mark Delivered</button>
+              </>
+            )}
+            {['COUNTER_OFFERED', 'DELIVERED', 'CANCELLED'].includes(selectedOrder.status) && (
+              <button onClick={() => router.push(`/dashboard/seller/messages?threadId=order-${selectedOrder.id}`)} className="px-4 py-2 text-sm font-semibold bg-paper-2 hover:bg-slate-100 text-ink border border-border rounded transition-colors ml-auto">Message Buyer</button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* RIGHT PANE: Invoice Detail View */}
+      {selectedInvoice && tab === "invoices" && (
+        <div className="w-full md:w-[45%] h-[calc(100vh-100px)] sticky top-[80px] bg-surface border border-border rounded-xl shadow-lg flex flex-col overflow-hidden animate-in slide-in-from-right-4">
+          {/* Header */}
+          <div className="p-5 border-b border-border bg-paper relative">
+            <button onClick={() => setSelectedInvoice(null)} className="absolute top-4 right-4 h-8 w-8 bg-paper-2 rounded-full flex items-center justify-center text-slate hover:text-ink transition-colors md:hidden">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div className="flex items-center gap-2 mb-3">
+              <span className={`inline-flex px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${INV_STATUS[selectedInvoice.status]?.color} ${INV_STATUS[selectedInvoice.status]?.bg}`}>{INV_STATUS[selectedInvoice.status]?.label}</span>
+              <span className="text-xs font-mono text-slate">{selectedInvoice.invoiceNumber}</span>
+              <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${selectedInvoice.type === 'AUTO' ? 'bg-paper-2 text-ink' : 'bg-paper-2 text-slate'}`}>{selectedInvoice.type === 'AUTO' ? 'Auto' : 'Manual'}</span>
             </div>
-            <h3 className="text-sm font-bold text-text-primary">No orders received yet</h3>
-            <p className="text-xs text-text-secondary mt-1">Orders from buyers will appear here.</p>
+            <h2 className="text-lg font-bold text-ink leading-tight">{selectedInvoice.productName}</h2>
+            <p className="text-xs text-slate mt-1">Buyer: <b className="text-ink">{selectedInvoice.buyer?.company?.name || selectedInvoice.buyer?.name}</b></p>
+            
+            <div className="mt-4 pt-4 border-t border-border flex justify-between items-end">
+              <div>
+                <p className="text-2xl font-extrabold text-ink tabular-nums leading-none">₹{Number(selectedInvoice.totalAmount).toLocaleString('en-IN')}</p>
+                <p className="text-[11px] text-slate mt-1">{selectedInvoice.quantity} × ₹{Number(selectedInvoice.unitPrice).toLocaleString('en-IN')} / {UOM[selectedInvoice.pricingUnit] || selectedInvoice.pricingUnit}</p>
+              </div>
+            </div>
           </div>
-        )
-      ) : (
-        /* INVOICES TAB */
-        invoices.length > 0 ? (
-          <div className="space-y-3">
-            {invoices.map(inv => {
-              const st = INV_STATUS[inv.status] || INV_STATUS.PENDING;
-              const buyerName = inv.buyer?.company?.name || inv.buyer?.name || '--';
-              return (
-                <div key={inv.id} className="bg-surface border border-border-subtle rounded-xl p-5 hover:shadow-sm transition-shadow">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-bold text-text-tertiary font-mono">{inv.invoiceNumber}</span>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${st.color} ${st.bg}`}>{st.label}</span>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${inv.type === 'AUTO' ? 'bg-primary-50 text-primary-500' : 'bg-surface-raised text-text-secondary'}`}>{inv.type === 'AUTO' ? 'Auto' : 'Manual'}</span>
-                      </div>
-                      <h3 className="text-sm font-bold text-text-primary">{inv.productName}</h3>
-                      <p className="text-xs text-text-secondary mt-0.5">Buyer: <b className="text-text-secondary">{buyerName}</b></p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-extrabold text-text-primary">₹{Number(inv.totalAmount).toLocaleString('en-IN')}</p>
-                      <p className="text-[11px] text-text-tertiary">{inv.quantity} × ₹{Number(inv.unitPrice).toLocaleString('en-IN')} / {UOM[inv.pricingUnit] || inv.pricingUnit}</p>
-                    </div>
-                  </div>
 
-                  {/* Dual Acknowledgement Status */}
-                  {inv.status !== 'DISPUTED' && (
-                    <div className="flex items-center gap-3 mb-3 p-2.5 bg-surface-raised border border-border-subtle rounded-xl">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`inline-flex items-center justify-center h-4 w-4 rounded-full text-[9px] ${inv.sellerAcknowledged ? 'bg-emerald-100 text-emerald-600' : 'bg-surface-raised text-text-tertiary'}`}>
-                          {inv.sellerAcknowledged ? '✓' : '—'}
-                        </span>
-                        <span className="text-[11px] text-text-secondary">You</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className={`inline-flex items-center justify-center h-4 w-4 rounded-full text-[9px] ${inv.buyerAcknowledged ? 'bg-emerald-100 text-emerald-600' : 'bg-surface-raised text-text-tertiary'}`}>
-                          {inv.buyerAcknowledged ? '✓' : '—'}
-                        </span>
-                        <span className="text-[11px] text-text-secondary">Buyer</span>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border-subtle">
-                    <span className="text-[11px] text-text-tertiary mr-auto">{new Date(inv.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                    {inv.status === 'PENDING' && !inv.sellerAcknowledged && (
-                      <button disabled={actionLoading === inv.id} onClick={() => invoiceAction(inv.id, 'acknowledge')} className="px-3 py-1.5 text-xs font-semibold bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors disabled:opacity-50">Acknowledge</button>
-                    )}
-                    {inv.status === 'PENDING' && !inv.sellerAcknowledged && (
-                      <button disabled={actionLoading === inv.id} onClick={() => invoiceAction(inv.id, 'dispute')} className="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-50">Dispute</button>
-                    )}
-                    {inv.status === 'PENDING' && inv.sellerAcknowledged && !inv.buyerAcknowledged && (
-                      <span className="text-[11px] text-amber-600 font-medium">Waiting for buyer acknowledgement</span>
-                    )}
-                  </div>
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto p-5 bg-paper-2/30 space-y-4">
+            <div className="bg-surface border border-border rounded p-4">
+              <h4 className="text-xs font-bold text-slate uppercase tracking-wider mb-3">Payment Summary</h4>
+              <div className="space-y-3 text-sm">
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
+                  <span className="text-slate font-bold">Total Paid (Ack'd)</span>
+                  <span className="font-extrabold text-money text-right">
+                    ₹{((selectedInvoice.order?.payments || selectedInvoice.payments || []).filter((p:any)=>p.status==='ACKNOWLEDGED').reduce((sum:number, p:any)=>sum+Number(p.amount), 0)).toLocaleString('en-IN') || '0'}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="py-16 text-center bg-surface border border-border-subtle rounded-xl">
-            <div className="h-12 w-12 rounded-full bg-surface-raised flex items-center justify-center mx-auto mb-3">
-              <svg className="h-6 w-6 text-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              </div>
             </div>
-            <h3 className="text-sm font-bold text-text-primary">No invoices yet</h3>
-            <p className="text-xs text-text-secondary mt-1">Invoices are auto-generated when orders are delivered, or create one manually.</p>
+
+            <div className="bg-surface border border-border rounded p-4">
+              <h4 className="text-xs font-bold text-slate uppercase tracking-wider mb-3">Payment History</h4>
+              {(selectedInvoice.order?.payments || selectedInvoice.payments || []).length > 0 ? (
+                <div className="space-y-2">
+                  {(selectedInvoice.order?.payments || selectedInvoice.payments || []).map((p: any) => (
+                    <div key={p.id} className="p-2.5 bg-paper-2 rounded border border-border text-sm flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-ink">₹{Number(p.amount).toLocaleString('en-IN')}</p>
+                        <p className="text-[11px] text-slate">{new Date(p.paymentDate).toLocaleDateString()} {p.utr ? `• UTR: ${p.utr}` : ''}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {p.status === 'PENDING_ACKNOWLEDGEMENT' ? (
+                          <div className="flex gap-1">
+                            <button disabled={actionLoading === p.id} onClick={() => paymentAction(p.id, 'acknowledge', selectedInvoice.type === 'MANUAL')} className="px-2 py-1 bg-emerald-600 text-white rounded text-[10px] font-bold hover:bg-emerald-700">ACK</button>
+                            <button disabled={actionLoading === p.id} onClick={() => paymentAction(p.id, 'dispute', selectedInvoice.type === 'MANUAL')} className="px-2 py-1 bg-red-600 text-white rounded text-[10px] font-bold hover:bg-red-700">DISPUTE</button>
+                          </div>
+                        ) : (
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase ${PAY_STATUS_CONFIG[p.status]?.bg} ${PAY_STATUS_CONFIG[p.status]?.color}`}>{PAY_STATUS_CONFIG[p.status]?.label}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-slate italic">No payments recorded yet.</p>
+              )}
+            </div>
+
+            {selectedInvoice.type === 'AUTO' && selectedInvoice.order && (
+              <div className="bg-indigo-50 border border-indigo-200 rounded p-4 text-center">
+                <p className="text-sm text-indigo-800 mb-3 font-medium">This invoice was automatically generated from an order.</p>
+                <button onClick={() => { setTab("orders"); setSelectedInvoice(null); setSelectedOrder(orders.find(o => o.id === selectedInvoice.orderId)); setDetailTab("payments"); }} className="px-4 py-2 bg-indigo-600 text-white rounded text-sm font-semibold hover:bg-indigo-700 w-full transition-colors shadow-sm">View Full Order</button>
+              </div>
+            )}
           </div>
-        )
+        </div>
       )}
 
       {/* Counter Offer Modal */}
-      {counterOrder && (
+      {showCounterModal && counterOrder && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setCounterOrder(null)}></div>
-          <div className="relative bg-surface rounded-xl shadow-2xl w-full max-w-md p-6">
-            <h2 className="text-lg font-bold text-text-primary mb-1">Counter Offer</h2>
-            <p className="text-xs text-text-secondary mb-4">Order: {counterOrder.orderNumber} — {counterOrder.productName}</p>
-            <div className="p-3 bg-surface-raised border border-border-subtle rounded-xl mb-4 text-xs">
-              <span className="text-text-secondary">Original: </span>
-              <b className="text-text-primary">₹{Number(counterOrder.unitPrice).toLocaleString('en-IN')} × {counterOrder.quantity} = ₹{Number(counterOrder.totalAmount).toLocaleString('en-IN')}</b>
-            </div>
-            <form onSubmit={submitCounter} className="space-y-4">
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowCounterModal(false)}></div>
+          <div className="relative bg-paper rounded shadow-2xl w-full max-w-md p-6">
+            <h2 className="text-lg font-bold text-ink mb-1">Counter Offer</h2>
+            <p className="text-xs text-slate mb-4">Original: ₹{Number(counterOrder.unitPrice).toLocaleString('en-IN')} / {counterOrder.pricingUnit} x {counterOrder.quantity}</p>
+            <form onSubmit={handleCounterOffer} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-text-secondary mb-1">Your Price (₹)</label>
-                  <input required type="number" min="0" value={counterForm.counterPrice} onChange={e => setCounterForm({...counterForm, counterPrice: e.target.value})}
-                    className="w-full px-3 py-2 bg-surface-raised border border-border-subtle rounded-xl text-sm focus:border-primary-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-text-secondary mb-1">Quantity</label>
-                  <input required type="number" min="1" value={counterForm.counterQuantity} onChange={e => setCounterForm({...counterForm, counterQuantity: e.target.value})}
-                    className="w-full px-3 py-2 bg-surface-raised border border-border-subtle rounded-xl text-sm focus:border-primary-500 outline-none" />
-                </div>
+                <div><label className="block text-sm font-semibold text-ink mb-1">New Unit Price (₹)</label><input required type="number" min="0" value={counterForm.price} onChange={e => setCounterForm({...counterForm, price: e.target.value})} className="w-full px-3 py-2 bg-paper-2 border border-border rounded text-sm outline-none" /></div>
+                <div><label className="block text-sm font-semibold text-ink mb-1">New Quantity</label><input required type="number" min="1" value={counterForm.quantity} onChange={e => setCounterForm({...counterForm, quantity: e.target.value})} className="w-full px-3 py-2 bg-paper-2 border border-border rounded text-sm outline-none" /></div>
               </div>
-              {counterForm.counterPrice && counterForm.counterQuantity && (
-                <div className="p-2 bg-orange-50 border border-orange-100 rounded-xl text-xs text-orange-700">
-                  New Total: <b>₹{(parseFloat(counterForm.counterPrice) * parseInt(counterForm.counterQuantity)).toLocaleString('en-IN')}</b>
-                </div>
-              )}
-              <div>
-                <label className="block text-xs font-semibold text-text-secondary mb-1">Note to Buyer (optional)</label>
-                <textarea value={counterForm.counterNote} onChange={e => setCounterForm({...counterForm, counterNote: e.target.value})} rows={2}
-                  className="w-full px-3 py-2 bg-surface-raised border border-border-subtle rounded-xl text-sm focus:border-primary-500 outline-none resize-none" placeholder="e.g. Bulk discount applied..." />
-              </div>
+              <div><label className="block text-sm font-semibold text-ink mb-1">Note to Buyer</label><textarea value={counterForm.note} onChange={e => setCounterForm({...counterForm, note: e.target.value})} rows={2} className="w-full px-3 py-2 bg-paper-2 border border-border rounded text-sm outline-none resize-none" placeholder="Reason for counter offer..." /></div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setCounterOrder(null)} className="px-4 py-2 text-sm font-semibold text-text-secondary bg-surface border border-border-subtle rounded-xl hover:bg-surface-raised">Cancel</button>
-                <button type="submit" className="px-4 py-2 text-sm font-semibold text-white bg-orange-500 rounded-xl hover:bg-orange-600 shadow-sm">Send Counter Offer</button>
+                <button type="button" onClick={() => setShowCounterModal(false)} className="px-4 py-2 bg-paper border border-border text-slate rounded text-sm font-semibold hover:bg-paper-2 transition-colors">Cancel</button>
+                <button type="submit" disabled={actionLoading === counterOrder.id} className="px-4 py-2 bg-orange-600 text-white rounded text-sm font-semibold hover:bg-orange-700 disabled:opacity-50 transition-colors">Send Offer</button>
               </div>
             </form>
           </div>
@@ -422,66 +658,24 @@ export default function SellerOrdersPage() {
       {showInvModal && (
         <div className="fixed inset-0 z-[100] flex justify-end">
           <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowInvModal(false)}></div>
-          <div className="relative w-full max-w-md bg-surface h-full shadow-2xl flex flex-col">
-            <div className="px-6 py-5 border-b border-border-subtle flex justify-between items-center">
-              <div>
-                <h2 className="text-lg font-bold text-text-primary">Create Manual Invoice</h2>
-                <p className="text-xs text-text-secondary mt-0.5">For offline / onsite deals</p>
-              </div>
-              <button onClick={() => setShowInvModal(false)} className="h-8 w-8 rounded-full bg-surface-raised flex items-center justify-center text-text-tertiary hover:text-text-secondary hover:bg-surface-raised transition-colors">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
+          <div className="relative w-full max-w-md bg-paper h-full shadow-2xl flex flex-col">
+            <div className="px-6 py-5 border-b border-border flex justify-between items-center">
+              <div><h2 className="text-lg font-bold text-ink">Create Manual Invoice</h2><p className="text-xs text-slate mt-0.5">For offline / onsite sales</p></div>
+              <button onClick={() => setShowInvModal(false)} className="h-8 w-8 rounded-full bg-paper-2 flex items-center justify-center text-slate hover:text-ink"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
             </div>
             <div className="flex-1 overflow-y-auto p-6">
-              <form id="sinv-form" onSubmit={handleCreateInvoice} className="space-y-5">
-                <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-2">Buyer</label>
-                  <select required value={invForm.buyerId} onChange={e => setInvForm({...invForm, buyerId: e.target.value})}
-                    className="w-full px-3 py-2.5 bg-surface-raised border border-border-subtle rounded-xl text-sm text-text-primary focus:border-primary-500 outline-none">
-                    <option value="">Select buyer...</option>
-                    {buyers.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-                  </select>
-                  {buyers.length === 0 && <p className="text-[11px] text-text-tertiary mt-1">No buyers found. Buyers appear after they place at least one order.</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-2">Product / Service Name</label>
-                  <input required value={invForm.productName} onChange={e => setInvForm({...invForm, productName: e.target.value})} type="text"
-                    className="w-full px-3 py-2.5 bg-surface-raised border border-border-subtle rounded-xl text-sm text-text-primary focus:border-primary-500 outline-none" placeholder="Enter product or service name" />
-                </div>
+              <form id="inv-form" onSubmit={handleCreateInvoice} className="space-y-5">
+                <div><label className="block text-sm font-semibold mb-2">Buyer</label><select required value={invForm.buyerId} onChange={e => setInvForm({...invForm, buyerId: e.target.value})} className="w-full px-3 py-2 bg-paper-2 border border-border rounded text-sm"><option value="">Select buyer...</option>{buyers.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
+                <div><label className="block text-sm font-semibold mb-2">Product Name</label><input required value={invForm.productName} onChange={e => setInvForm({...invForm, productName: e.target.value})} className="w-full px-3 py-2 bg-paper-2 border border-border rounded text-sm" /></div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-semibold text-text-primary mb-2">Unit Price (₹)</label>
-                    <input required value={invForm.unitPrice} onChange={e => setInvForm({...invForm, unitPrice: e.target.value})} type="number" min="0"
-                      className="w-full px-3 py-2.5 bg-surface-raised border border-border-subtle rounded-xl text-sm text-text-primary focus:border-primary-500 outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-text-primary mb-2">Quantity</label>
-                    <input required value={invForm.quantity} onChange={e => setInvForm({...invForm, quantity: e.target.value})} type="number" min="1"
-                      className="w-full px-3 py-2.5 bg-surface-raised border border-border-subtle rounded-xl text-sm text-text-primary focus:border-primary-500 outline-none" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-2">Unit</label>
-                  <select value={invForm.pricingUnit} onChange={e => setInvForm({...invForm, pricingUnit: e.target.value})}
-                    className="w-full px-3 py-2.5 bg-surface-raised border border-border-subtle rounded-xl text-sm text-text-primary focus:border-primary-500 outline-none">
-                    {Object.entries(UOM).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                  </select>
-                </div>
-                {invForm.unitPrice && invForm.quantity && (
-                  <div className="p-3 bg-surface-raised border border-border-subtle rounded-xl">
-                    <p className="text-sm text-text-secondary">Total: <b className="text-text-primary text-base">₹{(parseFloat(invForm.unitPrice || '0') * parseInt(invForm.quantity || '1')).toLocaleString('en-IN')}</b></p>
-                  </div>
-                )}
-                <div>
-                  <label className="block text-sm font-semibold text-text-primary mb-2">Notes (optional)</label>
-                  <textarea value={invForm.notes} onChange={e => setInvForm({...invForm, notes: e.target.value})} rows={3}
-                    className="w-full px-3 py-2.5 bg-surface-raised border border-border-subtle rounded-xl text-sm text-text-primary focus:border-primary-500 outline-none resize-none" placeholder="Reference number, delivery details..." />
+                  <div><label className="block text-sm font-semibold mb-2">Price (₹)</label><input required type="number" min="0" value={invForm.unitPrice} onChange={e => setInvForm({...invForm, unitPrice: e.target.value})} className="w-full px-3 py-2 bg-paper-2 border border-border rounded text-sm" /></div>
+                  <div><label className="block text-sm font-semibold mb-2">Quantity</label><input required type="number" min="1" value={invForm.quantity} onChange={e => setInvForm({...invForm, quantity: e.target.value})} className="w-full px-3 py-2 bg-paper-2 border border-border rounded text-sm" /></div>
                 </div>
               </form>
             </div>
-            <div className="p-5 border-t border-border-subtle flex justify-end gap-3 bg-surface-raised/50">
-              <button onClick={() => setShowInvModal(false)} className="px-5 py-2.5 text-sm font-semibold text-text-secondary bg-surface border border-border-subtle rounded-xl hover:bg-surface-raised transition-colors">Cancel</button>
-              <button type="submit" form="sinv-form" className="px-5 py-2.5 text-sm font-semibold text-white bg-primary-500 rounded-xl hover:bg-primary-600 transition-colors shadow-sm">Create Invoice</button>
+            <div className="p-5 border-t border-border flex justify-end gap-3 bg-paper-2/50">
+              <button onClick={() => setShowInvModal(false)} className="px-5 py-2 text-sm font-semibold border rounded">Cancel</button>
+              <button type="submit" form="inv-form" className="px-5 py-2 text-sm font-semibold text-white bg-ink rounded">Create Invoice</button>
             </div>
           </div>
         </div>
@@ -491,31 +685,19 @@ export default function SellerOrdersPage() {
       {showReviewModal && reviewOrder && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center">
           <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowReviewModal(false)}></div>
-          <div className="relative bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6">
-            <h2 className="text-lg font-bold text-text-primary mb-1">Rate Buyer</h2>
-            <p className="text-xs text-text-secondary mb-4">{reviewOrder.buyer?.company?.name || reviewOrder.buyer?.name || 'Buyer'}</p>
-            
+          <div className="relative bg-paper rounded shadow-2xl w-full max-w-md p-6">
+            <h2 className="text-lg font-bold mb-1">Rate Buyer</h2>
             <form onSubmit={handleReviewSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-text-primary mb-2">Rating</label>
+                <label className="block text-sm font-semibold mb-2">Rating</label>
                 <div className="flex gap-2">
                   {[1,2,3,4,5].map(star => (
-                    <button type="button" key={star} onClick={() => setReviewForm({...reviewForm, rating: star})}
-                      className={`h-10 w-10 rounded-full flex items-center justify-center transition-all ${reviewForm.rating >= star ? 'bg-amber-100 text-amber-500' : 'bg-surface-raised text-text-tertiary hover:bg-surface-raised'}`}>
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                    </button>
+                    <button type="button" key={star} onClick={() => setReviewForm({...reviewForm, rating: star})} className={`h-10 w-10 rounded-full flex items-center justify-center ${reviewForm.rating >= star ? 'bg-amber-100 text-amber-500' : 'bg-paper-2 text-slate'}`}><svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg></button>
                   ))}
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-text-primary mb-2">Comment (Optional)</label>
-                <textarea value={reviewForm.comment} onChange={e => setReviewForm({...reviewForm, comment: e.target.value})} rows={3}
-                  className="w-full px-3 py-2 bg-surface-raised border border-border-subtle rounded-xl text-sm outline-none resize-none" placeholder="Share your experience with this buyer..." />
-              </div>
-              <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowReviewModal(false)} className="btn-outline text-sm py-2">Cancel</button>
-                <button type="submit" disabled={reviewSubmitting} className="btn-primary text-sm py-2 disabled:opacity-50">Submit Review</button>
-              </div>
+              <div><label className="block text-sm font-semibold mb-2">Comment</label><textarea value={reviewForm.comment} onChange={e => setReviewForm({...reviewForm, comment: e.target.value})} rows={3} className="w-full px-3 py-2 bg-paper-2 border border-border rounded text-sm" /></div>
+              <div className="flex justify-end gap-3"><button type="button" onClick={() => setShowReviewModal(false)} className="px-4 py-2 border rounded text-sm">Cancel</button><button type="submit" className="px-4 py-2 bg-ink text-white rounded text-sm">Submit</button></div>
             </form>
           </div>
         </div>

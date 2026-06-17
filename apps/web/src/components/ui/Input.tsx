@@ -12,13 +12,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full flex flex-col gap-1.5 group">
         {label && (
-          <label className="text-sm font-medium text-text-secondary transition-all duration-300 group-focus-within:text-primary-500 group-focus-within:font-semibold">
+          <label className="text-sm font-medium text-slate transition-all duration-300 group-focus-within:text-ink group-focus-within:font-semibold">
             {label} {required && <span className="text-cta-500">*</span>}
           </label>
         )}
         <div className="relative flex items-center w-full">
           {prefixNode && (
-            <div className="absolute left-3 flex items-center justify-center text-text-tertiary transition-colors duration-300 group-focus-within:text-primary-500">
+            <div className="absolute left-3 flex items-center justify-center text-slate transition-colors duration-300 group-focus-within:text-ink">
               {prefixNode}
             </div>
           )}
@@ -26,8 +26,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             required={required}
             className={`
-              w-full bg-surface-raised border border-border-subtle rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder:text-text-tertiary
-              focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(13,10,62,0.08)] focus:border-primary-500 focus:bg-white
+              w-full bg-paper-2 border border-border rounded px-4 py-2.5 text-sm text-ink placeholder:text-slate
+              focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(13,10,62,0.08)] focus:border-ink focus:bg-white
               transition-all duration-300 ease-out
               disabled:opacity-50 disabled:cursor-not-allowed
               ${error ? 'border-danger-500 focus:border-danger-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)]' : ''}
@@ -38,7 +38,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {suffixNode && (
-            <div className="absolute right-3 flex items-center justify-center text-text-tertiary transition-colors duration-300 group-focus-within:text-primary-500">
+            <div className="absolute right-3 flex items-center justify-center text-slate transition-colors duration-300 group-focus-within:text-ink">
               {suffixNode}
             </div>
           )}
