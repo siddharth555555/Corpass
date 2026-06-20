@@ -1,14 +1,15 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
+const logger = new Logger('ProductsService');
 let pincodesData: Record<string, {lat: number, lon: number}> | null = null;
 try {
-  const fileData = fs.readFileSync(path.join(__dirname, '../../src/resources/pincodes.json'), 'utf-8');
+  const fileData = fs.readFileSync(path.join(process.cwd(), 'src/resources/pincodes.json'), 'utf-8');
   pincodesData = JSON.parse(fileData);
 } catch (e) {
-  console.warn('Could not load pincodes.json. Distance checks will fail or fallback.');
+  logger.warn('Could not load pincodes.json. Distance checks will fail or fallback.');
 }
 
 function deg2rad(deg: number) {
@@ -112,23 +113,33 @@ export class ProductsService {
     });
   }
 
-  async findAllBySeller(userId: number) {
+  async findAllBySeller(userId: number, page: number = 1, limit: number = 20) {
     const sellerProfile = await this.prisma.sellerProfile.findUnique({
       where: { userId },
     });
 
     if (!sellerProfile) {
-      return [];
+      return { data: [], total: 0, page, limit, totalPages: 0 };
     }
 
-    return this.prisma.productCatalog.findMany({
-      where: { sellerProfileId: sellerProfile.id },
-      orderBy: { createdAt: 'desc' },
-    });
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.prisma.productCatalog.findMany({
+        where: { sellerProfileId: sellerProfile.id },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.productCatalog.count({ where: { sellerProfileId: sellerProfile.id } })
+    ]);
+
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async getMarketplaceProducts(query: any) {
-    const { search, category, city, sortBy, buyerPincode, showUndeliverable, minRating } = query;
+    const { search, category, city, sortBy, buyerPincode, showUndeliverable, minRating, page, limit } = query;
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 20;
 
     const where: any = {};
 
@@ -180,7 +191,7 @@ export class ProductsService {
         }
       } else if (productRange === 'HYPER_LOCAL_20KM') {
         const effectivePincodes = (p.deliveryPincodes as string[]) || (p.sellerProfile.deliveryPincodes as string[]) || [p.sellerProfile.user?.pincode];
-        console.log(`Product ${p.id} HYPER_LOCAL matching: buyerPincode=${buyerPincode}, effectivePincodes=`, effectivePincodes);
+        logger.debug(`Product ${p.id} HYPER_LOCAL matching: buyerPincode=${buyerPincode}, effectivePincodes=${JSON.stringify(effectivePincodes)}`);
         if (!buyerPincode || !effectivePincodes.includes(buyerPincode)) {
           isOutOfRange = true;
         }
@@ -215,7 +226,17 @@ export class ProductsService {
       filtered.sort((a, b) => b.sellerAvgRating - a.sellerAvgRating);
     }
 
-    return filtered;
+    const total = filtered.length;
+    const skip = (pageNum - 1) * limitNum;
+    const paginatedData = filtered.slice(skip, skip + limitNum);
+
+    return {
+      data: paginatedData,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(total / limitNum)
+    };
   }
 
   async updateStock(userId: number, productId: number, stockQuantity: number) {

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { DisputeModal } from "@/components/DisputeModal";
+import { AlertModal, AlertType } from "@/components/ui/AlertModal";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; cpBadge?: string }> = {
   PLACED: { label: "New Order", color: "text-amber-700", bg: "bg-amber-50", cpBadge: "cp-badge--info" },
@@ -36,6 +37,7 @@ const UOM: Record<string, string> = {
 
 export default function SellerOrdersPage() {
   const router = useRouter();
+  const [alertConfig, setAlertConfig] = useState<{message: string, type: AlertType} | null>(null);
   const [tab, setTab] = useState<"orders" | "invoices">("orders");
   const [orders, setOrders] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -81,17 +83,19 @@ export default function SellerOrdersPage() {
       const [oRes, iRes] = await Promise.all([api("/orders"), api("/invoices")]);
       if (oRes.ok) {
         const oData = await oRes.json();
-        setOrders(oData);
+        const ordersArray = Array.isArray(oData) ? oData : oData.data || [];
+        setOrders(ordersArray);
         if (selectedOrder) {
-          const updated = oData.find((o: any) => o.id === selectedOrder.id);
+          const updated = ordersArray.find((o: any) => o.id === selectedOrder.id);
           if (updated) setSelectedOrder(updated);
         }
       }
       if (iRes.ok) {
         const iData = await iRes.json();
-        setInvoices(iData);
+        const invoicesArray = Array.isArray(iData) ? iData : iData.data || [];
+        setInvoices(invoicesArray);
         if (selectedInvoice) {
-          const updatedInv = iData.find((i: any) => i.id === selectedInvoice.id);
+          const updatedInv = invoicesArray.find((i: any) => i.id === selectedInvoice.id);
           if (updatedInv) setSelectedInvoice(updatedInv);
         }
       }
@@ -102,7 +106,8 @@ export default function SellerOrdersPage() {
     try {
       const res = await api("/orders");
       if (res.ok) {
-        const oData = await res.json();
+        const resData = await res.json();
+        const oData = Array.isArray(resData) ? resData : resData.data || [];
         const map = new Map();
         oData.forEach((o: any) => { if (o.buyer) map.set(o.buyer.id, { id: o.buyer.id, name: o.buyer.company?.name || o.buyer.name }); });
         setBuyers(Array.from(map.values()));
@@ -131,7 +136,8 @@ export default function SellerOrdersPage() {
       const res = await api(`/orders/${orderId}/${action}`, { method: "PATCH" });
       if (!res.ok) {
         const err = await res.json();
-        alert(err.message || "Action failed");
+        const msg = Array.isArray(err.message) ? err.message.join(', ') : err.message;
+        setAlertConfig({ message: msg || "Action failed", type: "error" });
       }
       fetchData();
     } catch (e) { console.error(e); } finally { setActionLoading(null); }
@@ -155,7 +161,8 @@ export default function SellerOrdersPage() {
       });
       if (!res.ok) {
         const err = await res.json();
-        alert(err.message || "Action failed");
+        const msg = Array.isArray(err.message) ? err.message.join(', ') : err.message;
+        setAlertConfig({ message: msg || "Action failed", type: "error" });
       }
       fetchData();
     } catch (e) { console.error(e); } finally { setActionLoading(null); }
@@ -171,7 +178,9 @@ export default function SellerOrdersPage() {
         setAdvanceAmount("");
         fetchData();
       } else {
-        const err = await res.json(); alert(err.message || "Failed to request advance");
+        const err = await res.json(); 
+        const msg = Array.isArray(err.message) ? err.message.join(', ') : err.message;
+        setAlertConfig({ message: msg || "Failed to request advance", type: "error" });
       }
     } catch (e) { console.error(e); } finally { setActionLoading(null); }
   };
@@ -197,8 +206,8 @@ export default function SellerOrdersPage() {
     e.preventDefault();
     try {
       const res = await api('/reviews', { method: 'POST', body: JSON.stringify({ orderId: reviewOrder.id, rating: reviewForm.rating, comment: reviewForm.comment }) });
-      if (res.ok) { setShowReviewModal(false); setReviewOrder(null); alert('Review submitted successfully!'); fetchData(); }
-      else { const err = await res.json(); alert(err.message || 'Failed to submit review'); }
+      if (res.ok) { setShowReviewModal(false); setReviewOrder(null); setAlertConfig({ message: 'Review submitted successfully!', type: 'success' }); fetchData(); }
+      else { const err = await res.json(); const msg = Array.isArray(err.message) ? err.message.join(', ') : err.message; setAlertConfig({ message: msg || 'Failed to submit review', type: 'error' }); }
     } catch (e) { console.error(e); }
   };
 
@@ -752,6 +761,13 @@ export default function SellerOrdersPage() {
         onConfirm={disputeConfig.action}
         title={disputeConfig.title}
         description={disputeConfig.desc}
+      />
+
+      <AlertModal 
+        isOpen={!!alertConfig} 
+        message={Array.isArray(alertConfig?.message) ? alertConfig.message.join(', ') : (alertConfig?.message || '')} 
+        type={alertConfig?.type || 'error'} 
+        onClose={() => setAlertConfig(null)} 
       />
     </div>
   );

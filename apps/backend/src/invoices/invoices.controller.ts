@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Patch, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, UseGuards, Request, Query } from '@nestjs/common';
 import { InvoicesService } from './invoices.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { CreateInvoiceDto } from './dto/create-invoice.dto';
 
 @Controller('invoices')
 @UseGuards(AuthGuard)
@@ -8,13 +9,15 @@ export class InvoicesController {
   constructor(private readonly invoicesService: InvoicesService) {}
 
   @Post()
-  create(@Request() req, @Body() data: any) {
+  create(@Request() req, @Body() data: CreateInvoiceDto) {
     return this.invoicesService.createManual(req.user.sub, req.user.role, data);
   }
 
   @Get()
-  findAll(@Request() req) {
-    return this.invoicesService.findAll(req.user.sub, req.user.role);
+  findAll(@Request() req, @Query('page') page?: string, @Query('limit') limit?: string) {
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 20;
+    return this.invoicesService.findAll(req.user.sub, req.user.role, pageNum, limitNum);
   }
 
   @Patch(':id/acknowledge')

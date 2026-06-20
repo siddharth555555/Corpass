@@ -65,6 +65,11 @@ model User {
   reviewsReceived     Review[]           @relation("ReviewsReceived")
   supportMessages     SupportMessage[]   @relation("UserSupportMessages")
   notifications       Notification[]
+
+  isDeleted           Boolean        @default(false)
+
+  @@index([role])
+  @@index([email])
 }
 
 model SellerProfile {
@@ -138,6 +143,11 @@ model ProductCatalog {
   sellerProfile     SellerProfile @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
   inquiries         Inquiry[]
   orders            Order[]
+
+  isDeleted         Boolean       @default(false)
+
+  @@index([sellerProfileId])
+  @@index([category])
 }
 
 enum InquiryType {
@@ -169,6 +179,10 @@ model Inquiry {
   sellerProfile        SellerProfile    @relation("SellerInquiries", fields: [sellerProfileId], references: [id], onDelete: Cascade)
   product              ProductCatalog?  @relation(fields: [productId], references: [id], onDelete: SetNull)
   messages             InquiryMessage[]
+
+  @@index([buyerId])
+  @@index([sellerProfileId])
+  @@index([status])
 }
 
 // ── Order & Invoice System ──
@@ -269,6 +283,10 @@ model Order {
   asset             Asset?
   reviews           Review[]
   payments          PaymentRecord[] @relation("OrderPayments")
+
+  @@index([buyerId])
+  @@index([sellerProfileId])
+  @@index([status])
 }
 
 enum OrderMessageType {
@@ -338,6 +356,10 @@ model Invoice {
   buyer             User           @relation("BuyerInvoices", fields: [buyerId], references: [id])
   sellerProfile     SellerProfile  @relation("SellerInvoices", fields: [sellerProfileId], references: [id])
   payments          PaymentRecord[] @relation("InvoicePayments")
+
+  @@index([buyerId])
+  @@index([sellerProfileId])
+  @@index([status])
 }
 
 // ── Asset Management ──
@@ -365,6 +387,8 @@ model Asset {
 
   user            User           @relation("UserAssets", fields: [userId], references: [id], onDelete: Cascade)
   sourceOrder     Order?         @relation(fields: [sourceOrderId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
 }
 
 // ── Review & Rating System ──
@@ -399,6 +423,9 @@ model SupportMessage {
   createdAt DateTime @default(now())
 
   user      User     @relation("UserSupportMessages", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
 }
 
 // ── Notification System ──

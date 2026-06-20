@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Patch, Param, Body, UseGuards, Request, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, UseGuards, Request, BadRequestException, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { CreateProductDto } from './dto/create-product.dto';
 
 @Controller('products')
 @UseGuards(AuthGuard)
@@ -8,7 +9,7 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  create(@Request() req, @Body() createProductDto: any) {
+  create(@Request() req, @Body() createProductDto: CreateProductDto) {
     if (req.user.role !== 'SELLER') {
       throw new BadRequestException('Only sellers can create products');
     }
@@ -22,11 +23,13 @@ export class ProductsController {
   }
 
   @Get()
-  findAll(@Request() req) {
+  findAll(@Request() req, @Query('page') page?: string, @Query('limit') limit?: string) {
     if (req.user.role !== 'SELLER') {
       throw new BadRequestException('Only sellers can view their products via this endpoint');
     }
-    return this.productsService.findAllBySeller(req.user.sub);
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 20;
+    return this.productsService.findAllBySeller(req.user.sub, pageNum, limitNum);
   }
 
   @Patch(':id/stock')

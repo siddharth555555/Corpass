@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corpass — Brutalist Industrial</title>
+<style>
+:root{--ink:#0a0a0a;--paper:#f4f4f0;--hazard:#ff3b00;--warning:#ffd100;--cement:#8a8a8a;--grid:1px solid var(--ink)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Courier New',Courier,monospace;background:var(--paper);color:var(--ink);line-height:1.45;overflow-x:hidden}
+
+/* LOGIN */
+.login{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;position:relative}
+@media(max-width:700px){.login{grid-template-columns:1fr}}
+.login-left{border-right:var(--grid);display:flex;flex-direction:column;justify-content:space-between;padding:48px;position:relative}
+@media(max-width:700px){.login-left{border-right:none;border-bottom:var(--grid);padding:32px}}
+.login-left::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:1px;background:var(--ink);opacity:.08}
+.login-left::after{content:'';position:absolute;left:36px;top:0;bottom:0;width:1px;background:var(--ink);opacity:.04}
+.tag{display:inline-block;border:var(--grid);padding:2px 8px;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:32px;background:var(--warning);font-weight:700}
+.brand-mark{font-size:120px;font-weight:900;line-height:.85;letter-spacing:-6px;text-transform:uppercase;margin-bottom:8px;word-break:break-word}
+@media(max-width:700px){.brand-mark{font-size:72px;letter-spacing:-4px}}
+.brand-sub{font-size:13px;color:var(--cement);text-transform:uppercase;letter-spacing:2px}
+.credentials{margin-top:auto;font-size:12px;color:var(--cement);border-top:var(--grid);padding-top:16px;text-transform:uppercase;letter-spacing:1px}
+
+.login-right{padding:48px;display:flex;align-items:center;justify-content:center}
+@media(max-width:700px){.login-right{padding:32px}}
+.login-form{width:100%;max-width:340px}
+.form-title{font-size:32px;font-weight:900;text-transform:uppercase;letter-spacing:-1px;margin-bottom:8px}
+.form-sub{font-size:12px;color:var(--cement);margin-bottom:40px;text-transform:uppercase;letter-spacing:1px}
+.field{margin-bottom:28px}
+.field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;font-weight:700}
+.field input{width:100%;padding:12px 0;font-size:18px;font-family:inherit;background:transparent;border:none;border-bottom:2px solid var(--ink);outline:none;transition:border-color .2s}
+.field input:focus{border-bottom-color:var(--hazard)}
+.field input::placeholder{color:var(--cement);font-size:14px}
+.submit-btn{width:100%;padding:14px;font-size:13px;font-family:inherit;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;background:var(--ink);color:var(--paper);border:var(--grid);cursor:pointer;margin-top:8px;transition:all .15s}
+.submit-btn:hover{background:var(--hazard);color:var(--paper);border-color:var(--hazard)}
+.alert-strip{width:calc(100% + 96px);margin-left:-48px;margin-bottom:32px;padding:8px 48px;background:var(--warning);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;white-space:nowrap;overflow:hidden}
+@media(max-width:700px){.alert-strip{width:calc(100% + 64px);margin-left:-32px;padding:8px 32px}}
+
+/* DASHBOARD */
+.dash{display:none;min-height:100vh}
+.dash-grid{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+@media(max-width:800px){.dash-grid{grid-template-columns:1fr}}
+
+/* Sidebar */
+.dash-sidebar{border-right:var(--grid);padding:32px 24px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:50}
+@media(max-width:800px){.dash-sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:transform .2s;background:var(--paper);border-right:var(--grid)}.dash-sidebar.open{transform:translateX(0)}}
+.dash-brand{font-size:42px;font-weight:900;letter-spacing:-3px;margin-bottom:8px;line-height:1}
+.dash-brand-sub{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--cement);margin-bottom:48px;padding-bottom:24px;border-bottom:var(--grid)}
+.nav-block{margin-bottom:32px}
+.nav-block-title{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--cement);margin-bottom:12px;padding-left:4px}
+.nav-item{font-size:14px;padding:8px 4px;border-bottom:var(--grid);cursor:pointer;transition:all .1s;text-transform:uppercase;letter-spacing:1px;position:relative}
+.nav-item::before{content:'→';position:absolute;right:0;opacity:0;transition:opacity .1s}
+.nav-item:hover{padding-left:8px}
+.nav-item:hover::before{opacity:1}
+.nav-item.active{font-weight:900;background:var(--hazard);color:var(--paper);padding:10px 4px;border-bottom:none;margin-left:-4px;padding-left:8px}
+.nav-item.active::before{content:none}
+.signout{margin-top:auto;padding-top:16px;border-top:var(--grid);font-size:12px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;color:var(--hazard);font-weight:700}
+
+/* Main */
+.dash-main{padding:40px;position:relative}
+@media(max-width:800px){.dash-main{padding:24px}}
+.dash-main::before{content:'';position:absolute;left:0;top:0;right:0;height:3px;background:var(--hazard)}
+.menu-btn{display:none;background:none;border:var(--grid);padding:6px 12px;font-family:inherit;font-size:11px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;margin-bottom:24px}
+@media(max-width:800px){.menu-btn{display:inline-block}}
+.page-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:40px;border-bottom:var(--grid);padding-bottom:16px}
+.page-title{font-size:48px;font-weight:900;letter-spacing:-3px;text-transform:uppercase;line-height:1}
+.page-meta{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--cement);text-align:right}
+
+/* Stats - table style */
+.stats-table{width:100%;border-collapse:collapse;margin-bottom:48px}
+.stats-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--cement);padding:12px 8px;border-bottom:2px solid var(--ink);font-weight:700}
+.stats-table td{padding:20px 8px;border-bottom:var(--grid);vertical-align:top}
+.stat-num{font-size:42px;font-weight:900;letter-spacing:-2px;display:block;margin-bottom:4px}
+.stat-note{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--cement)}
+.stats-table tr:hover td{background:var(--warning)}
+
+/* Content grid */
+.content-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:0;border-top:var(--grid)}
+@media(max-width:900px){.content-grid{grid-template-columns:1fr}}
+.grid-block{padding:32px 24px;border-right:var(--grid);border-bottom:var(--grid)}
+@media(max-width:900px){.grid-block{border-right:none}}
+.grid-block:last-child{border-right:none}
+.block-header{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--cement);margin-bottom:24px;padding-bottom:8px;border-bottom:var(--grid)}
+.order-row{display:flex;justify-content:space-between;align-items:baseline;padding:16px 0;border-bottom:var(--grid);cursor:pointer;transition:all .1s}
+.order-row:hover{padding-left:8px;background:rgba(0,0,0,.02)}
+.order-row:last-child{border-bottom:none}
+.order-name{font-size:15px;font-weight:700;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order-meta{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--cement);margin-top:2px}
+.order-right{text-align:right}
+.order-price{font-size:18px;font-weight:900}
+.order-status{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:2px 6px;border:var(--grid);display:inline-block;margin-top:4px}
+.status-pending{background:var(--warning)}
+.status-confirmed{background:var(--paper)}
+.status-delivered{background:var(--ink);color:var(--paper)}
+.status-shipped{background:var(--paper)}
+
+.activity-row{padding:16px 0;border-bottom:var(--grid);position:relative;padding-left:20px}
+.activity-row:last-child{border-bottom:none}
+.activity-row::before{content:'';position:absolute;left:0;top:22px;width:8px;height:8px;border:var(--grid);background:var(--paper)}
+.activity-row.hot::before{background:var(--hazard)}
+.activity-row.warn::before{background:var(--warning)}
+.activity-row.good::before{background:var(--ink)}
+.activity-text{font-size:14px;font-weight:700}
+.activity-detail{font-size:11px;color:var(--cement);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.activity-time{font-size:10px;color:var(--cement);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+
+.marquee{overflow:hidden;white-space:nowrap;margin-bottom:32px;border-top:var(--grid);border-bottom:var(--grid);padding:8px 0}
+.marquee-text{display:inline-block;animation:marquee 20s linear infinite;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+#t:checked~.login{display:none}
+#t:checked~.dash{display:block}
+</style>
+</head>
+<body>
+<input type="checkbox" id="t" class="t" style="position:fixed;left:-999px">
+
+<div class="login">
+  <div class="login-left">
+    <div>
+      <div class="tag">System Admin</div>
+      <div class="brand-mark">COR<br>PASS</div>
+      <div class="brand-sub">Industrial Marketplace Platform</div>
+    </div>
+    <div class="credentials">
+      <div>Version 2.4.1</div>
+      <div style="margin-top:4px">Session: 23ms latency</div>
+    </div>
+  </div>
+  <div class="login-right">
+    <div class="login-form">
+      <div class="alert-strip">⚠ AUTHORIZED PERSONNEL ONLY — UNAUTHORIZED ACCESS IS PROHIBITED</div>
+      <div class="form-title">Sign In</div>
+      <div class="form-sub">Admin Portal Access</div>
+      <div class="field">
+        <label>Identifier</label>
+        <input type="text" value="admin@corpass.in">
+      </div>
+      <div class="field">
+        <label>Passcode</label>
+        <input type="password" value="password">
+      </div>
+      <label for="t" class="submit-btn" style="cursor:pointer">Authenticate</label>
+    </div>
+  </div>
+</div>
+
+<div class="dash">
+  <div class="dash-grid">
+    <div class="dash-sidebar" id="sb">
+      <div class="dash-brand">CP</div>
+      <div class="dash-brand-sub">Admin Control</div>
+      <div class="nav-block">
+        <div class="nav-block-title">Platform</div>
+        <div class="nav-item active">Overview</div>
+        <div class="nav-item">Users</div>
+        <div class="nav-item">Orders</div>
+        <div class="nav-item">Products</div>
+        <div class="nav-item">Support</div>
+      </div>
+      <div class="nav-block">
+        <div class="nav-block-title">System</div>
+        <div class="nav-item">Logs</div>
+        <div class="nav-item">Settings</div>
+        <div class="nav-item">Backup</div>
+      </div>
+      <div class="signout" onclick="document.getElementById('t').checked=false;document.getElementById('sb').classList.remove('open')">Sign Out</div>
+    </div>
+
+    <div class="dash-main">
+      <button class="menu-btn" onclick="document.getElementById('sb').classList.toggle('open')">Menu</button>
+      <div class="page-header">
+        <div class="page-title">Overview</div>
+        <div class="page-meta">Platform Health<br>Monitor</div>
+      </div>
+
+      <div class="marquee">
+        <div class="marquee-text">NEW ORDER: Industrial CNC Router Machine — ₹12,45,000  ◆  SELLER KYC APPROVED: Krishna Manufacturing Ltd  ◆  TICKET OPENED: Payment delay #2835  ◆  NEW ORDER: Industrial CNC Router Machine — ₹12,45,000  ◆  SELLER KYC APPROVED: Krishna Manufacturing Ltd  ◆  TICKET OPENED: Payment delay #2835  ◆  </div>
+      </div>
+
+      <table class="stats-table">
+        <thead>
+          <tr><th>Metric</th><th>Count</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="stat-num">2,847</span>
+              <span class="stat-note">Total registered users</span>
+            </td>
+            <td style="vertical-align:middle;font-size:14px;text-transform:uppercase;letter-spacing:1px">
+              1,920 buyers<br>927 sellers
+            </td>
+            <td style="vertical-align:middle">
+              <span class="order-status" style="background:var(--warning)">Active</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="stat-num">12,405</span>
+              <span class="stat-note">Orders processed</span>
+            </td>
+            <td style="vertical-align:middle;font-size:14px;text-transform:uppercase;letter-spacing:1px">
+              342 pending<br>this week
+            </td>
+            <td style="vertical-align:middle">
+              <span class="order-status" style="background:var(--paper)">Processing</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="stat-num">₹4.2Cr</span>
+              <span class="stat-note">Gross merchandise value</span>
+            </td>
+            <td style="vertical-align:middle;font-size:14px;text-transform:uppercase;letter-spacing:1px">
+              All-time<br>revenue
+            </td>
+            <td style="vertical-align:middle">
+              <span class="order-status" style="background:var(--ink);color:var(--paper)">Verified</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="stat-num">18</span>
+              <span class="stat-note">Open support tickets</span>
+            </td>
+            <td style="vertical-align:middle;font-size:14px;text-transform:uppercase;letter-spacing:1px">
+              3,420 active<br>products
+            </td>
+            <td style="vertical-align:middle">
+              <span class="order-status" style="background:var(--hazard);color:var(--paper)">Attention</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="content-grid">
+        <div class="grid-block">
+          <div class="block-header">Recent Orders</div>
+          <div class="order-row">
+            <div style="min-width:0">
+              <div class="order-name">Industrial CNC Router Machine</div>
+              <div class="order-meta">#ORD-2841 — Rajesh Engineering</div>
+            </div>
+            <div class="order-right">
+              <div class="order-price">₹12,45,000</div>
+              <span class="order-status status-pending">Placed</span>
+            </div>
+          </div>
+          <div class="order-row">
+            <div style="min-width:0">
+              <div class="order-name">Hydraulic Press 50 Ton</div>
+              <div class="order-meta">#ORD-2840 — Aakash Industries</div>
+            </div>
+            <div class="order-right">
+              <div class="order-price">₹8,75,000</div>
+              <span class="order-status status-confirmed">Confirmed</span>
+            </div>
+          </div>
+          <div class="order-row">
+            <div style="min-width:0">
+              <div class="order-name">Lathe Machine Heavy Duty</div>
+              <div class="order-meta">#ORD-2839 — Precision Tools Pvt</div>
+            </div>
+            <div class="order-right">
+              <div class="order-price">₹4,20,000</div>
+              <span class="order-status status-delivered">Delivered</span>
+            </div>
+          </div>
+          <div class="order-row">
+            <div style="min-width:0">
+              <div class="order-name">Welding Electrodes 5kg Box</div>
+              <div class="order-meta">#ORD-2838 — Sharma Fabricators</div>
+            </div>
+            <div class="order-right">
+              <div class="order-price">₹18,500</div>
+              <span class="order-status status-shipped">Shipped</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-block">
+          <div class="block-header">Activity Log</div>
+          <div class="activity-row hot">
+            <div class="activity-text">New order received</div>
+            <div class="activity-detail">CNC Router Machine — ₹12,45,000</div>
+            <div class="activity-time">2 minutes ago</div>
+          </div>
+          <div class="activity-row good">
+            <div class="activity-text">Seller KYC approved</div>
+            <div class="activity-detail">Krishna Manufacturing Ltd</div>
+            <div class="activity-time">15 minutes ago</div>
+          </div>
+          <div class="activity-row warn">
+            <div class="activity-text">Support ticket opened</div>
+            <div class="activity-detail">Payment delay dispute — Order #2835</div>
+            <div class="activity-time">42 minutes ago</div>
+          </div>
+          <div class="activity-row good">
+            <div class="activity-text">Product listing approved</div>
+            <div class="activity-detail">Hydraulic Press 100 Ton by Patel Industries</div>
+            <div class="activity-time">1 hour ago</div>
+          </div>
+          <div class="activity-row hot">
+            <div class="activity-text">New user registered</div>
+            <div class="activity-detail">Vikram Tools & Co. (Seller)</div>
+            <div class="activity-time">2 hours ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

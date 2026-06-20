@@ -1,0 +1,80 @@
+pageType: final
+background:
+  type: solid
+  color: "$background"
+elements:
+  - elementId: f-title
+    elementType: text
+    bounds: [140, 160, 1000, 70]
+    content:
+      fontSize: 40
+      color: "$ink"
+      fontFamily: "Oranienbaum"
+      lineHeight: 1.2
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p>Join Corpass</p>
+
+  - elementId: f-line
+    elementType: shape
+    bounds: [540, 250, 200, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 2
+      color: "$copper"
+
+  - elementId: f-buyer
+    elementType: text
+    bounds: [140, 300, 500, 100]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      lineHeight: 1.6
+      align: [left, top]
+      text: |
+        <p><strong style="color:$copper;">For Buyers</strong></p>
+        <p>Start saving time on procurement today.</p>
+        <p><span style="color:$slate;">Request a demo →</span></p>
+
+  - elementId: f-seller
+    elementType: text
+    bounds: [640, 300, 500, 100]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      lineHeight: 1.6
+      align: [left, top]
+      text: |
+        <p><strong style="color:$copper;">For Sellers</strong></p>
+        <p>List your products and reach corporate buyers.</p>
+        <p><span style="color:$slate;">Zero upfront cost →</span></p>
+
+  - elementId: f-contact
+    elementType: text
+    bounds: [340, 460, 600, 120]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.8
+      align: [center, top]
+      text: |
+        <p>admin@corpass.in</p>
+        <p>corpass.in</p>
+
+  - elementId: f-tagline
+    elementType: text
+    bounds: [340, 580, 600, 40]
+    content:
+      fontSize: 14
+      color: "$slate"
+      fontFamily: "Liter"
+      align: [center, middle]
+      wrap: false
+      letterSpacing: 2
+      text: |
+        <p>DISCOVER  ·  NEGOTIATE  ·  PURCHASE  ·  TRACK</p>

@@ -1,0 +1,51 @@
+pageType: chapter
+background:
+  type: solid
+  color: "$background"
+elements:
+  - elementId: ch6-left-bg
+    elementType: shape
+    bounds: [0, 0, 640, 720]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: ch6-num
+    elementType: text
+    bounds: [60, 260, 520, 100]
+    content:
+      style: "$chapterNum"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>06</p>
+
+  - elementId: ch6-title
+    elementType: text
+    bounds: [700, 280, 520, 50]
+    content:
+      style: "$chapterTitle"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>Business Model</p>
+
+  - elementId: ch6-subtitle
+    elementType: text
+    bounds: [700, 340, 520, 30]
+    content:
+      style: "$subtitle"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>Commission on transactions. Subscription for premium features.</p>
+
+  - elementId: ch6-line
+    elementType: shape
+    bounds: [700, 390, 60, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 2
+      color: "$copper"

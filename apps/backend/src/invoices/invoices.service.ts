@@ -1,15 +1,15 @@
 import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class InvoicesService {
   constructor(private prisma: PrismaService) {}
 
   private generateInvoiceNumber(): string {
-    const date = new Date();
-    const d = date.toISOString().slice(0, 10).replace(/-/g, '');
-    const rand = Math.floor(1000 + Math.random() * 9000);
-    return `INV-${d}-${rand}`;
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const rand = nanoid(8);
+    return `INV-${date}-${rand}`;
   }
 
   async createManual(userId: number, role: string, data: any) {
@@ -59,31 +59,47 @@ export class InvoicesService {
     });
   }
 
-  async findAll(userId: number, role: string) {
+  async findAll(userId: number, role: string, page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit;
+
     if (role === 'BUYER') {
-      return this.prisma.invoice.findMany({
-        where: { buyerId: userId },
-        orderBy: { createdAt: 'desc' },
-        include: {
-          sellerProfile: { include: { user: { select: { name: true, company: true } } } },
-          createdBy: { select: { name: true } },
-          order: { include: { payments: { orderBy: { createdAt: 'desc' } } } },
-          payments: { orderBy: { createdAt: 'desc' } }
-        }
-      });
+      const where = { buyerId: userId };
+      const [data, total] = await Promise.all([
+        this.prisma.invoice.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+          include: {
+            sellerProfile: { include: { user: { select: { name: true, company: true } } } },
+            createdBy: { select: { name: true } },
+            order: { include: { payments: { orderBy: { createdAt: 'desc' } } } },
+            payments: { orderBy: { createdAt: 'desc' } }
+          }
+        }),
+        this.prisma.invoice.count({ where }),
+      ]);
+      return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
     } else {
       const sp = await this.prisma.sellerProfile.findUnique({ where: { userId } });
-      if (!sp) return [];
-      return this.prisma.invoice.findMany({
-        where: { sellerProfileId: sp.id },
-        orderBy: { createdAt: 'desc' },
-        include: {
-          buyer: { select: { name: true, company: true } },
-          createdBy: { select: { name: true } },
-          order: { include: { payments: { orderBy: { createdAt: 'desc' } } } },
-          payments: { orderBy: { createdAt: 'desc' } }
-        }
-      });
+      if (!sp) return { data: [], total: 0, page, limit, totalPages: 0 };
+      const where = { sellerProfileId: sp.id };
+      const [data, total] = await Promise.all([
+        this.prisma.invoice.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+          include: {
+            buyer: { select: { name: true, company: true } },
+            createdBy: { select: { name: true } },
+            order: { include: { payments: { orderBy: { createdAt: 'desc' } } } },
+            payments: { orderBy: { createdAt: 'desc' } }
+          }
+        }),
+        this.prisma.invoice.count({ where }),
+      ]);
+      return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
     }
   }
 

@@ -1,0 +1,250 @@
+pageType: content
+background:
+  type: solid
+  color: "$background"
+elements:
+  - elementId: p-title
+    elementType: text
+    bounds: [60, 50, 1100, 45]
+    content:
+      style: "$title"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>B2B Procurement Is Broken at Every Step</p>
+
+  - elementId: p-line
+    elementType: shape
+    bounds: [60, 105, 80, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 2
+      color: "$copper"
+
+  - elementId: p-card1
+    elementType: shape
+    bounds: [60, 140, 360, 220]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: p-icon1
+    elementType: icon
+    bounds: [80, 160, 28, 28]
+    iconName: "fas:comment-dots"
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: p-card1-title
+    elementType: text
+    bounds: [80, 200, 320, 30]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>RFQs Are Lost in WhatsApp</strong></p>
+
+  - elementId: p-card1-body
+    elementType: text
+    bounds: [80, 240, 320, 100]
+    content:
+      style: "$body"
+      fontSize: 16
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Buyers send quotes via email and chat. No tracking, no audit trail, no history. The same conversation happens 5 times.</p>
+
+  - elementId: p-card2
+    elementType: shape
+    bounds: [460, 140, 360, 220]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: p-icon2
+    elementType: icon
+    bounds: [480, 160, 28, 28]
+    iconName: "fas:file-excel"
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: p-card2-title
+    elementType: text
+    bounds: [480, 200, 320, 30]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Tracking Lives in Spreadsheets</strong></p>
+
+  - elementId: p-card2-body
+    elementType: text
+    bounds: [480, 240, 320, 100]
+    content:
+      style: "$body"
+      fontSize: 16
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Order status is a phone call away. Procurement teams maintain 5+ spreadsheets that never sync. Errors are inevitable.</p>
+
+  - elementId: p-card3
+    elementType: shape
+    bounds: [860, 140, 360, 220]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: p-icon3
+    elementType: icon
+    bounds: [880, 160, 28, 28]
+    iconName: "fas:money-bill-wave"
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: p-card3-title
+    elementType: text
+    bounds: [880, 200, 320, 30]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Payments Are Reconciled Blindly</strong></p>
+
+  - elementId: p-card3-body
+    elementType: text
+    bounds: [880, 240, 320, 100]
+    content:
+      style: "$body"
+      fontSize: 16
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>"Did you pay?" / "I didn't receive it." Bank transfers with no shared record. Disputes take weeks to resolve.</p>
+
+  - elementId: p-card4
+    elementType: shape
+    bounds: [60, 390, 360, 220]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: p-icon4
+    elementType: icon
+    bounds: [80, 410, 28, 28]
+    iconName: "fas:box-open"
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: p-card4-title
+    elementType: text
+    bounds: [80, 450, 320, 30]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Assets Disappear After Delivery</strong></p>
+
+  - elementId: p-card4-body
+    elementType: text
+    bounds: [80, 490, 320, 100]
+    content:
+      style: "$body"
+      fontSize: 16
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Procured items are forgotten in warehouses. No one knows what the company owns, where it is, or what condition it's in.</p>
+
+  - elementId: p-card5
+    elementType: shape
+    bounds: [460, 390, 360, 220]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: p-icon5
+    elementType: icon
+    bounds: [480, 410, 28, 28]
+    iconName: "fas:star-half-stroke"
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: p-card5-title
+    elementType: text
+    bounds: [480, 450, 320, 30]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Trust Is Word-of-Mouth</strong></p>
+
+  - elementId: p-card5-body
+    elementType: text
+    bounds: [480, 490, 320, 100]
+    content:
+      style: "$body"
+      fontSize: 16
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Vendor reliability is based on who someone knows. No verified reviews, no transaction history, no accountability.</p>
+
+  - elementId: p-big-num
+    elementType: text
+    bounds: [860, 420, 360, 70]
+    content:
+      style: "$bigNumber"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p>30%+</p>
+
+  - elementId: p-big-label
+    elementType: text
+    bounds: [860, 500, 360, 80]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [center, top]
+      text: |
+        <p>of procurement time is spent on coordination, not purchasing</p>
+
+  - elementId: p-pagenum
+    elementType: text
+    bounds: [1160, 670, 60, 30]
+    content:
+      style: "$caption"
+      align: [right, middle]
+      wrap: false
+      text: |
+        <p>04</p>

@@ -156,7 +156,10 @@ export default function BuyerMarketplace() {
       const res = await fetch(`http://${window.location.hostname}:3001/products/marketplace?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (res.ok) setProducts(await res.json());
+      if (res.ok) {
+        const prodData = await res.json();
+        setProducts(Array.isArray(prodData) ? prodData : prodData.data || []);
+      }
     } catch (e) { console.error(e); } finally { setLoading(false); }
   };
 

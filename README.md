@@ -61,3 +61,24 @@ pnpm exec prisma db push
 cd ../..
 pnpm dev
 ```
+
+## Production Deployment
+Corpass comes with production-ready Dockerfiles and a `docker-compose.prod.yml` configuration.
+
+**1. Setup Environment Variables**
+```bash
+cp .env.example .env
+cp apps/backend/.env.example apps/backend/.env
+# Edit the .env files and add secure passwords and JWT secrets
+```
+
+**2. Build and Start Services**
+```bash
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+This will spin up:
+- `db` (MySQL 8.0) on port 3306
+- `backend` (NestJS) on port 3001
+- `web` (Next.js) on port 3000
+- `frontend-admin` (Next.js) on port 3002

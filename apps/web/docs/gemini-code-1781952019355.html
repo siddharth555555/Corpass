@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corpass Supplier Database - NCR</title>
+    <style>
+        /* Core Branding: Clean White & Neon Blue Aesthetic */
+        :root {
+            --neon-blue: #00e5ff;
+            --neon-glow: 0 0 10px rgba(0, 229, 255, 0.5);
+            --dark-bg: #0a0f18;
+            --text-dark: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background-color: #ffffff;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 40px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--dark-bg);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h1 span {
+            color: #00b8cc; /* Deepened neon blue for white background legibility */
+            text-shadow: 0 0 1px var(--neon-blue);
+        }
+
+        /* Neon Blue Interactive Button */
+        button {
+            background-color: var(--dark-bg);
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: var(--neon-glow);
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: var(--neon-blue);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.8);
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--dark-bg);
+            color: var(--neon-blue);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        tr:hover {
+            background-color: #f0f9ff;
+        }
+
+        .id-badge {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Corpass <span>B2B Directory</span></h1>
+        <button onclick="downloadCSV()">Export 200 Suppliers to Excel/CSV</button>
+    </div>
+
+    <table id="supplierTable">
+        <thead>
+            <tr>
+                <th>Supplier ID</th>
+                <th>Company Name</th>
+                <th>Category</th>
+                <th>Product Description</th>
+                <th>Micro-Location (NCR)</th>
+                <th>Email Address</th>
+                <th>Phone Number</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- JavaScript will populate 200 rows here -->
+        </tbody>
+    </table>
+
+    <script>
+        // Seed Data for procedural generation
+        const catData = [
+            { 
+                cat: "Office Furniture", 
+                descs: ["Modular workstations, ergonomic mesh chairs, meeting tables.", "Executive leather seating, boardroom setups, storage compactors.", "Acoustic office pods, motorized standing desks, lobby sofas.", "Cafeteria furniture, steel filing cabinets, custom partition layouts."]
+            },
+            { 
+                cat: "Office Supplies", 
+                descs: ["A4 copy paper reams, premium pens, branded corporate stationery kits.", "Whiteboards, markers, sticky notes, desk organizers.", "Binders, laminating pouches, printer toner cartridges, spiral pads.", "Staplers, punchers, ID card lanyards, highlighters, bulk envelopes."]
+            },
+            { 
+                cat: "Pantry Consumables", 
+                descs: ["Coffee beans, tea bags, sugar sachets, stirrers, dairy creamers.", "Paper cups, biodegradable plates, wooden cutlery, napkins.", "Commercial housekeeping chemicals, hand wash, tissue rolls, trash bags.", "Packaged drinking water jars, bulk biscuits, corporate dry snacks."]
+            },
+            { 
+                cat: "Curtains & Carpets", 
+                descs: ["Commercial nylon carpet tiles (50x50cm), anti-static flooring.", "Motorized roller blinds, UV sun-control corporate fabrics.", "Acoustic wall-to-wall broadloom carpets, commercial vinyl flooring.", "Fire-retardant blackout curtains, automated vertical window blinds."]
+            }
+        ];
+
+        const prefixes = ["Matrix", "Nexus", "Apex", "Prime", "Elite", "Sovereign", "Global", "Pioneer", "Vertex", "Quantum", "CPM", "Hans", "Agroha", "Aarjav", "Anisa", "BlueSky", "Om", "Shanti", "Vanguard", "Summit"];
+        const suffixes = ["Enterprises", "Solutions", "B2B", "Logistics", "Industries", "Furnishings", "Wholesale", "Corp", "Systems", "Traders"];
+        const locations = ["Udyog Vihar Phase 4", "IMT Manesar", "Sohna Road", "Sector 44", "Sector 29", "Golf Course Road", "DLF Phase 3", "Pace City I", "Sector 37", "Noida Sector 63", "Okhla Industrial Area", "Faridabad NIT"];
+
+        let csvContent = "Supplier ID,Company Name,Category,Product Description,Micro-Location,Email Address,Phone Number\n";
+        const tbody = document.getElementById("tableBody");
+
+        // Generate exactly 200 rows
+        for (let i = 1; i <= 200; i++) {
+            // Randomize Data
+            const catObj = catData[i % 4];
+            const category = catObj.cat;
+            const product = catObj.descs[i % 4];
+            const companyName = `${prefixes[i % prefixes.length]} ${suffixes[i % suffixes.length]}`;
+            const location = locations[i % locations.length];
+            const email = `sales@${companyName.toLowerCase().replace(/\s+/g, '')}.in`;
+            
+            // Format 10 digit Indian number
+            const phoneCode = Math.floor(100000 + Math.random() * 900000); 
+            const phone = `+91 9810${phoneCode}`;
+            const supId = `CP-SUP-${String(i).padStart(3, '0')}`;
+
+            // Append to HTML Table
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><span class="id-badge">${supId}</span></td>
+                <td><strong>${companyName}</strong></td>
+                <td>${category}</td>
+                <td>${product}</td>
+                <td>${location}</td>
+                <td><a href="mailto:${email}" style="color:#0284c7; text-decoration:none;">${email}</a></td>
+                <td>${phone}</td>
+            `;
+            tbody.appendChild(tr);
+
+            // Append to CSV string (escape quotes for CSV compliance)
+            csvContent += `"${supId}","${companyName}","${category}","${product}","${location}","${email}","${phone}"\n`;
+        }
+
+        // CSV Export Function
+        function downloadCSV() {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "Corpass_NCR_Suppliers.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

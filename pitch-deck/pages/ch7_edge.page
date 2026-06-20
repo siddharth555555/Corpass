@@ -1,0 +1,51 @@
+pageType: chapter
+background:
+  type: solid
+  color: "$background"
+elements:
+  - elementId: ch7-left-bg
+    elementType: shape
+    bounds: [0, 0, 640, 720]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: ch7-num
+    elementType: text
+    bounds: [60, 260, 520, 100]
+    content:
+      style: "$chapterNum"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>07</p>
+
+  - elementId: ch7-title
+    elementType: text
+    bounds: [700, 280, 520, 50]
+    content:
+      style: "$chapterTitle"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>Competitive Edge</p>
+
+  - elementId: ch7-subtitle
+    elementType: text
+    bounds: [700, 340, 520, 30]
+    content:
+      style: "$subtitle"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>What no other platform does</p>
+
+  - elementId: ch7-line
+    elementType: shape
+    bounds: [700, 390, 60, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 2
+      color: "$copper"

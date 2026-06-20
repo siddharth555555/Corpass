@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { AlertModal, AlertType } from "@/components/ui/AlertModal";
 
 const CATEGORIES = {
   "Office Supplies": ["Paper & Notebooks", "Pens & Writing", "Desk Accessories", "Binders & Folders", "Sticky Notes"],
@@ -79,6 +80,7 @@ function formatPrice(p: any): string {
 
 export default function SellerProductCatalog() {
   const router = useRouter();
+  const [alertConfig, setAlertConfig] = useState<{message: string, type: AlertType} | null>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -103,7 +105,8 @@ export default function SellerProductCatalog() {
         const token = localStorage.getItem("access_token");
         const res = await fetch(`http://${window.location.hostname}:3001/cities?q=${citySearchQuery}`, { headers: { Authorization: `Bearer ${token}` } });
         if (res.ok) {
-          setCitySearchResults(await res.json());
+          const json = await res.json();
+          setCitySearchResults(json.data || json);
         }
       } catch (e) {}
     }, 300);
@@ -133,7 +136,10 @@ export default function SellerProductCatalog() {
 
       const resProducts = await fetch(`http://${window.location.hostname}:3001/products`, { headers: { Authorization: `Bearer ${token}` } });
       
-      if (resProducts.ok) setProducts(await resProducts.json());
+      if (resProducts.ok) {
+        const prodData = await resProducts.json();
+        setProducts(Array.isArray(prodData) ? prodData : prodData.data || []);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -200,7 +206,8 @@ export default function SellerProductCatalog() {
         fetchData();
       } else {
         const err = await res.json();
-        alert(err.message || "Failed to save product");
+        const msg = Array.isArray(err.message) ? err.message.join(', ') : err.message;
+        setAlertConfig({ message: msg || "Failed to save product", type: "error" });
       }
     } catch (e) { console.error(e); } finally { setSubmitting(false); }
   };
@@ -563,7 +570,7 @@ export default function SellerProductCatalog() {
                               const file = e.target.files?.[0];
                               if (!file) return;
                               if (file.size > 5 * 1024 * 1024) {
-                                alert("File size exceeds 5MB limit");
+                                setAlertConfig({ message: "File size exceeds 5MB limit", type: "error" });
                                 return;
                               }
                               
@@ -588,11 +595,12 @@ export default function SellerProductCatalog() {
                                   });
                                 } else {
                                   const err = await res.json();
-                                  alert(err.message || "Failed to upload image");
+                                  const msg = Array.isArray(err.message) ? err.message.join(', ') : err.message;
+                                  setAlertConfig({ message: msg || "Failed to upload image", type: "error" });
                                 }
                               } catch (err) {
                                 console.error(err);
-                                alert("An error occurred during upload");
+                                setAlertConfig({ message: "An error occurred during upload", type: "error" });
                               }
                             }}
                           />
@@ -610,6 +618,13 @@ export default function SellerProductCatalog() {
           </div>
         </div>
       )}
+
+      <AlertModal 
+        isOpen={!!alertConfig} 
+        message={alertConfig?.message || ''} 
+        type={alertConfig?.type || 'error'} 
+        onClose={() => setAlertConfig(null)} 
+      />
     </div>
   );
 }

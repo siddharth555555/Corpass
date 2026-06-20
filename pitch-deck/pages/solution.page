@@ -1,0 +1,293 @@
+pageType: content
+background:
+  type: solid
+  color: "$background"
+elements:
+  - elementId: s-title
+    elementType: text
+    bounds: [60, 50, 1100, 45]
+    content:
+      style: "$title"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>Corpass: Procurement + Asset Management in One Flow</p>
+
+  - elementId: s-line
+    elementType: shape
+    bounds: [60, 105, 80, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 2
+      color: "$copper"
+
+  - elementId: s-step1-num
+    elementType: shape
+    bounds: [60, 150, 40, 40]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: s-step1-num-text
+    elementType: text
+    bounds: [60, 150, 40, 40]
+    content:
+      fontSize: 18
+      color: "#ffffff"
+      fontFamily: "Liter"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p>1</p>
+
+  - elementId: s-step1-title
+    elementType: text
+    bounds: [115, 150, 200, 25]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Discover</strong></p>
+
+  - elementId: s-step1-body
+    elementType: text
+    bounds: [115, 180, 200, 60]
+    content:
+      fontSize: 14
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Browse verified sellers across 12+ categories with ratings and reviews</p>
+
+  - elementId: s-conn1
+    elementType: shape
+    bounds: [330, 168, 60, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 1
+      color: "$border"
+
+  - elementId: s-step2-num
+    elementType: shape
+    bounds: [400, 150, 40, 40]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: s-step2-num-text
+    elementType: text
+    bounds: [400, 150, 40, 40]
+    content:
+      fontSize: 18
+      color: "#ffffff"
+      fontFamily: "Liter"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p>2</p>
+
+  - elementId: s-step2-title
+    elementType: text
+    bounds: [455, 150, 200, 25]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Negotiate</strong></p>
+
+  - elementId: s-step2-body
+    elementType: text
+    bounds: [455, 180, 200, 60]
+    content:
+      fontSize: 14
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Send structured RFQs with threaded messaging and counter-offers</p>
+
+  - elementId: s-conn2
+    elementType: shape
+    bounds: [670, 168, 60, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 1
+      color: "$border"
+
+  - elementId: s-step3-num
+    elementType: shape
+    bounds: [740, 150, 40, 40]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: s-step3-num-text
+    elementType: text
+    bounds: [740, 150, 40, 40]
+    content:
+      fontSize: 18
+      color: "#ffffff"
+      fontFamily: "Liter"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p>3</p>
+
+  - elementId: s-step3-title
+    elementType: text
+    bounds: [795, 150, 200, 25]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Purchase</strong></p>
+
+  - elementId: s-step3-body
+    elementType: text
+    bounds: [795, 180, 200, 60]
+    content:
+      fontSize: 14
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Place orders with clear status tracking and payment records</p>
+
+  - elementId: s-conn3
+    elementType: shape
+    bounds: [1010, 168, 60, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 1
+      color: "$border"
+
+  - elementId: s-step4-num
+    elementType: shape
+    bounds: [1080, 150, 40, 40]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: s-step4-num-text
+    elementType: text
+    bounds: [1080, 150, 40, 40]
+    content:
+      fontSize: 18
+      color: "#ffffff"
+      fontFamily: "Liter"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p>4</p>
+
+  - elementId: s-step4-title
+    elementType: text
+    bounds: [1135, 150, 145, 25]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Track</strong></p>
+
+  - elementId: s-step4-body
+    elementType: text
+    bounds: [1135, 180, 145, 60]
+    content:
+      fontSize: 14
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Every item auto-logs into your asset dashboard</p>
+
+  - elementId: s-insight-bg
+    elementType: shape
+    bounds: [60, 300, 1160, 180]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: s-insight-label
+    elementType: text
+    bounds: [90, 320, 200, 25]
+    content:
+      fontSize: 12
+      color: "$copper"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      letterSpacing: 2
+      text: |
+        <p>CORE INSIGHT</p>
+
+  - elementId: s-insight-text
+    elementType: text
+    bounds: [90, 360, 1100, 100]
+    content:
+      fontSize: 22
+      color: "$ink"
+      fontFamily: "Oranienbaum"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Procurement doesn't end at delivery. It ends when you know what you own, where it is, and what condition it's in.</p>
+
+  - elementId: s-detail1
+    elementType: text
+    bounds: [60, 520, 540, 100]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.6
+      align: [left, top]
+      text: |
+        <p><strong style="color:$ink;">For Buyers:</strong> One dashboard for orders, payments, invoices, and assets. No more spreadsheets.</p>
+
+  - elementId: s-detail2
+    elementType: text
+    bounds: [640, 520, 580, 100]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.6
+      align: [left, top]
+      text: |
+        <p><strong style="color:$ink;">For Sellers:</strong> A new channel for corporate buyers. Verified transactions build reputation. Commission-only pricing.</p>
+
+  - elementId: s-pagenum
+    elementType: text
+    bounds: [1160, 670, 60, 30]
+    content:
+      style: "$caption"
+      align: [right, middle]
+      wrap: false
+      text: |
+        <p>06</p>

@@ -115,3 +115,11 @@
 
 /* ---- Avatar --------------------------------------------------------------- */
 .cp-avatar { width: 36px; height: 36px; border-radius: var(--cp-radius-pill); background: var(--cp-brand-100); color: var(--cp-brand-700); display: inline-flex; align-items: center; justify-content: center; font-weight: var(--cp-fw-semibold); font-size: var(--cp-text-sm); }
+
+/* ---- Modals ------------------------------------------------------------- */
+.cp-modal {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: var(--cp-radius-xl);
+  box-shadow: var(--cp-shadow-lg);
+}

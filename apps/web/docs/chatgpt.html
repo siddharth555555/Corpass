@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Corpass Business Launch Guide</title>
+<style>
+body{font-family:Inter,Arial;background:#0b1020;color:#eef; margin:0}
+.hero{padding:48px;background:linear-gradient(135deg,#111b44,#1c5cff)}
+.container{max-width:1100px;margin:auto;padding:24px}
+.card{background:#131a31;border-radius:18px;padding:20px;margin:18px 0;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.step{cursor:pointer}.content{display:none;margin-top:12px}.step.active .content{display:block}
+.badge{background:#2949ff;padding:6px 10px;border-radius:999px}
+button{background:#4b7cff;color:white;border:0;padding:10px 14px;border-radius:10px}
+input[type=range]{width:100%}
+.progress{height:12px;background:#222;border-radius:99px}.fill{height:100%;width:0;background:#63e}
+</style></head>
+<body>
+<div class='hero'><div class='container'><h1>Corpass — Go-To-Market & Onboarding Playbook</h1><p>Interactive founder guide: from zero → first users → operational scale.</p></div></div>
+<div class='container'>
+<div class='card'><h2>Stage Tracker</h2><input id='r' type='range' min='0' max='6' value='0'><div class='progress'><div id='f' class='fill'></div></div><p id='label'></p></div>
+<script>
+const stages=['Validate','Seed Supply','Pilot Buyers','Close Loop','Automate','Scale','Expand'];
+function upd(){let v=r.value;f.style.width=(v/6*100)+'%';label.innerText='Current focus: '+stages[v]}
+r.oninput=upd;upd();
+</script>
+<div class='card'><h2>Business Order</h2>
+<p><b>Don't launch marketplace-first.</b> Launch transaction-first.</p></div>
+<div class='step card' onclick='this.classList.toggle("active")'><h3>1. Choose one wedge</h3><div class='content'>Pick ONE category: office supplies, IT procurement, furniture, etc. Target one city and one buyer profile.</div></div>
+<div class='step card' onclick='this.classList.toggle("active")'><h3>2. Onboard sellers first</h3><div class='content'>Recruit 10–20 suppliers manually. Upload catalog for them. Offer white-glove onboarding.</div></div>
+<div class='step card' onclick='this.classList.toggle("active")'><h3>3. Acquire buyers manually</h3><div class='content'>Find 5–10 companies. Run procurement via WhatsApp + Corpass backend until patterns stabilize.</div></div>
+<div class='step card' onclick='this.classList.toggle("active")'><h3>4. Force RFQ usage</h3><div class='content'>Don't optimize checkout. Optimize quote → order conversion.</div></div>
+<div class='step card' onclick='this.classList.toggle("active")'><h3>5. Build trust loops</h3><div class='content'>Payment ledger → invoice → asset auto-log → review.</div></div>
+<div class='card'><h2>30 Day Execution</h2><ol><li>Week 1: 15 suppliers</li><li>Week 2: 5 buyers</li><li>Week 3: 20 completed RFQs</li><li>Week 4: First repeat buyer</li></ol></div>
+<div class='card'><h2>North Star Metrics</h2><ul><li>RFQ→Order %</li><li>Repeat Buyers</li><li>Seller Activation</li><li>GMV</li><li>Asset Logging Rate</li></ul></div>
+</div></body></html>

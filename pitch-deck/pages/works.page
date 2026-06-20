@@ -1,0 +1,413 @@
+pageType: content
+background:
+  type: solid
+  color: "$background"
+elements:
+  - elementId: w-title
+    elementType: text
+    bounds: [60, 50, 1100, 45]
+    content:
+      style: "$title"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>The Order Lifecycle: Transparent, Negotiable, Accountable</p>
+
+  - elementId: w-line
+    elementType: shape
+    bounds: [60, 105, 80, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 2
+      color: "$copper"
+
+  - elementId: w-step1-bg
+    elementType: shape
+    bounds: [60, 140, 150, 180]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: w-step1-num
+    elementType: text
+    bounds: [60, 150, 150, 36]
+    content:
+      fontSize: 28
+      color: "$copper"
+      fontFamily: "Oranienbaum"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p>01</p>
+
+  - elementId: w-step1-title
+    elementType: text
+    bounds: [70, 195, 130, 25]
+    content:
+      fontSize: 16
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p><strong>PLACED</strong></p>
+
+  - elementId: w-step1-body
+    elementType: text
+    bounds: [70, 225, 130, 80]
+    content:
+      fontSize: 13
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.4
+      align: [center, top]
+      text: |
+        <p>Buyer places order or sends an inquiry</p>
+
+  - elementId: w-conn1
+    elementType: shape
+    bounds: [220, 225, 30, 0]
+    shapeName: straightConnector1
+    arrow: [null, "arrow"]
+    border:
+      style: solid
+      width: 1
+      color: "$copper"
+
+  - elementId: w-step2-bg
+    elementType: shape
+    bounds: [260, 140, 150, 180]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: w-step2-num
+    elementType: text
+    bounds: [260, 150, 150, 36]
+    content:
+      fontSize: 28
+      color: "$copper"
+      fontFamily: "Oranienbaum"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p>02</p>
+
+  - elementId: w-step2-title
+    elementType: text
+    bounds: [270, 195, 130, 25]
+    content:
+      fontSize: 16
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p><strong>COUNTER</strong></p>
+
+  - elementId: w-step2-body
+    elementType: text
+    bounds: [270, 225, 130, 80]
+    content:
+      fontSize: 13
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.4
+      align: [center, top]
+      text: |
+        <p>Negotiate price and quantity until both agree</p>
+
+  - elementId: w-conn2
+    elementType: shape
+    bounds: [420, 225, 30, 0]
+    shapeName: straightConnector1
+    arrow: [null, "arrow"]
+    border:
+      style: solid
+      width: 1
+      color: "$copper"
+
+  - elementId: w-step3-bg
+    elementType: shape
+    bounds: [460, 140, 150, 180]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: w-step3-num
+    elementType: text
+    bounds: [460, 150, 150, 36]
+    content:
+      fontSize: 28
+      color: "#ffffff"
+      fontFamily: "Oranienbaum"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p>03</p>
+
+  - elementId: w-step3-title
+    elementType: text
+    bounds: [470, 195, 130, 25]
+    content:
+      fontSize: 16
+      color: "#ffffff"
+      fontFamily: "Liter"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p><strong>CONFIRMED</strong></p>
+
+  - elementId: w-step3-body
+    elementType: text
+    bounds: [470, 225, 130, 80]
+    content:
+      fontSize: 13
+      color: "#ffffff"
+      fontFamily: "Liter"
+      lineHeight: 1.4
+      align: [center, top]
+      text: |
+        <p>Seller accepts. Order is locked and binding.</p>
+
+  - elementId: w-conn3
+    elementType: shape
+    bounds: [620, 225, 30, 0]
+    shapeName: straightConnector1
+    arrow: [null, "arrow"]
+    border:
+      style: solid
+      width: 1
+      color: "$copper"
+
+  - elementId: w-step4-bg
+    elementType: shape
+    bounds: [660, 140, 150, 180]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: w-step4-num
+    elementType: text
+    bounds: [660, 150, 150, 36]
+    content:
+      fontSize: 28
+      color: "$copper"
+      fontFamily: "Oranienbaum"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p>04</p>
+
+  - elementId: w-step4-title
+    elementType: text
+    bounds: [670, 195, 130, 25]
+    content:
+      fontSize: 16
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p><strong>SHIPPED</strong></p>
+
+  - elementId: w-step4-body
+    elementType: text
+    bounds: [670, 225, 130, 80]
+    content:
+      fontSize: 13
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.4
+      align: [center, top]
+      text: |
+        <p>Stock auto-deducts. Buyer gets notified.</p>
+
+  - elementId: w-conn4
+    elementType: shape
+    bounds: [820, 225, 30, 0]
+    shapeName: straightConnector1
+    arrow: [null, "arrow"]
+    border:
+      style: solid
+      width: 1
+      color: "$copper"
+
+  - elementId: w-step5-bg
+    elementType: shape
+    bounds: [860, 140, 150, 180]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$money"
+
+  - elementId: w-step5-num
+    elementType: text
+    bounds: [860, 150, 150, 36]
+    content:
+      fontSize: 28
+      color: "#ffffff"
+      fontFamily: "Oranienbaum"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p>05</p>
+
+  - elementId: w-step5-title
+    elementType: text
+    bounds: [870, 195, 130, 25]
+    content:
+      fontSize: 16
+      color: "#ffffff"
+      fontFamily: "Liter"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p><strong>DELIVERED</strong></p>
+
+  - elementId: w-step5-body
+    elementType: text
+    bounds: [870, 225, 130, 80]
+    content:
+      fontSize: 13
+      color: "#ffffff"
+      fontFamily: "Liter"
+      lineHeight: 1.4
+      align: [center, top]
+      text: |
+        <p>Invoice auto-generates. Asset auto-logs.</p>
+
+  - elementId: w-conn5
+    elementType: shape
+    bounds: [1020, 225, 30, 0]
+    shapeName: straightConnector1
+    arrow: [null, "arrow"]
+    border:
+      style: solid
+      width: 1
+      color: "$copper"
+
+  - elementId: w-step6-bg
+    elementType: shape
+    bounds: [1060, 140, 160, 180]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: w-step6-num
+    elementType: text
+    bounds: [1060, 150, 160, 36]
+    content:
+      fontSize: 28
+      color: "$copper"
+      fontFamily: "Oranienbaum"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p>06</p>
+
+  - elementId: w-step6-title
+    elementType: text
+    bounds: [1070, 195, 140, 25]
+    content:
+      fontSize: 16
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p><strong>PAYMENT</strong></p>
+
+  - elementId: w-step6-body
+    elementType: text
+    bounds: [1070, 225, 140, 80]
+    content:
+      fontSize: 13
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.4
+      align: [center, top]
+      text: |
+        <p>Buyer records UTR. Seller acknowledges.</p>
+
+  - elementId: w-payment-bg
+    elementType: shape
+    bounds: [60, 370, 1160, 120]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: w-payment-title
+    elementType: text
+    bounds: [80, 385, 300, 25]
+    content:
+      fontSize: 14
+      color: "$copper"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      letterSpacing: 2
+      text: |
+        <p>PAYMENT TRUST LEDGER</p>
+
+  - elementId: w-payment-body
+    elementType: text
+    bounds: [80, 420, 1120, 55]
+    content:
+      fontSize: 16
+      color: "$ink"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Buyers pay sellers directly via bank transfer or UPI. The platform records the transaction with UTR. Both parties have a shared, immutable record of every payment — acknowledged or disputed. Zero ambiguity.</p>
+
+  - elementId: w-review-bg
+    elementType: shape
+    bounds: [60, 520, 1160, 120]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: w-review-title
+    elementType: text
+    bounds: [80, 535, 300, 25]
+    content:
+      fontSize: 14
+      color: "$copper"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      letterSpacing: 2
+      text: |
+        <p>VERIFIED REVIEWS</p>
+
+  - elementId: w-review-body
+    elementType: text
+    bounds: [80, 570, 1120, 55]
+    content:
+      fontSize: 16
+      color: "$ink"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>After delivery, both parties rate each other. Reviews are tied to real orders, not anonymous profiles. This builds trust for the next transaction.</p>
+
+  - elementId: w-pagenum
+    elementType: text
+    bounds: [1160, 670, 60, 30]
+    content:
+      style: "$caption"
+      align: [right, middle]
+      wrap: false
+      text: |
+        <p>12</p>

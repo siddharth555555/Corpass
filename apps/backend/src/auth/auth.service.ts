@@ -101,23 +101,6 @@ export class AuthService {
     });
 
     if (!user) {
-      if (identifier === 'admin' && pass === 'admin') {
-        const hashedPassword = await bcrypt.hash('admin', 10);
-        await this.prisma.user.create({
-          data: {
-            name: 'System Admin',
-            loginId: 'admin',
-            email: 'admin@corpass.in',
-            mobile: '0000000000',
-            password: hashedPassword,
-            address: 'HQ',
-            city: 'Delhi',
-            pincode: '110001',
-            role: 'ADMIN' as any,
-          }
-        });
-        return this.login('admin', 'admin', role);
-      }
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -204,5 +187,25 @@ export class AuthService {
     });
     delete updatedUser.password;
     return updatedUser;
+  }
+
+  async changePassword(userId: number, changePasswordDto: any) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const isMatch = await bcrypt.compare(changePasswordDto.oldPassword, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('Invalid old password');
+    }
+
+    const hashedNewPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedNewPassword }
+    });
+
+    return { message: 'Password changed successfully' };
   }
 }

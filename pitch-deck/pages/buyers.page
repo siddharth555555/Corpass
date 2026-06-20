@@ -1,0 +1,265 @@
+pageType: content
+background:
+  type: solid
+  color: "$background"
+elements:
+  - elementId: b-title
+    elementType: text
+    bounds: [60, 50, 1100, 45]
+    content:
+      style: "$title"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>Buyers: One Place for Everything Your Business Needs</p>
+
+  - elementId: b-line
+    elementType: shape
+    bounds: [60, 105, 80, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 2
+      color: "$copper"
+
+  - elementId: b-card1-bg
+    elementType: shape
+    bounds: [60, 140, 360, 240]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: b-icon1
+    elementType: icon
+    bounds: [80, 160, 24, 24]
+    iconName: "fas:store"
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: b-card1-title
+    elementType: text
+    bounds: [80, 200, 320, 28]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Verified Marketplace</strong></p>
+
+  - elementId: b-card1-body
+    elementType: text
+    bounds: [80, 236, 320, 120]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>12+ categories. View seller ratings, GSTIN, delivery range, and company profile before you inquire.</p>
+
+  - elementId: b-card2-bg
+    elementType: shape
+    bounds: [460, 140, 360, 240]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: b-icon2
+    elementType: icon
+    bounds: [480, 160, 24, 24]
+    iconName: "fas:comments"
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: b-card2-title
+    elementType: text
+    bounds: [480, 200, 320, 28]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Structured RFQs</strong></p>
+
+  - elementId: b-card2-body
+    elementType: text
+    bounds: [480, 236, 320, 120]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Quote, feasibility, or availability requests. Threaded messaging with counter-offers until both sides agree.</p>
+
+  - elementId: b-card3-bg
+    elementType: shape
+    bounds: [860, 140, 360, 240]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: b-icon3
+    elementType: icon
+    bounds: [880, 160, 24, 24]
+    iconName: "fas:truck-fast"
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: b-card3-title
+    elementType: text
+    bounds: [880, 200, 320, 28]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Order Tracking</strong></p>
+
+  - elementId: b-card3-body
+    elementType: text
+    bounds: [880, 236, 320, 120]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>PLACED → CONFIRMED → SHIPPED → DELIVERED. Real-time status. No more phone calls to check where your order is.</p>
+
+  - elementId: b-card4-bg
+    elementType: shape
+    bounds: [60, 410, 360, 240]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: b-icon4
+    elementType: icon
+    bounds: [80, 430, 24, 24]
+    iconName: "fas:receipt"
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: b-card4-title
+    elementType: text
+    bounds: [80, 470, 320, 28]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Payment Trust</strong></p>
+
+  - elementId: b-card4-body
+    elementType: text
+    bounds: [80, 506, 320, 120]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Record payments with UTR. Seller acknowledges or disputes. Shared ledger means zero ambiguity on who paid what.</p>
+
+  - elementId: b-card5-bg
+    elementType: shape
+    bounds: [460, 410, 360, 240]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: b-icon5
+    elementType: icon
+    bounds: [480, 430, 24, 24]
+    iconName: "fas:boxes-stacked"
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: b-card5-title
+    elementType: text
+    bounds: [480, 470, 320, 28]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Asset Dashboard</strong></p>
+
+  - elementId: b-card5-body
+    elementType: text
+    bounds: [480, 506, 320, 120]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Every delivered item auto-logs. Track condition, location, and lifecycle. Never lose track of what you own.</p>
+
+  - elementId: b-card6-bg
+    elementType: shape
+    bounds: [860, 410, 360, 240]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: b-card6-title
+    elementType: text
+    bounds: [880, 470, 320, 70]
+    content:
+      fontSize: 22
+      color: "#ffffff"
+      fontFamily: "Oranienbaum"
+      lineHeight: 1.4
+      align: [left, middle]
+      text: |
+        <p>Ready to streamline your procurement?</p>
+
+  - elementId: b-card6-cta
+    elementType: text
+    bounds: [880, 550, 320, 40]
+    content:
+      fontSize: 16
+      color: "#ffffff"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>Request a demo →</p>
+
+  - elementId: b-pagenum
+    elementType: text
+    bounds: [1160, 670, 60, 30]
+    content:
+      style: "$caption"
+      align: [right, middle]
+      wrap: false
+      text: |
+        <p>08</p>

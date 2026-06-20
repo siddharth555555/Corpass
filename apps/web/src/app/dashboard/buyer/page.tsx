@@ -29,8 +29,8 @@ export default function BuyerDashboardOverview() {
 
         let orders = [];
         let invoices = [];
-        if (oRes.ok) orders = await oRes.json();
-        if (iRes.ok) invoices = await iRes.json();
+        if (oRes.ok) { const oData = await oRes.json(); orders = Array.isArray(oData) ? oData : oData.data || []; }
+        if (iRes.ok) { const iData = await iRes.json(); invoices = Array.isArray(iData) ? iData : iData.data || []; }
 
         const totalSpend = orders.filter((o: any) => o.status !== 'CANCELLED').reduce((acc: number, o: any) => acc + Number(o.totalAmount), 0);
         const activeOrders = orders.filter((o: any) => ['PLACED', 'CONFIRMED', 'SHIPPED'].includes(o.status)).length;

@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { AlertModal, AlertType } from "@/components/ui/AlertModal";
 
 export default function BuyerProfile() {
   const router = useRouter();
+  const [alertConfig, setAlertConfig] = useState<{message: string, type: AlertType} | null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [reviews, setReviews] = useState<any[]>([]);
@@ -14,6 +16,11 @@ export default function BuyerProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<any>({});
   const [saving, setSaving] = useState(false);
+  
+  // Password Modal State
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [pwdForm, setPwdForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [pwdLoading, setPwdLoading] = useState(false);
 
   const fetchProfile = async () => {
     try {
@@ -74,6 +81,40 @@ export default function BuyerProfile() {
     } catch (e) { console.error(e); } finally { setSaving(false); }
   };
 
+  const handlePasswordChange = async (e: any) => {
+    e.preventDefault();
+    if (pwdForm.newPassword !== pwdForm.confirmPassword) {
+      setAlertConfig({ message: "Passwords do not match", type: "error" });
+      return;
+    }
+    setPwdLoading(true);
+    try {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch(`http://${window.location.hostname}:3001/auth/change-password`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          oldPassword: pwdForm.currentPassword,
+          newPassword: pwdForm.newPassword
+        })
+      });
+      if (res.ok) {
+        setIsChangingPassword(false);
+        setPwdForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setAlertConfig({ message: "Password changed successfully", type: "success" });
+      } else {
+        const data = await res.json();
+        const msg = Array.isArray(data.message) ? data.message.join(', ') : data.message;
+        setAlertConfig({ message: msg || "Failed to change password", type: "error" });
+      }
+    } catch (e) {
+      console.error(e);
+      setAlertConfig({ message: "An error occurred", type: "error" });
+    } finally {
+      setPwdLoading(false);
+    }
+  };
+
   if (loading) {
     return <div className="py-16 flex items-center justify-center bg-surface border border-border rounded-xl">
       <svg className="animate-spin h-6 w-6 text-brand-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -87,9 +128,14 @@ export default function BuyerProfile() {
           <h2 className="text-[28px] font-bold text-ink tracking-tight">Profile</h2>
           <p className="text-sm text-muted mt-1">Manage your corporate identity and billing details.</p>
         </div>
-        <button onClick={() => setIsEditing(true)} className="cp-btn cp-btn--secondary shadow-sm">
-          Edit Profile
-        </button>
+        <div className="flex gap-3">
+          <button onClick={() => setIsChangingPassword(true)} className="cp-btn cp-btn--neutral shadow-sm text-sm">
+            Change Password
+          </button>
+          <button onClick={() => setIsEditing(true)} className="cp-btn cp-btn--secondary shadow-sm">
+            Edit Profile
+          </button>
+        </div>
       </div>
 
       <div className="cp-card">
@@ -319,6 +365,47 @@ export default function BuyerProfile() {
           </div>
         </div>
       )}
+
+      {isChangingPassword && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div className="fixed inset-0 bg-ink/30 backdrop-blur-sm transition-opacity" onClick={() => setIsChangingPassword(false)}></div>
+          <div className="relative w-full max-w-md bg-surface rounded-xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200 overflow-hidden border border-border">
+            <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-surface z-10 shrink-0">
+              <h2 className="text-[18px] font-bold text-ink tracking-tight">Change Password</h2>
+              <button onClick={() => setIsChangingPassword(false)} className="h-8 w-8 rounded-full bg-surface-2 flex items-center justify-center text-muted hover:text-ink hover:bg-border transition-colors">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <form onSubmit={handlePasswordChange} className="p-6 space-y-5 bg-canvas">
+              <div>
+                <label className="block text-[13px] font-semibold text-ink mb-1.5">Current Password</label>
+                <input value={pwdForm.currentPassword} onChange={e => setPwdForm({...pwdForm, currentPassword: e.target.value})} type="password" required className="cp-input w-full text-[13px]" />
+              </div>
+              <div>
+                <label className="block text-[13px] font-semibold text-ink mb-1.5">New Password</label>
+                <input value={pwdForm.newPassword} onChange={e => setPwdForm({...pwdForm, newPassword: e.target.value})} type="password" required minLength={6} className="cp-input w-full text-[13px]" />
+              </div>
+              <div>
+                <label className="block text-[13px] font-semibold text-ink mb-1.5">Confirm New Password</label>
+                <input value={pwdForm.confirmPassword} onChange={e => setPwdForm({...pwdForm, confirmPassword: e.target.value})} type="password" required minLength={6} className="cp-input w-full text-[13px]" />
+              </div>
+              <div className="pt-4 flex justify-end gap-3 mt-4">
+                <button type="button" onClick={() => setIsChangingPassword(false)} className="cp-btn cp-btn--secondary">Cancel</button>
+                <button type="submit" disabled={pwdLoading} className="cp-btn cp-btn--primary min-w-[100px] flex items-center justify-center">
+                  {pwdLoading ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <AlertModal 
+        isOpen={!!alertConfig} 
+        message={alertConfig?.message || ''} 
+        type={alertConfig?.type || 'error'} 
+        onClose={() => setAlertConfig(null)} 
+      />
     </div>
   );
 }

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corpass Implementation & Onboarding Interactive Blueprint</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans min-h-screen flex flex-col">
+
+    <header class="bg-slate-950 text-white border-b border-slate-800 sticky top-0 z-50 px-6 py-4 shadow-md flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 p-2 rounded-lg text-white">
+                <i data-lucide="layers" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight">Corpass</h1>
+                <p class="text-xs text-slate-400 font-medium">B2B Core Strategy & Implementation Hub</p>
+            </div>
+        </div>
+        <div class="text-xs bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700 text-slate-300">
+            <strong>Target Market:</strong> Indian SMB / Enterprise Market (GST Native)
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <aside class="w-72 bg-slate-900 text-slate-300 border-r border-slate-800 flex flex-col justify-between">
+            <div class="p-4 space-y-6">
+                <div>
+                    <span class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">Operational Playbooks</span>
+                    <nav class="space-y-1">
+                        <button onclick="switchTab('business-flow')" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-blue-600 text-white" id="btn-business-flow">
+                            <i data-lucide="git-branch" class="w-4 h-4"></i>
+                            <span>1. Architecture Blueprint</span>
+                        </button>
+                        <button onclick="switchTab('implementation')" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white" id="btn-implementation">
+                            <i data-lucide="milestone" class="w-4 h-4"></i>
+                            <span>2. Step-by-Step Implementation</span>
+                        </button>
+                        <button onclick="switchTab('onboarding')" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white" id="btn-onboarding">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                            <span>3. User Onboarding Strategy</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <div>
+                    <span class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">Interactive Simulations</span>
+                    <nav class="space-y-1">
+                        <button onclick="switchTab('sandbox')" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white" id="btn-sandbox">
+                            <i data-lucide="terminal" class="w-4 h-4"></i>
+                            <span>Workflow Sandbox</span>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-800 bg-slate-950 text-xs text-slate-500 text-center">
+                Corpass Guide &bull; Version 1.1
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto bg-slate-50 p-8">
+            
+            <div id="business-flow" class="tab-content active space-y-8">
+                <div class="border-b border-slate-200 pb-4">
+                    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Core Architecture & Business Logic Engine</h2>
+                    <p class="text-slate-500 mt-1">Understanding the fundamental data models and state machines driving Corpass.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center space-x-3 mb-4 text-blue-600">
+                            <i data-lucide="shield-check" class="w-5 h-5"></i>
+                            <h3 class="font-bold text-slate-900">1. Strict Structural Separation</h3>
+                        </div>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            A primary constraint of the ecosystem is role isolation: a entity is registered strictly as a <strong>Buyer</strong> or a <strong>Seller</strong>. Buyers mapped directly to corporate accounts require full operational criteria, while Sellers map directly to individual merchant/vendor nodes backed by Indian tax validations (**GSTIN**).
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center space-x-3 mb-4 text-emerald-600">
+                            <i data-lucide="handshake" class="w-5 h-5"></i>
+                            <h3 class="font-bold text-slate-900">2. The Trust Ledger Engine</h3>
+                        </div>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            B2B procurement utilizes high-ticket bank wire clearing mechanisms (**NEFT, RTGS, IMPS, UPI**). Instead of complex, cost-inefficient traditional B2C merchant routing layers, Corpass integrates a double-entry <strong>Trust Ledger verification mechanism</strong> linking immutable Unique Transaction References (UTR).
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center space-x-3 mb-4 text-purple-600">
+                            <i data-lucide="package-check" class="w-5 h-5"></i>
+                            <h3 class="font-bold text-slate-900">3. Continuous Lifecycle</h3>
+                        </div>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            Traditional architectures decouple orders from company asset mapping. Corpass introduces programmatic synchronization: structural transition to a <code class="text-xs bg-slate-100 text-slate-800 px-1 py-0.5 rounded font-mono font-bold">DELIVERED</code> state automatically initializes and provisions internal company hardware dashboards.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-slate-900 px-6 py-4 text-white flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="git-commit" class="w-5 h-5 text-blue-400"></i>
+                            <h3 class="font-bold">System Architecture: Order State Machine Transitions</h3>
+                        </div>
+                    </div>
+                    <div class="p-6 overflow-x-auto bg-slate-950">
+                        <div class="min-w-[800px] flex items-center justify-between py-6 px-4">
+                            <div class="flex flex-col items-center w-40 text-center">
+                                <div class="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500 flex items-center justify-center text-blue-400 font-mono text-xs font-bold shadow-lg shadow-blue-500/20">01</div>
+                                <span class="text-xs font-bold text-slate-300 mt-2">PLACED</span>
+                                <span class="text-[10px] text-slate-500 mt-1">Initial client checkout initialization</span>
+                            </div>
+                            
+                            <div class="h-0.5 flex-1 bg-slate-800 mx-2 relative"><div class="absolute inset-0 bg-blue-500 w-1/2"></div></div>
+
+                            <div class="flex flex-col items-center w-40 text-center">
+                                <div class="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500 flex items-center justify-center text-amber-400 font-mono text-xs font-bold">02</div>
+                                <span class="text-xs font-bold text-slate-300 mt-2">NEGOTIATING / COUNTER</span>
+                                <span class="text-[10px] text-slate-500 mt-1">Bilateral quote modifications</span>
+                            </div>
+
+                            <div class="h-0.5 flex-1 bg-slate-800 mx-2"></div>
+
+                            <div class="flex flex-col items-center w-40 text-center">
+                                <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500 flex items-center justify-center text-emerald-400 font-mono text-xs font-bold">03</div>
+                                <span class="text-xs font-bold text-slate-300 mt-2">CONFIRMED</span>
+                                <span class="text-[10px] text-slate-500 mt-1">Terms locking & advance verification</span>
+                            </div>
+
+                            <div class="h-0.5 flex-1 bg-slate-800 mx-2"></div>
+
+                            <div class="flex flex-col items-center w-40 text-center">
+                                <div class="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500 flex items-center justify-center text-purple-400 font-mono text-xs font-bold">04</div>
+                                <span class="text-xs font-bold text-slate-300 mt-2">SHIPPED</span>
+                                <span class="text-[10px] text-slate-500 mt-1">Inventory inventory pool extraction</span>
+                            </div>
+
+                            <div class="h-0.5 flex-1 bg-slate-800 mx-2"></div>
+
+                            <div class="flex flex-col items-center w-40 text-center">
+                                <div class="w-10 h-10 rounded-full bg-blue-600 border border-blue-400 flex items-center justify-center text-white font-mono text-xs font-bold shadow-lg shadow-blue-500/30">05</div>
+                                <span class="text-xs font-bold text-emerald-400 mt-2">DELIVERED</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Auto triggers asset logging & automated invoicing</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="implementation" class="tab-content space-y-8">
+                <div class="border-b border-slate-200 pb-4">
+                    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Technical & Operational Launch Implementation</h2>
+                    <p class="text-slate-500 mt-1">Chronological roadmap mapping phase development to launch ready architecture.</p>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex items-start space-x-4">
+                        <div class="bg-blue-100 text-blue-700 font-bold px-3 py-1.5 rounded-lg text-sm font-mono mt-1">PHASE 1</div>
+                        <div class="flex-1">
+                            <h3 class="text-base font-bold text-slate-900">Database Constraints & Baseline Infrastructure (Weeks 1-2)</h3>
+                            <p class="text-sm text-slate-600 mt-1">Establish fundamental constraints directly inside the data layer using Prisma schemas & relational rules.</p>
+                            <ul class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-600">
+                                <li class="flex items-center space-x-2"><i data-lucide="check" class="w-3.5 h-3.5 text-blue-500"></i> <span>Enforce discrete user role validation parameters</span></li>
+                                <li class="flex items-center space-x-2"><i data-lucide="check" class="w-3.5 h-3.5 text-blue-500"></i> <span>Initialize geographic database tracking (Haversine indexing)</span></li>
+                                <li class="flex items-center space-x-2"><i data-lucide="check" class="w-3.5 h-3.5 text-blue-500"></i> <span>Construct atomic stock control mutations</span></li>
+                                <li class="flex items-center space-x-2"><i data-lucide="check" class="w-3.5 h-3.5 text-blue-500"></i> <span>Seed structural admin security nodes via secure script layers</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex items-start space-x-4">
+                        <div class="bg-amber-100 text-amber-700 font-bold px-3 py-1.5 rounded-lg text-sm font-mono mt-1">PHASE 2</div>
+                        <div class="flex-1">
+                            <h3 class="text-base font-bold text-slate-900">Core Workflow & Interaction Interfaces (Weeks 3-4)</h3>
+                            <p class="text-sm text-slate-600 mt-1">Deploy transaction pipelines, pricing variables, structural negotiations, and state changes.</p>
+                            <ul class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-600">
+                                <li class="flex items-center space-x-2"><i data-lucide="check" class="w-3.5 h-3.5 text-amber-500"></i> <span>Build flexible multi-unit catalogs (24 distinct variants)</span></li>
+                                <li class="flex items-center space-x-2"><i data-lucide="check" class="w-3.5 h-3.5 text-amber-500"></i> <span>Integrate sequential asynchronous state machines</span></li>
+                                <li class="flex items-center space-x-2"><i data-lucide="check" class="w-3.5 h-3.5 text-amber-500"></i> <span>Build asynchronous interaction routing engines</span></li>
+                                <li class="flex items-center space-x-2"><i data-lucide="check" class="w-3.5 h-3.5 text-amber-500"></i> <span>Standardize systemic log tracking mechanics</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex items-start space-x-4">
+                        <div class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1.5 rounded-lg text-sm font-mono mt-1">PHASE 3</div>
+                        <div class="flex-1">
+                            <h3 class="text-base font-bold text-slate-900">Trust Framework & Asset Provisioning Pipelines (Weeks 5-6)</h3>
+                            <p class="text-sm text-slate-600 mt-1">Connect the financial tracking layers to automated inventory systems.</p>
+                            <ul class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-600">
+                                <li class="flex items-center space-x-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> <span>Integrate dual UTR tracking logs for transaction auditing</span></li>
+                                <li class="flex items-center space-x-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> <span>Deploy automated transactional system triggers</span></li>
+                                <li class="flex items-center space-x-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> <span>Build asset logs coupled to inventory metrics</span></li>
+                                <li class="flex items-center space-x-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i> <span>Introduce structured dispute status parameters</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="onboarding" class="tab-content space-y-8">
+                <div class="border-b border-slate-200 pb-4">
+                    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Structured User Onboarding Strategy</h2>
+                    <p class="text-slate-500 mt-1">Frictionless onboarding flows optimized for procurement managers and vendors.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-slate-900 text-white px-6 py-4 flex items-center space-x-2">
+                            <i data-lucide="building" class="w-5 h-5 text-blue-400"></i>
+                            <h3 class="font-bold">Enterprise & Buyer Persona Pipeline</h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="border-l-2 border-blue-500 pl-4 space-y-1">
+                                <h4 class="text-sm font-bold text-slate-900">Step 1: Authorization Checks</h4>
+                                <p class="text-xs text-slate-500">Collect institutional data profile requirements (Corporate legal title, primary delivery coordinates, operational scale variables).</p>
+                            </div>
+                            <div class="border-l-2 border-blue-500 pl-4 space-y-1">
+                                <h4 class="text-sm font-bold text-slate-900">Step 2: Inventory Baseline Mapping</h4>
+                                <p class="text-xs text-slate-500">Offer standardized templates to import historical asset data via unified files, ensuring immediate system utility.</p>
+                            </div>
+                            <div class="border-l-2 border-blue-500 pl-4 space-y-1">
+                                <h4 class="text-sm font-bold text-slate-900">Step 3: Geographic Filter Activation</h4>
+                                <p class="text-xs text-slate-500">Configure corporate logistics radiuses based on local office clusters to show only active, relevant suppliers.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-slate-900 text-white px-6 py-4 flex items-center space-x-2">
+                            <i data-lucide="store" class="w-5 h-5 text-emerald-400"></i>
+                            <h3 class="font-bold">Merchant & Supplier Persona Pipeline</h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="border-l-2 border-emerald-500 pl-4 space-y-1">
+                                <h4 class="text-sm font-bold text-slate-900">Step 1: Compliance Verification</h4>
+                                <p class="text-xs text-slate-500">Verify corporate structural identity parameters (Enforce mandatory merchant **GSTIN** checks during onboarding).</p>
+                            </div>
+                            <div class="border-l-2 border-emerald-500 pl-4 space-y-1">
+                                <h4 class="text-sm font-bold text-slate-900">Step 2: Logistics Matrix Strategy</h4>
+                                <p class="text-xs text-slate-500">Map precise logistics capabilities via radius nodes: <code class="text-[10px] bg-slate-100 px-1 py-0.5 rounded text-slate-700">LOCAL_100KM</code>, <code class="text-[10px] bg-slate-100 px-1 py-0.5 rounded text-slate-700">HYPER_LOCAL_20KM</code>, or nationwide courier matrices.</p>
+                            </div>
+                            <div class="border-l-2 border-emerald-500 pl-4 space-y-1">
+                                <h4 class="text-sm font-bold text-slate-900">Step 3: Catalog & Minimum Order Quantities (MOQ) Setup</h4>
+                                <p class="text-xs text-slate-500">Configure catalog structures, setting clear packaging baselines and MOQ metrics to match high-volume B2B fulfillment requirements.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sandbox" class="tab-content space-y-8">
+                <div class="border-b border-slate-200 pb-4">
+                    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Interactive Workflow Sandbox Simulator</h2>
+                    <p class="text-slate-500 mt-1">Simulate real-time operational states across the Corpass architecture loop.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6 lg:col-span-1">
+                        <h3 class="font-bold text-slate-900 text-base border-b border-slate-100 pb-2">Simulation Engine</h3>
+                        
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-slate-500 uppercase">1. Initial RFQ/Inquiry Initialization</label>
+                            <button onclick="runSimulationStep('rfq')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2 shadow-sm">
+                                <i data-lucide="message-square-plus" class="w-4 h-4"></i>
+                                <span>Initialize Custom RFQ</span>
+                            </button>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-slate-500 uppercase">2. Negotiation Counter Routing</label>
+                            <button id="btn-sim-counter" onclick="runSimulationStep('counter')" disabled class="w-full bg-slate-100 text-slate-400 font-medium text-sm py-2 px-4 rounded-lg flex items-center justify-center space-x-2 border border-slate-200 cursor-not-allowed">
+                                <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
+                                <span>Inject Vendor Counter</span>
+                            </button>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-slate-500 uppercase">3. Final Order Processing</label>
+                            <button id="btn-sim-order" onclick="runSimulationStep('order')" disabled class="w-full bg-slate-100 text-slate-400 font-medium text-sm py-2 px-4 rounded-lg flex items-center justify-center space-x-2 border border-slate-200 cursor-not-allowed">
+                                <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                                <span>Convert RFQ to Order</span>
+                            </button>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-slate-500 uppercase">4. Delivery & Automated Triggers</label>
+                            <button id="btn-sim-deliver" onclick="runSimulationStep('deliver')" disabled class="w-full bg-slate-100 text-slate-400 font-medium text-sm py-2 px-4 rounded-lg flex items-center justify-center space-x-2 border border-slate-200 cursor-not-allowed">
+                                <i data-lucide="truck" class="w-4 h-4"></i>
+                                <span>Execute Order Delivery</span>
+                            </button>
+                        </div>
+
+                        <button onclick="resetSimulation()" class="w-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium py-2 rounded-lg transition-colors">
+                            Reset Architecture Simulation
+                        </button>
+                    </div>
+
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="bg-slate-950 rounded-xl shadow-xl overflow-hidden border border-slate-800 flex flex-col h-[420px]">
+                            <div class="bg-slate-900 px-4 py-2.5 border-b border-slate-800 flex justify-between items-center text-xs text-slate-400 font-mono">
+                                <span class="flex items-center space-x-2"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> <span>CORPASS ARCHITECTURE LOG ENGINE</span></span>
+                                <span id="sim-timestamp">READY</span>
+                            </div>
+                            <div id="sim-console" class="p-4 font-mono text-xs text-slate-300 space-y-2 overflow-y-auto flex-1 leading-relaxed">
+                                <p class="text-slate-500">// System tracking pipeline idle. Select an initialization parameter to begin state parsing...</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Automated Invoice Ledger</h4>
+                                <div id="view-invoice" class="text-xs text-slate-400 bg-slate-50 p-3 rounded-lg border border-dashed border-slate-200 h-24 flex items-center justify-center italic">
+                                    Awaiting order delivery execution event...
+                                </div>
+                            </div>
+                            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Internal Assets Dashboard</h4>
+                                <div id="view-asset" class="text-xs text-slate-400 bg-slate-50 p-3 rounded-lg border border-dashed border-slate-200 h-24 flex items-center justify-center italic">
+                                    Awaiting physical asset delivery event...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Tab Navigator Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-blue-600', 'text-white');
+                el.classList.add('text-slate-300', 'hover:bg-slate-800', 'hover:text-white');
+            });
+
+            document.getElementById(tabId).classList.add('active');
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-800', 'hover:text-white');
+                activeBtn.classList.add('bg-blue-600', 'text-white');
+            }
+        }
+
+        // State Machine Simulator Data Framework
+        let simState = { step: 0, rfqPrice: 1200, counterPrice: 1050, qty: 250, item: "ThinkPad Enterprise Laptops" };
+
+        function updateConsole(msg, type = 'info') {
+            const consoleEl = document.getElementById('sim-console');
+            const timestamp = new Date().toISOString().slice(11, 19);
+            let colorClass = 'text-slate-300';
+            
+            if (type === 'success') colorClass = 'text-emerald-400 font-bold';
+            if (type === 'warn') colorClass = 'text-amber-400';
+            if (type === 'system') colorClass = 'text-blue-400 italic';
+
+            consoleEl.innerHTML += `<p class="${colorClass}">[${timestamp}] ${msg}</p>`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+            document.getElementById('sim-timestamp').innerText = `LATEST ACTION: ${timestamp}`;
+        }
+
+        function toggleSimButton(id, enable) {
+            const btn = document.getElementById(id);
+            if (enable) {
+                btn.removeAttribute('disabled');
+                btn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2 shadow-sm";
+            } else {
+                btn.setAttribute('disabled', 'true');
+                btn.className = "w-full bg-slate-100 text-slate-400 font-medium text-sm py-2 px-4 rounded-lg flex items-center justify-center space-x-2 border border-slate-200 cursor-not-allowed";
+            }
+        }
+
+        function runSimulationStep(stage) {
+            if (stage === 'rfq' && simState.step === 0) {
+                document.getElementById('sim-console').innerHTML = '';
+                updateConsole(`// Initializing New RFQ Thread...`, 'system');
+                updateConsole(`Buyer initialized Inquiry type: [QUOTE] for ${simState.qty} units of ${simState.item}.`);
+                updateConsole(`Base Catalog Pricing listed: ₹${simState.rfqPrice}/unit. System status shifted to: [PENDING].`);
+                
+                toggleSimButton('btn-sim-counter', true);
+                simState.step = 1;
+            } 
+            else if (stage === 'counter' && simState.step === 1) {
+                updateConsole(`// Evaluating Counter Matrix...`, 'system');
+                updateConsole(`Merchant intercepted Inquiry node. Applying custom volume logic strategy...`, 'warn');
+                updateConsole(`Vendor issued Counter Proposal: Adjusted transactional value down to ₹${simState.counterPrice}/unit.`);
+                updateConsole(`State mutation complete. Thread state set to: [RESPONDED]. Awaiting verification check.`);
+                
+                toggleSimButton('btn-sim-counter', false);
+                toggleSimButton('btn-sim-order', true);
+                simState.step = 2;
+            } 
+            else if (stage === 'order' && simState.step === 2) {
+                updateConsole(`// Initializing Conversion to Order Object...`, 'system');
+                updateConsole(`Buyer confirmed custom unit calculation rate of ₹${simState.counterPrice}.`);
+                updateConsole(`Data Layer mutation: Order created with status code: [PLACED].`);
+                updateConsole(`System verified merchant GSTIN profile. Shipping radius restriction checks passed.`);
+                updateConsole(`Payment Ledger Entry initialized: UTR #99281726152B recorded for advance validation clearing.`);
+                updateConsole(`Order locked to state: [CONFIRMED]. Preparing inventory fulfillment updates.`);
+                
+                toggleSimButton('btn-sim-order', false);
+                toggleSimButton('btn-sim-deliver', true);
+                simState.step = 3;
+            } 
+            else if (stage === 'deliver' && simState.step === 3) {
+                updateConsole(`// Dispatching Hardware Assets & Final Delivery Sequence...`, 'system');
+                updateConsole(`Fulfillment pipeline complete. Order state mutated to: [DELIVERED].`, 'warn');
+                
+                // Trigger structural downstream side effects
+                updateConsole(`[TRIGGER] Primary order completion event captured by downstream messaging nodes.`, 'system');
+                
+                // 1. Invoicing Pipeline Event
+                updateConsole(`[AUTO-INVOICE] Compiling dynamic transactional data. Automated document generation complete. Status: [ACKNOWLEDGED].`, 'success');
+                const totalCost = simState.counterPrice * simState.qty;
+                document.getElementById('view-invoice').innerHTML = `
+                    <div class="w-full font-mono">
+                        <div class="flex justify-between font-bold text-slate-900"><span>INV-2026-001</span> <span class="text-emerald-600">₹${totalCost.toLocaleString('en-IN')}</span></div>
+                        <div class="text-[10px] text-slate-500 mt-1">GSTIN: 07AAAAA1111A1Z1<br>Items: ${simState.qty} x Laptop nodes</div>
+                        <div class="mt-2 text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded inline-block">AUTO_GENERATED &amp; LOCKED</div>
+                    </div>`;
+                document.getElementById('view-invoice').className = "bg-white p-4 rounded-xl border border-slate-200 shadow-sm h-24 flex flex-col justify-between";
+
+                // 2. Asset System Provisioning Event
+                updateConsole(`[AUTO-ASSET] Provisioning hardware inventory logs directly to Buyer dashboard. Status: [PERFECT].`, 'success');
+                document.getElementById('view-asset').innerHTML = `
+                    <div class="w-full">
+                        <div class="flex justify-between items-center text-slate-900 font-bold"><span>${simState.item}</span> <span class="text-xs text-blue-600 font-mono">x${simState.qty}</span></div>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Condition: Perfect baseline mapping</p>
+                        <div class="mt-2 flex space-x-1.5"><span class="text-[9px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded font-mono">OWNED</span> <span class="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono">LINKED_TO_ORDER</span></div>
+                    </div>`;
+                document.getElementById('view-asset').className = "bg-white p-4 rounded-xl border border-slate-200 shadow-sm h-24 flex flex-col justify-between";
+
+                toggleSimButton('btn-sim-deliver', false);
+                simState.step = 4;
+            }
+        }
+
+        function resetSimulation() {
+            simState = { step: 0, rfqPrice: 1200, counterPrice: 1050, qty: 250, item: "ThinkPad Enterprise Laptops" };
+            document.getElementById('sim-console').innerHTML = '<p class="text-slate-500">// System tracking pipeline idle. Select an initialization parameter to begin state parsing...</p>';
+            document.getElementById('sim-timestamp').innerText = 'RESET';
+            
+            toggleSimButton('btn-sim-counter', false);
+            toggleSimButton('btn-sim-order', false);
+            toggleSimButton('btn-sim-deliver', false);
+
+            document.getElementById('view-invoice').innerHTML = 'Awaiting order delivery execution event...';
+            document.getElementById('view-invoice').className = "text-xs text-slate-400 bg-slate-50 p-3 rounded-lg border border-dashed border-slate-200 h-24 flex items-center justify-center italic";
+            
+            document.getElementById('view-asset').innerHTML = 'Awaiting physical asset delivery event...';
+            document.getElementById('view-asset').className = "text-xs text-slate-400 bg-slate-50 p-3 rounded-lg border border-dashed border-slate-200 h-24 flex items-center justify-center italic";
+        }
+
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

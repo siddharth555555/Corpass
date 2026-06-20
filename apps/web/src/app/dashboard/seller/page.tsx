@@ -29,20 +29,22 @@ export default function SellerDashboardOverview() {
         fetch(`http://${window.location.hostname}:3001/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
       
-      if (resProducts.ok) setProducts(await resProducts.json());
+      if (resProducts.ok) { const pData = await resProducts.json(); setProducts(Array.isArray(pData) ? pData : pData.data || []); }
       if (resProfile.ok) setProfile(await resProfile.json());
       
       let reviewStats = { averageRating: 0, totalReviews: 0 };
       if (resMe.ok) {
         const me = await resMe.json();
-        if (me.id) {
-          const resReviews = await fetch(`http://${window.location.hostname}:3001/reviews/stats/${me.id}`);
-          if (resReviews.ok) reviewStats = await resReviews.json();
+        const meData = me.data || me;
+        if (meData.id) {
+          const resReviews = await fetch(`http://${window.location.hostname}:3001/reviews/stats/${meData.id}`);
+          if (resReviews.ok) { const rData = await resReviews.json(); reviewStats = rData.data || rData; }
         }
       }
       
       if (resOrders.ok) {
-        const orders = await resOrders.json();
+        const oResData = await resOrders.json();
+        const orders = Array.isArray(oResData) ? oResData : oResData.data || [];
         const pendingOrders = orders.filter((o: any) => o.status === 'PLACED').length;
         const totalSales = orders.filter((o: any) => o.status !== 'CANCELLED').reduce((acc: number, o: any) => acc + Number(o.totalAmount), 0);
         setStats({ pendingOrders, totalSales, avgRating: reviewStats.averageRating, reviewCount: reviewStats.totalReviews });

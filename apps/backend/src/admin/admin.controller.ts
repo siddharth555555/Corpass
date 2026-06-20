@@ -1,51 +1,40 @@
-import { Controller, Get, UseGuards, UnauthorizedException, Request } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { AdminGuard } from './admin.guard';
 
 @Controller('admin')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, AdminGuard)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  private checkAdmin(req: any) {
-    if (req.user.role !== 'ADMIN') {
-      throw new UnauthorizedException('Admin access required');
-    }
-  }
-
   @Get('stats')
-  getDashboardStats(@Request() req) {
-    this.checkAdmin(req);
+  getDashboardStats() {
     return this.adminService.getDashboardStats();
   }
 
   @Get('activity')
-  getRecentActivity(@Request() req) {
-    this.checkAdmin(req);
+  getRecentActivity() {
     return this.adminService.getRecentActivity();
   }
 
   @Get('users')
-  getUsers(@Request() req) {
-    this.checkAdmin(req);
+  getUsers() {
     return this.adminService.getUsers();
   }
 
   @Get('orders')
-  getOrders(@Request() req) {
-    this.checkAdmin(req);
+  getOrders() {
     return this.adminService.getOrders();
   }
 
   @Get('products')
-  getProducts(@Request() req) {
-    this.checkAdmin(req);
+  getProducts() {
     return this.adminService.getProducts();
   }
 
   @Get('tickets')
-  getTickets(@Request() req) {
-    this.checkAdmin(req);
+  getTickets() {
     return this.adminService.getTickets();
   }
 }

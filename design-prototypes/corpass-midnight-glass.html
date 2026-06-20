@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corpass — Midnight Glass</title>
+<style>
+  :root {
+    --bg-deep: #03040a;
+    --bg-base: #0a0e1a;
+    --bg-elevated: #101628;
+    --glass-bg: rgba(255,255,255,0.025);
+    --glass-border: rgba(255,255,255,0.06);
+    --glass-border-hover: rgba(255,255,255,0.12);
+    --accent: #06b6d4;
+    --accent-glow: rgba(6,182,212,0.35);
+    --accent-soft: rgba(6,182,212,0.12);
+    --text-primary: #f0f4f8;
+    --text-secondary: #94a3b8;
+    --text-muted: #475569;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --info: #60a5fa;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --sidebar: 260px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: var(--font);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---- Ambient glow background ---- */
+  .ambient {
+    position: fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 40%, rgba(6,182,212,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(99,102,241,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 50% at 50% 0%, rgba(6,182,212,0.04) 0%, transparent 40%);
+  }
+
+  /* ---- LOGIN ---- */
+  .login-view { position:relative; z-index:1; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .login-card {
+    width:100%; max-width:420px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(40px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 40px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .login-card::before {
+    content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+    background: radial-gradient(circle at 50% 50%, rgba(6,182,212,0.08), transparent 60%);
+    pointer-events:none;
+  }
+  .login-card > * { position:relative; z-index:1; }
+  .login-brand {
+    display:flex; align-items:center; gap:12px; justify-content:center; margin-bottom:32px;
+  }
+  .login-brand .logo {
+    width:40px; height:40px; border-radius:var(--radius-sm);
+    background: linear-gradient(135deg, var(--accent), #6366f1);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 0 20px rgba(6,182,212,0.3);
+  }
+  .login-brand .logo svg { width:22px; height:22px; color:#fff; }
+  .login-brand h1 { font-size:22px; font-weight:700; letter-spacing:-0.5px; }
+  .login-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 14px; border-radius:999px; font-size:12px; font-weight:600; letter-spacing:0.3px;
+    background: var(--accent-soft); color: var(--accent); border:1px solid rgba(6,182,212,0.15);
+    margin-bottom:24px;
+  }
+  .login-title { font-size:28px; font-weight:700; letter-spacing:-0.5px; margin-bottom:6px; }
+  .login-sub { font-size:14px; color: var(--text-secondary); margin-bottom:28px; }
+  .field { margin-bottom:18px; }
+  .field label { display:block; font-size:13px; font-weight:500; color:var(--text-secondary); margin-bottom:6px; }
+  .field input {
+    width:100%; padding:12px 14px; font-size:14px; color:var(--text-primary);
+    background: rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:var(--radius-sm);
+    outline:none; transition:all .2s;
+  }
+  .field input:focus { border-color: var(--accent); box-shadow:0 0 0 3px rgba(6,182,212,0.15); }
+  .field input::placeholder { color: var(--text-muted); }
+  .login-btn {
+    width:100%; padding:13px; font-size:14px; font-weight:600; color:#0a0e1a;
+    background: linear-gradient(135deg, var(--accent), #22d3ee); border:none; border-radius:var(--radius-sm);
+    cursor:pointer; transition:all .2s; margin-top:4px;
+    box-shadow: 0 0 20px rgba(6,182,212,0.25);
+  }
+  .login-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 24px rgba(6,182,212,0.4); }
+  .login-hint { text-align:center; font-size:12px; color:var(--text-muted); margin-top:18px; }
+
+  /* ---- DASHBOARD ---- */
+  .dashboard-view { display:none; position:relative; z-index:1; min-height:100vh; }
+  .dashboard-view.active { display:flex; }
+
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar); flex-shrink:0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    backdrop-filter: blur(20px);
+    border-right:1px solid var(--glass-border);
+    display:flex; flex-direction:column; position:fixed; left:0; top:0; bottom:0; z-index:50;
+    transition: transform .3s;
+  }
+  .sidebar-head { padding:20px 24px; border-bottom:1px solid var(--glass-border); display:flex; align-items:center; gap:12px; }
+  .sidebar-head .logo { width:36px; height:36px; border-radius:var(--radius-sm); background:linear-gradient(135deg, var(--accent), #6366f1); display:flex; align-items:center; justify-content:center; }
+  .sidebar-head .logo svg { width:20px; height:20px; color:#fff; }
+  .sidebar-head .title { font-size:16px; font-weight:700; letter-spacing:-0.3px; }
+  .sidebar-head .sub { font-size:11px; color:var(--text-muted); }
+  .sidebar-nav { flex:1; padding:16px 14px; overflow-y:auto; }
+  .nav-item {
+    display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:var(--radius-sm);
+    font-size:13px; font-weight:500; color:var(--text-secondary); cursor:pointer; transition:all .15s; margin-bottom:4px;
+  }
+  .nav-item:hover { background:rgba(255,255,255,0.04); color:var(--text-primary); }
+  .nav-item.active { background: linear-gradient(90deg, rgba(6,182,212,0.12), rgba(6,182,212,0.02)); color:var(--accent); border:1px solid rgba(6,182,212,0.15); }
+  .nav-item svg { width:18px; height:18px; flex-shrink:0; }
+  .nav-item.active svg { color:var(--accent); }
+  .sidebar-foot { padding:16px 14px; border-top:1px solid var(--glass-border); }
+  .sidebar-foot .nav-item { color:var(--danger); }
+  .sidebar-foot .nav-item:hover { background:rgba(248,113,113,0.08); }
+
+  /* Main */
+  .main { flex:1; margin-left:var(--sidebar); min-width:0; display:flex; flex-direction:column; }
+  .header {
+    height:64px; padding:0 28px; display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid var(--glass-border); position:sticky; top:0; background:rgba(10,14,26,0.7); backdrop-filter:blur(20px); z-index:40;
+  }
+  .header-left { display:flex; align-items:center; gap:16px; }
+  .menu-toggle { display:none; background:none; border:none; color:var(--text-secondary); cursor:pointer; }
+  .menu-toggle svg { width:22px; height:22px; }
+  .breadcrumb { font-size:13px; color:var(--text-muted); }
+  .breadcrumb strong { color:var(--text-primary); font-weight:600; }
+  .header-right { display:flex; align-items:center; gap:12px; }
+  .search-box {
+    display:flex; align-items:center; gap:8px; padding:8px 14px; border-radius:var(--radius-sm);
+    background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); width:260px;
+  }
+  .search-box input { background:transparent; border:none; outline:none; color:var(--text-primary); font-size:13px; width:100%; }
+  .search-box input::placeholder { color:var(--text-muted); }
+  .avatar {
+    width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--accent), #6366f1);
+    display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#fff; border:2px solid rgba(255,255,255,0.08);
+  }
+
+  .content { padding:28px; flex:1; overflow-y:auto; }
+  .page-title { font-size:24px; font-weight:700; letter-spacing:-0.3px; margin-bottom:4px; }
+  .page-sub { font-size:13px; color:var(--text-secondary); margin-bottom:24px; }
+
+  /* Stats */
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:16px; margin-bottom:24px; }
+  .stat-card {
+    background:var(--glass-bg); backdrop-filter:blur(20px); border:1px solid var(--glass-border); border-radius:var(--radius);
+    padding:22px; position:relative; overflow:hidden; transition:all .2s;
+  }
+  .stat-card:hover { border-color:var(--glass-border-hover); transform:translateY(-2px); }
+  .stat-card::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, var(--accent), transparent); opacity:0.6;
+  }
+  .stat-card.accent::after { opacity:1; height:3px; background:linear-gradient(90deg, var(--accent), #6366f1); }
+  .stat-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); margin-bottom:10px; }
+  .stat-value { font-size:30px; font-weight:700; letter-spacing:-0.5px; background:linear-gradient(135deg, var(--text-primary), var(--text-secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .stat-sub { font-size:12px; color:var(--text-secondary); margin-top:6px; }
+  .stat-icon {
+    position:absolute; top:18px; right:18px; width:36px; height:36px; border-radius:var(--radius-sm);
+    background:rgba(6,182,212,0.08); border:1px solid rgba(6,182,212,0.12);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .stat-icon svg { width:18px; height:18px; color:var(--accent); }
+
+  /* Tables & Cards */
+  .panel {
+    background:var(--glass-bg); backdrop-filter:blur(20px); border:1px solid var(--glass-border); border-radius:var(--radius); overflow:hidden;
+  }
+  .panel-head { padding:18px 22px; border-bottom:1px solid var(--glass-border); display:flex; align-items:center; justify-content:space-between; }
+  .panel-title { font-size:14px; font-weight:600; }
+  .panel-link { font-size:12px; font-weight:600; color:var(--accent); text-decoration:none; }
+  .panel-link:hover { text-decoration:underline; }
+  .panel-body { padding:0; }
+  .row {
+    display:flex; align-items:center; justify-content:space-between; padding:14px 22px;
+    border-bottom:1px solid var(--glass-border); transition:background .15s;
+  }
+  .row:last-child { border-bottom:none; }
+  .row:hover { background:rgba(255,255,255,0.02); }
+  .row-main { min-width:0; }
+  .row-title { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .row-meta { font-size:12px; color:var(--text-muted); margin-top:2px; }
+  .row-right { text-align:right; flex-shrink:0; }
+  .row-price { font-size:13px; font-weight:700; }
+  .badge {
+    display:inline-flex; align-items:center; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:600; margin-top:4px;
+  }
+  .badge-success { background:rgba(52,211,153,0.1); color:var(--success); border:1px solid rgba(52,211,153,0.2); }
+  .badge-warning { background:rgba(251,191,36,0.1); color:var(--warning); border:1px solid rgba(251,191,36,0.2); }
+  .badge-danger { background:rgba(248,113,113,0.1); color:var(--danger); border:1px solid rgba(248,113,113,0.2); }
+  .badge-info { background:rgba(96,165,250,0.1); color:var(--info); border:1px solid rgba(96,165,250,0.2); }
+
+  .activity-row { display:flex; gap:14px; padding:14px 22px; border-bottom:1px solid var(--glass-border); }
+  .activity-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); margin-top:6px; flex-shrink:0; box-shadow:0 0 8px var(--accent); }
+  .activity-dot.success { background:var(--success); box-shadow:0 0 8px rgba(52,211,153,0.4); }
+  .activity-dot.warning { background:var(--warning); box-shadow:0 0 8px rgba(251,191,36,0.4); }
+  .activity-text { font-size:13px; font-weight:500; }
+  .activity-detail { font-size:12px; color:var(--text-muted); margin-top:2px; }
+  .activity-time { font-size:11px; color:var(--text-muted); margin-top:4px; }
+
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+
+  @media (max-width: 900px) {
+    .two-col { grid-template-columns:1fr; }
+    .stats-grid { grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    .sidebar { transform:translateX(-100%); }
+    .sidebar.open { transform:translateX(0); }
+    .main { margin-left:0; }
+    .menu-toggle { display:block; }
+    .search-box { display:none; }
+    .stats-grid { grid-template-columns:1fr; }
+  }
+  @media (max-width: 480px) {
+    .content { padding:16px; }
+    .login-card { padding:28px 20px; }
+  }
+
+  .fade-in { animation: fadeIn .5s ease-out; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+
+<!-- LOGIN VIEW -->
+<div class="login-view" id="loginView">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <h1>Corpass</h1>
+    </div>
+    <div style="text-align:center;">
+      <div class="login-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Admin Portal
+      </div>
+    </div>
+    <div class="login-title">Welcome back</div>
+    <div class="login-sub">Sign in to manage your marketplace.</div>
+    <div class="field">
+      <label>Login ID or Email</label>
+      <input type="text" placeholder="admin@corpass.in" value="admin@corpass.in">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" placeholder="••••••••" value="password">
+    </div>
+    <button class="login-btn" onclick="showDashboard()">Sign In</button>
+    <div class="login-hint">Use system admin credentials to sign in.</div>
+  </div>
+</div>
+
+<!-- DASHBOARD VIEW -->
+<div class="dashboard-view" id="dashboardView">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <div class="title">Corpass</div>
+        <div class="sub">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="setActive(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </div>
+      <div class="nav-item" onclick="setActive(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Users
+      </div>
+      <div class="nav-item" onclick="setActive(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        Orders
+      </div>
+      <div class="nav-item" onclick="setActive(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Products
+      </div>
+      <div class="nav-item" onclick="setActive(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>
+        Support
+      </div>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="nav-item" onclick="showLogin()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="header">
+      <div class="header-left">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="breadcrumb">Dashboard / <strong>Overview</strong></div>
+      </div>
+      <div class="header-right">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search...">
+        </div>
+        <div class="avatar">A</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-title fade-in">Platform Overview</div>
+      <div class="page-sub fade-in">Monitor marketplace health and recent activity.</div>
+
+      <div class="stats-grid fade-in">
+        <div class="stat-card accent">
+          <div class="stat-label">Total Users</div>
+          <div class="stat-value">2,847</div>
+          <div class="stat-sub">1,920 buyers · 927 sellers</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value">12,405</div>
+          <div class="stat-sub">342 pending this week</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Platform Revenue</div>
+          <div class="stat-value">₹4.2Cr</div>
+          <div class="stat-sub">All-time GMV</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Open Tickets</div>
+          <div class="stat-value">18</div>
+          <div class="stat-sub">3,420 active products</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col fade-in">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Recent Orders</div>
+            <a href="#" class="panel-link">View All</a>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="row-main">
+                <div class="row-title">Industrial CNC Router Machine</div>
+                <div class="row-meta">#ORD-2841 · Rajesh Engineering</div>
+              </div>
+              <div class="row-right">
+                <div class="row-price">₹12,45,000</div>
+                <span class="badge badge-warning">PLACED</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="row-main">
+                <div class="row-title">Hydraulic Press 50 Ton</div>
+                <div class="row-meta">#ORD-2840 · Aakash Industries</div>
+              </div>
+              <div class="row-right">
+                <div class="row-price">₹8,75,000</div>
+                <span class="badge badge-info">CONFIRMED</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="row-main">
+                <div class="row-title">Lathe Machine Heavy Duty</div>
+                <div class="row-meta">#ORD-2839 · Precision Tools Pvt</div>
+              </div>
+              <div class="row-right">
+                <div class="row-price">₹4,20,000</div>
+                <span class="badge badge-success">DELIVERED</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="row-main">
+                <div class="row-title">Welding Electrodes 5kg Box</div>
+                <div class="row-meta">#ORD-2838 · Sharma Fabricators</div>
+              </div>
+              <div class="row-right">
+                <div class="row-price">₹18,500</div>
+                <span class="badge badge-info">SHIPPED</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Recent Activity</div>
+          </div>
+          <div class="panel-body">
+            <div class="activity-row">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-text">New order received</div>
+                <div class="activity-detail">CNC Router Machine — ₹12,45,000</div>
+                <div class="activity-time">2 minutes ago</div>
+              </div>
+            </div>
+            <div class="activity-row">
+              <div class="activity-dot success"></div>
+              <div>
+                <div class="activity-text">Seller KYC approved</div>
+                <div class="activity-detail">Krishna Manufacturing Ltd</div>
+                <div class="activity-time">15 minutes ago</div>
+              </div>
+            </div>
+            <div class="activity-row">
+              <div class="activity-dot warning"></div>
+              <div>
+                <div class="activity-text">Support ticket opened</div>
+                <div class="activity-detail">Payment delay dispute — Order #2835</div>
+                <div class="activity-time">42 minutes ago</div>
+              </div>
+            </div>
+            <div class="activity-row">
+              <div class="activity-dot success"></div>
+              <div>
+                <div class="activity-text">Product listing approved</div>
+                <div class="activity-detail">Hydraulic Press 100 Ton by Patel Industries</div>
+                <div class="activity-time">1 hour ago</div>
+              </div>
+            </div>
+            <div class="activity-row">
+              <div class="activity-dot"></div>
+              <div>
+                <div class="activity-text">New user registered</div>
+                <div class="activity-detail">Vikram Tools & Co. (Seller)</div>
+                <div class="activity-time">2 hours ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showDashboard() {
+    document.getElementById('loginView').style.display = 'none';
+    document.getElementById('dashboardView').classList.add('active');
+  }
+  function showLogin() {
+    document.getElementById('dashboardView').classList.remove('active');
+    document.getElementById('loginView').style.display = 'flex';
+    document.getElementById('sidebar').classList.remove('open');
+  }
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+  function setActive(el) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  }
+</script>
+</body>
+</html>

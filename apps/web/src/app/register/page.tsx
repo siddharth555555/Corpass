@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 export default function RegisterPage() {
   const [role, setRole] = useState<'BUYER' | 'SELLER'>('BUYER');
   const [error, setError] = useState<string | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [formData, setFormData] = useState({
     name: "", loginId: "", password: "", email: "", mobile: "",
     address: "", city: "", pincode: "",
@@ -28,6 +29,10 @@ export default function RegisterPage() {
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    if (!acceptedTerms) {
+      setError("You must agree to the Terms & Conditions to register.");
+      return;
+    }
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     
@@ -204,7 +209,29 @@ export default function RegisterPage() {
             )}
           </div>
 
-          <div className="pt-6">
+          <div className="pt-4 border-t border-border mt-8 flex flex-col gap-5">
+            <div className="flex items-start">
+              <div className="flex items-center h-5">
+                <input
+                  id="terms"
+                  name="terms"
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  className="w-4 h-4 rounded border-border text-ink focus:ring-ink"
+                  required
+                />
+              </div>
+              <div className="ml-3 text-sm">
+                <label htmlFor="terms" className="font-medium text-slate">
+                  I agree to the{" "}
+                  <a href="/terms" target="_blank" className="text-copper hover:underline">
+                    Terms & Conditions
+                  </a>
+                </label>
+              </div>
+            </div>
+
             <button 
               type="submit"
               className="w-full btn-primary py-3 text-sm"

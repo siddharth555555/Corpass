@@ -1,0 +1,51 @@
+pageType: chapter
+background:
+  type: solid
+  color: "$background"
+elements:
+  - elementId: ch3-left-bg
+    elementType: shape
+    bounds: [0, 0, 640, 720]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: ch3-num
+    elementType: text
+    bounds: [60, 260, 520, 100]
+    content:
+      style: "$chapterNum"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>03</p>
+
+  - elementId: ch3-title
+    elementType: text
+    bounds: [700, 280, 520, 50]
+    content:
+      style: "$chapterTitle"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>For Buyers</p>
+
+  - elementId: ch3-subtitle
+    elementType: text
+    bounds: [700, 340, 520, 30]
+    content:
+      style: "$subtitle"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>Reduce procurement time. Increase visibility.</p>
+
+  - elementId: ch3-line
+    elementType: shape
+    bounds: [700, 390, 60, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 2
+      color: "$copper"

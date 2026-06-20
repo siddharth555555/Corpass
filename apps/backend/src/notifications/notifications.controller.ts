@@ -8,9 +8,10 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Get()
-  async getNotifications(@Request() req, @Query('cursor') cursor: string, @Query('limit') limit: string) {
+  async getNotifications(@Request() req, @Query('page') page?: string, @Query('limit') limit?: string) {
+    const parsedPage = page ? parseInt(page, 10) : 1;
     const parsedLimit = limit ? parseInt(limit, 10) : 20;
-    return this.notificationsService.getNotifications(req.user.sub, cursor, parsedLimit);
+    return this.notificationsService.getNotifications(req.user.sub, parsedPage, parsedLimit);
   }
 
   @Get('unread-count')

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { AlertModal, AlertType } from "@/components/ui/AlertModal";
 
 export default function SellerStockManagement() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export default function SellerStockManagement() {
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [newStock, setNewStock] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [alertConfig, setAlertConfig] = useState<{message: string} | null>(null);
+  const [alertConfig, setAlertConfig] = useState<{message: string, type: AlertType} | null>(null);
 
   const fetchProducts = async () => {
     try {
@@ -26,7 +27,10 @@ export default function SellerStockManagement() {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      if (res.ok) setProducts(await res.json());
+      if (res.ok) {
+        const prodData = await res.json();
+        setProducts(Array.isArray(prodData) ? prodData : prodData.data || []);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -62,11 +66,12 @@ export default function SellerStockManagement() {
         fetchProducts();
       } else {
         const err = await res.json();
-        setAlertConfig({ message: err.message || "Failed to update stock" });
+        const msg = Array.isArray(err.message) ? err.message.join(', ') : err.message;
+        setAlertConfig({ message: msg || "Failed to update stock", type: "error" });
       }
     } catch (error) {
       console.error(error);
-      setAlertConfig({ message: "An error occurred while updating stock" });
+      setAlertConfig({ message: "An error occurred while updating stock", type: "error" });
     } finally {
       setSubmitting(false);
     }
@@ -333,24 +338,12 @@ export default function SellerStockManagement() {
         </div>
       )}
 
-      {/* Custom Alert Box */}
-      {alertConfig && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-primary-900/40 backdrop-blur-sm" onClick={() => setAlertConfig(null)}></div>
-          <div className="relative bg-paper rounded-xl shadow-2xl w-full max-w-sm p-6 text-center animate-in zoom-in-95 duration-200 border border-border">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-rose-50 mb-4 border border-rose-100">
-              <svg className="h-6 w-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-bold text-ink mb-2">Action Failed</h3>
-            <p className="text-sm text-slate mb-6">{alertConfig.message}</p>
-            <button onClick={() => setAlertConfig(null)} className="w-full bg-ink hover:bg-ink/90 text-white font-bold rounded-lg text-sm py-3 transition-colors shadow-sm">
-              Acknowledge
-            </button>
-          </div>
-        </div>
-      )}
+      <AlertModal 
+        isOpen={!!alertConfig} 
+        message={alertConfig?.message || ''} 
+        type={alertConfig?.type || 'error'} 
+        onClose={() => setAlertConfig(null)} 
+      />
     </div>
   );
 }

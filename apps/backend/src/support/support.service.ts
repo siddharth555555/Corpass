@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class SupportService {
+  private readonly logger = new Logger('SupportService');
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService
@@ -28,7 +30,7 @@ export class SupportService {
           `${user.name} has raised a new support ticket: ${subject || 'No Subject'}`,
           'SupportTicket',
           ticket.id.toString()
-        ).catch(e => console.error('Failed to notify admins for support ticket', e));
+        ).catch(e => this.logger.error('Failed to notify admins for support ticket', e));
       }
     });
 

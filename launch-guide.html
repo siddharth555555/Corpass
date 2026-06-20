@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Corpass Launch Guide — From Idea to Live Users</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style type="text/tailwindcss">
+    @layer base {
+      body { font-family: 'Inter', sans-serif; }
+      h1, h2, h3, .font-serif { font-family: 'Playfair Display', serif; }
+    }
+    @layer components {
+      .step-card {
+        @apply border rounded-lg p-4 transition-all duration-200 hover:shadow-md cursor-pointer;
+        border-color: #e5e7eb;
+      }
+      .step-card.active {
+        @apply ring-2;
+        ring-color: #a16207;
+        border-color: #a16207;
+      }
+      .check-item input:checked + span { text-decoration: line-through; opacity: 0.6; }
+      .tab-active { border-bottom: 2px solid #1c1917; color: #1c1917; }
+      .tab-inactive { color: #64748b; }
+      .tab-inactive:hover { color: #1c1917; }
+      .progress-bar { transition: width 0.5s ease; }
+      .tooltip { @apply invisible absolute z-10 bg-gray-900 text-white text-xs rounded px-2 py-1 -mt-8; }
+      .has-tooltip:hover .tooltip { @apply visible; }
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#1c1917',
+            paper: '#fafaf9',
+            copper: '#a16207',
+            'copper-light': '#fef3c7',
+            slate: '#64748b',
+            money: '#166534',
+            'money-light': '#dcfce7',
+            surface: '#f5f5f4',
+            'surface-2': '#e7e5e4',
+            border: '#e7e5e4',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-paper text-ink min-h-screen">
+
+  <!-- HEADER -->
+  <header class="border-b border-border bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="h-8 w-8 bg-copper text-white flex items-center justify-center font-serif font-bold text-sm rounded">C</div>
+        <h1 class="font-serif text-xl font-bold tracking-tight">Corpass Launch Guide</h1>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="hidden sm:flex items-center gap-2 text-sm text-slate">
+          <span class="font-medium text-ink">Overall Progress:</span>
+          <div class="w-40 h-2 bg-surface-2 rounded-full overflow-hidden">
+            <div id="global-progress" class="progress-bar h-full bg-copper rounded-full" style="width:0%"></div>
+          </div>
+          <span id="global-percent" class="font-mono text-xs">0%</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN TABS -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+    <div class="flex gap-6 border-b border-border mb-6 overflow-x-auto">
+      <button onclick="switchTab('business')" id="tab-business" class="tab-active pb-3 text-sm font-medium whitespace-nowrap">1. Business Foundation</button>
+      <button onclick="switchTab('implement')" id="tab-implement" class="tab-inactive pb-3 text-sm font-medium whitespace-nowrap">2. Implementation</button>
+      <button onclick="switchTab('onboard')" id="tab-onboard" class="tab-inactive pb-3 text-sm font-medium whitespace-nowrap">3. User Onboarding</button>
+      <button onclick="switchTab('launch')" id="tab-launch" class="tab-inactive pb-3 text-sm font-medium whitespace-nowrap">4. Go-to-Market</button>
+    </div>
+  </div>
+
+  <!-- SECTION 1: BUSINESS FOUNDATION -->
+  <section id="section-business" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+    <div class="mb-8">
+      <h2 class="font-serif text-3xl font-bold tracking-tight mb-2">Phase 1: Business Foundation</h2>
+      <p class="text-slate max-w-2xl">Before writing a single line of code, lock in the business fundamentals. These decisions will determine everything that follows.</p>
+    </div>
+
+    <!-- Progress -->
+    <div class="bg-white border border-border rounded-lg p-4 mb-6">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm font-medium">Phase Progress</span>
+        <span id="biz-progress-text" class="text-sm font-mono text-copper">0%</span>
+      </div>
+      <div class="w-full h-2 bg-surface-2 rounded-full overflow-hidden">
+        <div id="biz-progress" class="progress-bar h-full bg-copper rounded-full" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Steps Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <!-- Step 1 -->
+      <div class="step-card bg-white" onclick="toggleStep('biz-step-1')">
+        <div class="flex items-start gap-3">
+          <div class="h-8 w-8 rounded-full bg-copper-light text-copper flex items-center justify-center font-bold text-sm shrink-0">1</div>
+          <div class="flex-1">
+            <h3 class="font-serif font-bold text-lg mb-1">Define Your Niche</h3>
+            <p class="text-sm text-slate">Don't launch with 12 categories. Pick 2–3 verticals where you have seller relationships.</p>
+          </div>
+          <svg id="arrow-biz-step-1" class="w-5 h-5 text-slate transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+        <div id="content-biz-step-1" class="hidden mt-4 pt-4 border-t border-border">
+          <div class="space-y-3">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">List the 3 product categories you have supplier connections for</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Verify each category has at least 5 potential sellers</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Identify 2–3 target buyer companies (your first customers)</span>
+            </label>
+            <div class="bg-surface p-3 rounded text-sm text-slate mt-2">
+              <strong class="text-ink">Tip:</strong> Office Supplies + IT Hardware are the easiest entry points because every company needs them, and sellers are abundant.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card bg-white" onclick="toggleStep('biz-step-2')">
+        <div class="flex items-start gap-3">
+          <div class="h-8 w-8 rounded-full bg-copper-light text-copper flex items-center justify-center font-bold text-sm shrink-0">2</div>
+          <div class="flex-1">
+            <h3 class="font-serif font-bold text-lg mb-1">Seller Outreach</h3>
+            <p class="text-sm text-slate">You need sellers on the platform BEFORE buyers arrive. The chicken comes before the egg.</p>
+          </div>
+          <svg id="arrow-biz-step-2" class="w-5 h-5 text-slate transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+        <div id="content-biz-step-2" class="hidden mt-4 pt-4 border-t border-border">
+          <div class="space-y-3">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Create a seller pitch deck (one-pager: "Get corporate orders without cold calling")</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Cold-call or WhatsApp 20 potential sellers in your chosen verticals</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Collect: GSTIN, product catalog, delivery range, and price sheets from 5+ committed sellers</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Sign informal agreements (MOU or handshake) with first 3 sellers</span>
+            </label>
+            <div class="bg-surface p-3 rounded text-sm text-slate mt-2">
+              <strong class="text-ink">Key Ask:</strong> "Give me your catalog and prices. I'll bring you buyers. No upfront fee."
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card bg-white" onclick="toggleStep('biz-step-3')">
+        <div class="flex items-start gap-3">
+          <div class="h-8 w-8 rounded-full bg-copper-light text-copper flex items-center justify-center font-bold text-sm shrink-0">3</div>
+          <div class="flex-1">
+            <h3 class="font-serif font-bold text-lg mb-1">Buyer Validation</h3>
+            <p class="text-sm text-slate">Confirm that real companies actually want to buy through your platform, not just directly from the seller.</p>
+          </div>
+          <svg id="arrow-biz-step-3" class="w-5 h-5 text-slate transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+        <div id="content-biz-step-3" class="hidden mt-4 pt-4 border-t border-border">
+          <div class="space-y-3">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Interview 3–5 procurement heads at target companies (30 mins each)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Ask: "How do you currently buy office supplies? What frustrates you?"</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Confirm their annual spend in your chosen categories</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Get a letter of intent (LOI) or verbal commitment from at least 1 company</span>
+            </label>
+            <div class="bg-money-light text-money p-3 rounded text-sm mt-2">
+              <strong>Validation Criteria:</strong> If they say "I just call my existing supplier," you need a stronger value proposition. If they say "I compare 3 quotes every time," you have a fit.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-card bg-white" onclick="toggleStep('biz-step-4')">
+        <div class="flex items-start gap-3">
+          <div class="h-8 w-8 rounded-full bg-copper-light text-copper flex items-center justify-center font-bold text-sm shrink-0">4</div>
+          <div class="flex-1">
+            <h3 class="font-serif font-bold text-lg mb-1">Pricing & Revenue Model</h3>
+            <p class="text-sm text-slate">How does Corpass make money? Define this before launch so sellers know the rules.</p>
+          </div>
+          <svg id="arrow-biz-step-4" class="w-5 h-5 text-slate transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+        <div id="content-biz-step-4" class="hidden mt-4 pt-4 border-t border-border">
+          <div class="space-y-3">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Decide commission model: X% per transaction (suggested: 3–5% on GMV)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Decide subscription model: Monthly seller fee for premium features (suggested: ₹499–₹1999/month)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Document payment terms: When does seller get paid? (suggested: T+7 after delivery confirmation)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Create a simple "Seller Terms" one-page PDF</span>
+            </label>
+            <div class="grid grid-cols-2 gap-3 mt-3">
+              <div class="bg-surface p-3 rounded text-sm">
+                <div class="font-medium text-ink mb-1">Commission Model</div>
+                <div class="text-slate">Take 3–5% of every successful order. Sellers pay nothing upfront. Scales with volume.</div>
+              </div>
+              <div class="bg-surface p-3 rounded text-sm">
+                <div class="font-medium text-ink mb-1">Subscription Model</div>
+                <div class="text-slate">₹499/month for basic listing. ₹1999/month for featured placement, analytics, priority support.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step-card bg-white" onclick="toggleStep('biz-step-5')">
+        <div class="flex items-start gap-3">
+          <div class="h-8 w-8 rounded-full bg-copper-light text-copper flex items-center justify-center font-bold text-sm shrink-0">5</div>
+          <div class="flex-1">
+            <h3 class="font-serif font-bold text-lg mb-1">Legal & Compliance</h3>
+            <p class="text-sm text-slate">GST invoicing, terms of service, and data privacy are non-negotiable in B2B.</p>
+          </div>
+          <svg id="arrow-biz-step-5" class="w-5 h-5 text-slate transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+        <div id="content-biz-step-5" class="hidden mt-4 pt-4 border-t border-border">
+          <div class="space-y-3">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Register your company (Pvt Ltd / LLP recommended for B2B trust)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Get your own GSTIN (you will be issuing commission invoices to sellers)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Draft Terms of Service (seller agreement, buyer agreement, dispute policy)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Draft Privacy Policy (GDPR-style is overkill, but Indian IT Act compliance is required)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Open a business bank account for platform revenue</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="step-card bg-white" onclick="toggleStep('biz-step-6')">
+        <div class="flex items-start gap-3">
+          <div class="h-8 w-8 rounded-full bg-copper-light text-copper flex items-center justify-center font-bold text-sm shrink-0">6</div>
+          <div class="flex-1">
+            <h3 class="font-serif font-bold text-lg mb-1">Brand & Domain</h3>
+            <p class="text-sm text-slate">Your first impression is your landing page. Make it count.</p>
+          </div>
+          <svg id="arrow-biz-step-6" class="w-5 h-5 text-slate transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+        <div id="content-biz-step-6" class="hidden mt-4 pt-4 border-t border-border">
+          <div class="space-y-3">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Buy domain name (e.g., corpass.in, yourname.com)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Design logo and brand colors (or use the existing Corpass design system)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Set up business email (admin@yourdomain.com, support@yourdomain.com)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('biz')">
+              <span class="text-sm">Create a simple landing page with "Request Demo" form (can be a Notion page or Carrd to start)</span>
+            </label>
+            <div class="bg-surface p-3 rounded text-sm text-slate mt-2">
+              <strong class="text-ink">Don't overbuild:</strong> A clean landing page with a form that emails you is enough for the first 2 weeks. You don't need a custom website before the product is live.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase Summary -->
+    <div class="bg-white border border-border rounded-lg p-6">
+      <h3 class="font-serif font-bold text-xl mb-3">Phase 1 Output</h3>
+      <p class="text-slate text-sm mb-4">When you complete Phase 1, you should have:</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+        <div class="flex items-center gap-2"><span class="text-copper">✓</span> 3–5 committed sellers with product catalogs</div>
+        <div class="flex items-center gap-2"><span class="text-copper">✓</span> 1–2 buyer companies with LOI</div>
+        <div class="flex items-center gap-2"><span class="text-copper">✓</span> Revenue model defined (commission + subscription)</div>
+        <div class="flex items-center gap-2"><span class="text-copper">✓</span> Legal entity + GSTIN + bank account</div>
+        <div class="flex items-center gap-2"><span class="text-copper">✓</span> Domain + landing page + business email</div>
+        <div class="flex items-center gap-2"><span class="text-copper">✓</span> Terms of Service and Privacy Policy drafted</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- SECTION 2: IMPLEMENTATION -->
+  <section id="section-implement" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 hidden">
+    <div class="mb-8">
+      <h2 class="font-serif text-3xl font-bold tracking-tight mb-2">Phase 2: Implementation</h2>
+      <p class="text-slate max-w-2xl">From codebase to deployment. This is the technical execution phase. Follow the order — don't skip ahead.</p>
+    </div>
+
+    <div class="bg-white border border-border rounded-lg p-4 mb-6">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm font-medium">Phase Progress</span>
+        <span id="impl-progress-text" class="text-sm font-mono text-copper">0%</span>
+      </div>
+      <div class="w-full h-2 bg-surface-2 rounded-full overflow-hidden">
+        <div id="impl-progress" class="progress-bar h-full bg-copper rounded-full" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="relative pl-8 mb-8">
+      <div class="absolute left-3 top-0 bottom-0 w-0.5 bg-surface-2"></div>
+
+      <!-- Week 1 -->
+      <div class="relative mb-6">
+        <div class="absolute -left-5 h-6 w-6 rounded-full bg-copper text-white flex items-center justify-center font-bold text-xs">1</div>
+        <div class="bg-white border border-border rounded-lg p-4">
+          <h3 class="font-serif font-bold text-lg mb-1">Week 1: Security Hardening</h3>
+          <p class="text-sm text-slate mb-3">Fix every P0 blocker before deploying. The platform handles money and invoices.</p>
+          <div class="space-y-2">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Remove hardcoded admin backdoor from <code class="bg-surface px-1 rounded text-xs">auth.service.ts</code></span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Remove JWT secret fallback. Crash on missing env.</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Add <code class="bg-surface px-1 rounded text-xs">class-validator</code> DTOs for all controllers</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Add rate limiting (<code class="bg-surface px-1 rounded text-xs">@nestjs/throttler</code>) and <code class="bg-surface px-1 rounded text-xs">helmet</code></span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Restrict CORS to known origins</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Week 2 -->
+      <div class="relative mb-6">
+        <div class="absolute -left-5 h-6 w-6 rounded-full bg-copper text-white flex items-center justify-center font-bold text-xs">2</div>
+        <div class="bg-white border border-border rounded-lg p-4">
+          <h3 class="font-serif font-bold text-lg mb-1">Week 2: Infrastructure & Config</h3>
+          <p class="text-sm text-slate mb-3">Make the code deployable anywhere, not just your laptop.</p>
+          <div class="space-y-2">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Create centralized API client replacing all hardcoded <code class="bg-surface px-1 rounded text-xs">localhost:3001</code> URLs</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Expand <code class="bg-surface px-1 rounded text-xs">.env.example</code> with all required variables (JWT_SECRET, ALLOWED_ORIGINS, etc.)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Write Dockerfiles for backend, web, and admin</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Write <code class="bg-surface px-1 rounded text-xs">docker-compose.prod.yml</code> for full stack deployment</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Week 3 -->
+      <div class="relative mb-6">
+        <div class="absolute -left-5 h-6 w-6 rounded-full bg-copper text-white flex items-center justify-center font-bold text-xs">3</div>
+        <div class="bg-white border border-border rounded-lg p-4">
+          <h3 class="font-serif font-bold text-lg mb-1">Week 3: Frontend Polish</h3>
+          <p class="text-sm text-slate mb-3">Prevent blank screens and silent failures. Make errors visible to users.</p>
+          <div class="space-y-2">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Add <code class="bg-surface px-1 rounded text-xs">error.tsx</code>, <code class="bg-surface px-1 rounded text-xs">loading.tsx</code>, and <code class="bg-surface px-1 rounded text-xs">not-found.tsx</code> to App Router</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Replace all <code class="bg-surface px-1 rounded text-xs">console.error</code> with user-facing toast notifications</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Extract duplicate constants (STATUS_CONFIG, UOM) into shared file</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Add pagination to all list endpoints (orders, products, invoices, assets)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Week 4 -->
+      <div class="relative mb-6">
+        <div class="absolute -left-5 h-6 w-6 rounded-full bg-copper text-white flex items-center justify-center font-bold text-xs">4</div>
+        <div class="bg-white border border-border rounded-lg p-4">
+          <h3 class="font-serif font-bold text-lg mb-1">Week 4: Database & Production</h3>
+          <p class="text-sm text-slate mb-3">Make the database production-grade.</p>
+          <div class="space-y-2">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Add indexes to all frequently queried columns in <code class="bg-surface px-1 rounded text-xs">schema.prisma</code></span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Switch from <code class="bg-surface px-1 rounded text-xs">prisma db push</code> to <code class="bg-surface px-1 rounded text-xs">prisma migrate deploy</code></span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Add soft delete flags (<code class="bg-surface px-1 rounded text-xs">isActive</code>, <code class="bg-surface px-1 rounded text-xs">deletedAt</code>) to User and ProductCatalog</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Add <code class="bg-surface px-1 rounded text-xs">AdminGuard</code> to all admin endpoints</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Add <code class="bg-surface px-1 rounded text-xs">/health</code> endpoint and replace <code class="bg-surface px-1 rounded text-xs">console.log</code> with structured logger</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Week 5 -->
+      <div class="relative mb-6">
+        <div class="absolute -left-5 h-6 w-6 rounded-full bg-copper text-white flex items-center justify-center font-bold text-xs">5</div>
+        <div class="bg-white border border-border rounded-lg p-4">
+          <h3 class="font-serif font-bold text-lg mb-1">Week 5: Deploy & Test</h3>
+          <p class="text-sm text-slate mb-3">Get it running on a real server with real data.</p>
+          <div class="space-y-2">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Set up production server (AWS EC2 / DigitalOcean / Railway / Render)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Deploy Docker containers to production</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Run database migrations on production</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Seed production with admin account and 3–5 demo sellers</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Run full E2E test suite against production</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('impl')">
+              <span class="text-sm">Configure DNS and SSL (Cloudflare or Let's Encrypt)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white border border-border rounded-lg p-6">
+      <h3 class="font-serif font-bold text-xl mb-3">Phase 2 Output</h3>
+      <p class="text-slate text-sm mb-4">When you complete Phase 2, you should have:</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+        <div class="flex items-center gap-2"><span class="text-copper">✓</span> Production URL with SSL</div>
+        <div class="flex items-center gap-2"><span class="text-copper">✓</span> All security blockers resolved</div>
+        <div class="flex items-center gap-2"><span class="text-copper">✓</span> Docker-based deployment working</div>
+        <div class="flex items-center gap-2"><span class="text-copper">✓</span> Admin account + 3–5 demo sellers seeded</div>
+        <div class="flex items-center gap-2"><span class="text-copper">✓</span> E2E tests passing</div>
+        <div class="flex items-center gap-2"><span class="text-copper">✓</span> Health check and logging active</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- SECTION 3: USER ONBOARDING -->
+  <section id="section-onboard" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 hidden">
+    <div class="mb-8">
+      <h2 class="font-serif text-3xl font-bold tracking-tight mb-2">Phase 3: User Onboarding</h2>
+      <p class="text-slate max-w-2xl">How to get buyers and sellers from first visit to first transaction. Each persona has a different journey.</p>
+    </div>
+
+    <!-- Onboarding Tabs -->
+    <div class="flex gap-4 mb-6 border-b border-border">
+      <button onclick="switchOnboard('seller')" id="onboard-seller" class="tab-active pb-3 text-sm font-medium">Seller Onboarding</button>
+      <button onclick="switchOnboard('buyer')" id="onboard-buyer" class="tab-inactive pb-3 text-sm font-medium">Buyer Onboarding</button>
+      <button onclick="switchOnboard('admin')" id="onboard-admin" class="tab-inactive pb-3 text-sm font-medium">Admin Onboarding</button>
+    </div>
+
+    <!-- SELLER ONBOARDING -->
+    <div id="onboard-section-seller">
+      <div class="bg-white border border-border rounded-lg p-6 mb-6">
+        <h3 class="font-serif font-bold text-xl mb-4">Seller Onboarding Flow</h3>
+        <p class="text-slate text-sm mb-4">Sellers are the supply side. You need them BEFORE buyers. The onboarding must be fast and low-friction.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Step 1 -->
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-copper text-white flex items-center justify-center font-bold text-sm mb-3">1</div>
+            <h4 class="font-bold text-sm mb-2">Invitation</h4>
+            <p class="text-sm text-slate">Send a personal WhatsApp/email to the seller with a unique invite link. Don't make them find you.</p>
+            <div class="mt-3 p-2 bg-white border border-border rounded text-xs text-slate">
+              <em>"Hi [Name], I'm launching Corpass — a platform for corporate buyers. I'd love to list your [Category] products. Here's your registration link: [URL]"</em>
+            </div>
+          </div>
+          <!-- Step 2 -->
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-copper text-white flex items-center justify-center font-bold text-sm mb-3">2</div>
+            <h4 class="font-bold text-sm mb-2">Registration</h4>
+            <p class="text-sm text-slate">Seller fills: name, login ID, email, mobile, password, address, city, pincode.</p>
+            <p class="text-sm text-slate mt-2">Then selects "I am a Seller" and adds:</p>
+            <ul class="text-sm text-slate mt-1 space-y-1 list-disc list-inside">
+              <li>GSTIN (mandatory)</li>
+              <li>Delivery Range (Local/Hyper-local/Shipping)</li>
+              <li>Delivery Cities / Pincodes</li>
+            </ul>
+          </div>
+          <!-- Step 3 -->
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-copper text-white flex items-center justify-center font-bold text-sm mb-3">3</div>
+            <h4 class="font-bold text-sm mb-2">Catalog Setup</h4>
+            <p class="text-sm text-slate">Guide the seller to add their first 5 products. Offer to do it FOR them if they're busy.</p>
+            <div class="mt-3 p-2 bg-white border border-border rounded text-xs text-slate">
+              <strong>Pro tip:</strong> Ask the seller to send their product catalog as a PDF or Excel. You upload the first 5 products yourself to demonstrate the platform. Sellers add the rest later.
+            </div>
+          </div>
+          <!-- Step 4 -->
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-copper text-white flex items-center justify-center font-bold text-sm mb-3">4</div>
+            <h4 class="font-bold text-sm mb-2">Stock Configuration</h4>
+            <p class="text-sm text-slate">Seller sets stock quantities for each product. Explain that stock auto-deducts on ship.</p>
+            <p class="text-sm text-slate mt-2">Emphasize: "Keep this updated. If you show 100 in stock but only have 20, you'll get bad reviews."</p>
+          </div>
+          <!-- Step 5 -->
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-copper text-white flex items-center justify-center font-bold text-sm mb-3">5</div>
+            <h4 class="font-bold text-sm mb-2">Pricing Explanation</h4>
+            <p class="text-sm text-slate">Explain the two price types:</p>
+            <ul class="text-sm text-slate mt-1 space-y-1 list-disc list-inside">
+              <li><strong>Fixed Price:</strong> Buyer can order directly. Good for standard products.</li>
+              <li><strong>Contact for Quote:</strong> Buyer must inquire first. Good for custom/services.</li>
+            </ul>
+          </div>
+          <!-- Step 6 -->
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-copper text-white flex items-center justify-center font-bold text-sm mb-3">6</div>
+            <h4 class="font-bold text-sm mb-2">First Order Activation</h4>
+            <p class="text-sm text-slate">The seller's first order is the activation moment. Call them immediately when it comes in.</p>
+            <div class="mt-3 p-2 bg-white border border-border rounded text-xs text-slate">
+              <strong>Phone call script:</strong> "Hi [Name], you just got your first order on Corpass for [Product]. Log in to confirm it. I'm here to help if you get stuck."
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-copper-light border border-copper/20 rounded-lg p-4">
+        <h4 class="font-bold text-sm mb-2 text-copper">Seller Onboarding Metrics</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          <div class="bg-white p-3 rounded border border-copper/20">
+            <div class="text-xs text-slate">Target</div>
+            <div class="font-bold text-lg">10 sellers</div>
+            <div class="text-xs text-slate">in first 30 days</div>
+          </div>
+          <div class="bg-white p-3 rounded border border-copper/20">
+            <div class="text-xs text-slate">Catalog</div>
+            <div class="font-bold text-lg">5+ products</div>
+            <div class="text-xs text-slate">per seller minimum</div>
+          </div>
+          <div class="bg-white p-3 rounded border border-copper/20">
+            <div class="text-xs text-slate">Time to Active</div>
+            <div class="font-bold text-lg">&lt; 48 hours</div>
+            <div class="text-xs text-slate">from invite to first order</div>
+          </div>
+          <div class="bg-white p-3 rounded border border-copper/20">
+            <div class="text-xs text-slate">Activation Rate</div>
+            <div class="font-bold text-lg">30%+</div>
+            <div class="text-xs text-slate">of invited sellers place an order</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUYER ONBOARDING -->
+    <div id="onboard-section-buyer" class="hidden">
+      <div class="bg-white border border-border rounded-lg p-6 mb-6">
+        <h3 class="font-serif font-bold text-xl mb-4">Buyer Onboarding Flow</h3>
+        <p class="text-slate text-sm mb-4">Buyers are the demand side. They won't come unless you have products. Onboard them AFTER sellers are ready.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Step 1 -->
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-money text-white flex items-center justify-center font-bold text-sm mb-3">1</div>
+            <h4 class="font-bold text-sm mb-2">Direct Outreach</h4>
+            <p class="text-sm text-slate">Call the procurement head personally. Don't send a mass email. B2B is relationship-driven.</p>
+            <div class="mt-3 p-2 bg-white border border-border rounded text-xs text-slate">
+              <em>"Hi [Name], I've built a platform where you can get quotes from 5 verified suppliers for your office supplies in 10 minutes. Want to see a demo?"</em>
+            </div>
+          </div>
+          <!-- Step 2 -->
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-money text-white flex items-center justify-center font-bold text-sm mb-3">2</div>
+            <h4 class="font-bold text-sm mb-2">Live Demo</h4>
+            <p class="text-sm text-slate">Do a 15-minute screen share. Show them the marketplace, inquiry system, and order tracking. Let them send a test inquiry to a real seller.</p>
+            <p class="text-sm text-slate mt-2">The goal is to get a real RFQ sent during the demo.</p>
+          </div>
+          <!-- Step 3 -->
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-money text-white flex items-center justify-center font-bold text-sm mb-3">3</div>
+            <h4 class="font-bold text-sm mb-2">Registration</h4>
+            <p class="text-sm text-slate">Buyer registers with personal details AND company details:</p>
+            <ul class="text-sm text-slate mt-1 space-y-1 list-disc list-inside">
+              <li>Company Name</li>
+              <li>Company Address</li>
+              <li>Company Type</li>
+              <li>Employee Count</li>
+            </ul>
+            <p class="text-sm text-slate mt-2">This company profile is shared across all employees who register later.</p>
+          </div>
+          <!-- Step 4 -->
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-money text-white flex items-center justify-center font-bold text-sm mb-3">4</div>
+            <h4 class="font-bold text-sm mb-2">First Inquiry</h4>
+            <p class="text-sm text-slate">Guide the buyer to send their first inquiry. This is the "aha" moment.</p>
+            <p class="text-sm text-slate mt-2">Pre-populate the inquiry form with a product they actually need. Don't make them search from scratch.</p>
+          </div>
+          <!-- Step 5 -->
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-money text-white flex items-center justify-center font-bold text-sm mb-3">5</div>
+            <h4 class="font-bold text-sm mb-2">Order & Payment</h4>
+            <p class="text-sm text-slate">When a seller responds, guide the buyer to convert the inquiry to an order. Walk them through payment recording.</p>
+            <p class="text-sm text-slate mt-2">Explain: "You pay the seller directly via bank transfer. Then record the UTR here so both of you have a shared record."</p>
+          </div>
+          <!-- Step 6 -->
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-money text-white flex items-center justify-center font-bold text-sm mb-3">6</div>
+            <h4 class="font-bold text-sm mb-2">Asset Discovery</h4>
+            <p class="text-sm text-slate">After delivery, show the buyer their auto-logged asset. This is the unique value prop.</p>
+            <div class="mt-3 p-2 bg-white border border-border rounded text-xs text-slate">
+              <strong>Re-engagement hook:</strong> "Remember that 500-chair order from 3 months ago? They're all logged in your asset dashboard. You know exactly where they are."
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-money-light border border-money/20 rounded-lg p-4">
+        <h4 class="font-bold text-sm mb-2 text-money">Buyer Onboarding Metrics</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          <div class="bg-white p-3 rounded border border-money/20">
+            <div class="text-xs text-slate">Target</div>
+            <div class="font-bold text-lg">3 companies</div>
+            <div class="text-xs text-slate">in first 30 days</div>
+          </div>
+          <div class="bg-white p-3 rounded border border-money/20">
+            <div class="text-xs text-slate">First Inquiry</div>
+            <div class="font-bold text-lg">&lt; 24 hours</div>
+            <div class="text-xs text-slate">from registration to first RFQ</div>
+          </div>
+          <div class="bg-white p-3 rounded border border-money/20">
+            <div class="text-xs text-slate">First Order</div>
+            <div class="font-bold text-lg">&lt; 7 days</div>
+            <div class="text-xs text-slate">from registration to first order</div>
+          </div>
+          <div class="bg-white p-3 rounded border border-money/20">
+            <div class="text-xs text-slate">Repeat Rate</div>
+            <div class="font-bold text-lg">2nd order</div>
+            <div class="text-xs text-slate">within 30 days of first order</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN ONBOARDING -->
+    <div id="onboard-section-admin" class="hidden">
+      <div class="bg-white border border-border rounded-lg p-6 mb-6">
+        <h3 class="font-serif font-bold text-xl mb-4">Admin Onboarding</h3>
+        <p class="text-slate text-sm mb-4">You (the founder) are the first admin. You need to know how to operate the platform before anyone else uses it.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-ink text-white flex items-center justify-center font-bold text-sm mb-3">1</div>
+            <h4 class="font-bold text-sm mb-2">Admin Account Creation</h4>
+            <p class="text-sm text-slate">Run the seed script to create the admin:</p>
+            <code class="block bg-white border border-border rounded p-2 mt-2 text-xs">node scripts/seed-admin.js</code>
+            <p class="text-sm text-slate mt-2">Default: loginId = "admin", password = "admin" (change immediately after first login).</p>
+          </div>
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-ink text-white flex items-center justify-center font-bold text-sm mb-3">2</div>
+            <h4 class="font-bold text-sm mb-2">Dashboard Familiarization</h4>
+            <p class="text-sm text-slate">Log in to the admin portal and review:</p>
+            <ul class="text-sm text-slate mt-1 space-y-1 list-disc list-inside">
+              <li>Total users, orders, revenue stats</li>
+              <li>Recent activity feed</li>
+              <li>User list (filter by role)</li>
+              <li>Order list (filter by status)</li>
+              <li>Support tickets</li>
+            </ul>
+          </div>
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-ink text-white flex items-center justify-center font-bold text-sm mb-3">3</div>
+            <h4 class="font-bold text-sm mb-2">Support Ticket Workflow</h4>
+            <p class="text-sm text-slate">When a user raises a support ticket:</p>
+            <ul class="text-sm text-slate mt-1 space-y-1 list-disc list-inside">
+              <li>You receive a notification in the admin portal</li>
+              <li>View the ticket details and user info</li>
+              <li>Contact the user via email/phone (off-platform for now)</li>
+              <li>Update the ticket status manually (future: in-app response)</li>
+            </ul>
+          </div>
+          <div class="bg-surface p-4 rounded-lg">
+            <div class="h-8 w-8 rounded-full bg-ink text-white flex items-center justify-center font-bold text-sm mb-3">4</div>
+            <h4 class="font-bold text-sm mb-2">Daily Operations Checklist</h4>
+            <p class="text-sm text-slate">Every morning, check:</p>
+            <ul class="text-sm text-slate mt-1 space-y-1 list-disc list-inside">
+              <li>New registrations (are they real or spam?)</li>
+              <li>Pending orders (are sellers responding?)</li>
+              <li>Open support tickets</li>
+              <li>Disputed invoices or payments</li>
+              <li>Low-stock alerts (notify sellers proactively)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- SECTION 4: GO-TO-MARKET -->
+  <section id="section-launch" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 hidden">
+    <div class="mb-8">
+      <h2 class="font-serif text-3xl font-bold tracking-tight mb-2">Phase 4: Go-to-Market</h2>
+      <p class="text-slate max-w-2xl">Launch is not a day. It's a sequence of deliberate actions over 90 days.</p>
+    </div>
+
+    <div class="bg-white border border-border rounded-lg p-4 mb-6">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm font-medium">Phase Progress</span>
+        <span id="launch-progress-text" class="text-sm font-mono text-copper">0%</span>
+      </div>
+      <div class="w-full h-2 bg-surface-2 rounded-full overflow-hidden">
+        <div id="launch-progress" class="progress-bar h-full bg-copper rounded-full" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Left: Timeline -->
+      <div class="space-y-4">
+        <div class="bg-white border border-border rounded-lg p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="h-6 w-6 rounded-full bg-copper text-white flex items-center justify-center font-bold text-xs">W1</span>
+            <h3 class="font-serif font-bold text-lg">Soft Launch</h3>
+          </div>
+          <div class="space-y-2">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Invite your 3–5 committed sellers to register</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Invite your 1–2 committed buyers to register</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Facilitate the first real transaction end-to-end (you mediate manually)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Fix any bugs that surface during the first transaction</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="bg-white border border-border rounded-lg p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="h-6 w-6 rounded-full bg-copper text-white flex items-center justify-center font-bold text-xs">W2</span>
+            <h3 class="font-serif font-bold text-lg">Seller Expansion</h3>
+          </div>
+          <div class="space-y-2">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Cold outreach to 20 more sellers in your vertical</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Get 3–5 more sellers onboarded with catalogs</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Ask your first sellers for referrals: "Who else should be on this platform?"</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="bg-white border border-border rounded-lg p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="h-6 w-6 rounded-full bg-copper text-white flex items-center justify-center font-bold text-xs">W3</span>
+            <h3 class="font-serif font-bold text-lg">Buyer Expansion</h3>
+          </div>
+          <div class="space-y-2">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Ask your first buyers for referrals: "Which other companies have the same procurement needs?"</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Reach out to 10 procurement heads via LinkedIn or mutual connections</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Offer the first 3 new buyers a waived commission on their first order</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="bg-white border border-border rounded-lg p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="h-6 w-6 rounded-full bg-copper text-white flex items-center justify-center font-bold text-xs">M2</span>
+            <h3 class="font-serif font-bold text-lg">Month 2: Iterate</h3>
+          </div>
+          <div class="space-y-2">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Interview 5 users (buyers + sellers) about what's missing</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Fix the top 3 UX pain points they mention</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Track weekly GMV (Gross Merchandise Value)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Target: 10 sellers, 5 buyer companies, ₹2L+ GMV</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="bg-white border border-border rounded-lg p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="h-6 w-6 rounded-full bg-copper text-white flex items-center justify-center font-bold text-xs">M3</span>
+            <h3 class="font-serif font-bold text-lg">Month 3: Scale</h3>
+          </div>
+          <div class="space-y-2">
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Add one new product category (expand vertical)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Introduce subscription tier for sellers (premium placement)</span>
+            </label>
+            <label class="check-item flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" class="mt-1 accent-copper" onchange="updateProgress('launch')">
+              <span class="text-sm">Target: 25 sellers, 10 buyer companies, ₹5L+ GMV</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Tips & Metrics -->
+      <div class="space-y-4">
+        <div class="bg-white border border-border rounded-lg p-5">
+          <h3 class="font-serif font-bold text-lg mb-3">Launch Principles</h3>
+          <div class="space-y-3 text-sm">
+            <div class="p-3 bg-surface rounded">
+              <div class="font-bold text-ink mb-1">"Do Things That Don't Scale"</div>
+              <div class="text-slate">For the first 30 days, manually onboard every seller and buyer. Call them. Help them upload products. The platform should feel personal, not self-service.</div>
+            </div>
+            <div class="p-3 bg-surface rounded">
+              <div class="font-bold text-ink mb-1">"One Transaction is Worth 100 Features"</div>
+              <div class="text-slate">Don't build more features until 10 real transactions have completed. Every feature you build before that is a guess. Let users tell you what they need.</div>
+            </div>
+            <div class="p-3 bg-surface rounded">
+              <div class="font-bold text-ink mb-1">"Sellers Before Buyers, Always"</div>
+              <div class="text-slate">A buyer who sees an empty marketplace leaves forever. A seller with no buyers just waits. You can simulate demand by being the buyer's first inquiry yourself.</div>
+            </div>
+            <div class="p-3 bg-surface rounded">
+              <div class="font-bold text-ink mb-1">"Commission is Your Validation"</div>
+              <div class="text-slate">Don't charge subscription until you have 10+ active sellers. Start with commission-only. When sellers are making money, they'll happily pay for premium features.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white border border-border rounded-lg p-5">
+          <h3 class="font-serif font-bold text-lg mb-3">90-Day Targets</h3>
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Sellers</span>
+                <span class="font-mono">25</span>
+              </div>
+              <div class="w-full h-2 bg-surface-2 rounded-full"><div class="h-full bg-copper rounded-full" style="width:0%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Buyer Companies</span>
+                <span class="font-mono">10</span>
+              </div>
+              <div class="w-full h-2 bg-surface-2 rounded-full"><div class="h-full bg-copper rounded-full" style="width:0%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Completed Orders</span>
+                <span class="font-mono">50+</span>
+              </div>
+              <div class="w-full h-2 bg-surface-2 rounded-full"><div class="h-full bg-copper rounded-full" style="width:0%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>GMV (₹)</span>
+                <span class="font-mono">5L+</span>
+              </div>
+              <div class="w-full h-2 bg-surface-2 rounded-full"><div class="h-full bg-copper rounded-full" style="width:0%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Commission Revenue (₹)</span>
+                <span class="font-mono">15K–25K</span>
+              </div>
+              <div class="w-full h-2 bg-surface-2 rounded-full"><div class="h-full bg-copper rounded-full" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-copper-light border border-copper/20 rounded-lg p-5">
+          <h3 class="font-serif font-bold text-lg mb-2 text-copper">Red Flags to Watch</h3>
+          <ul class="text-sm space-y-2 text-slate">
+            <li class="flex items-start gap-2"><span class="text-red-600">⚠</span> Sellers uploading catalogs but getting zero inquiries → Your buyer outreach is too weak.</li>
+            <li class="flex items-start gap-2"><span class="text-red-600">⚠</span> Buyers registering but not sending inquiries → Your product catalog is too thin or too expensive.</li>
+            <li class="flex items-start gap-2"><span class="text-red-600">⚠</span> Orders placed but cancelled frequently → Sellers are too slow to respond or prices are too high.</li>
+            <li class="flex items-start gap-2"><span class="text-red-600">⚠</span> Payments disputed frequently → Buyers and sellers don't trust the platform. Add manual verification.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- FOOTER -->
+  <footer class="border-t border-border mt-12 py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-slate">
+      <p>Corpass Launch Guide — From Idea to Live Users</p>
+      <p class="mt-1">Check off items as you complete them. Progress saves automatically in this session.</p>
+    </div>
+  </footer>
+
+
+  <script>
+    // TAB SWITCHING
+    function switchTab(tabName) {
+      ['business', 'implement', 'onboard', 'launch'].forEach(t => {
+        document.getElementById('section-' + t).classList.add('hidden');
+        document.getElementById('tab-' + t).classList.remove('tab-active');
+        document.getElementById('tab-' + t).classList.add('tab-inactive');
+      });
+      document.getElementById('section-' + tabName).classList.remove('hidden');
+      document.getElementById('tab-' + tabName).classList.add('tab-active');
+      document.getElementById('tab-' + tabName).classList.remove('tab-inactive');
+      updateGlobalProgress();
+    }
+
+    // ONBOARD SUB-TAB SWITCHING
+    function switchOnboard(type) {
+      ['seller', 'buyer', 'admin'].forEach(t => {
+        document.getElementById('onboard-section-' + t).classList.add('hidden');
+        document.getElementById('onboard-' + t).classList.remove('tab-active');
+        document.getElementById('onboard-' + t).classList.add('tab-inactive');
+      });
+      document.getElementById('onboard-section-' + type).classList.remove('hidden');
+      document.getElementById('onboard-' + type).classList.add('tab-active');
+      document.getElementById('onboard-' + type).classList.remove('tab-inactive');
+    }
+
+    // STEP CARD TOGGLE
+    function toggleStep(stepId) {
+      const content = document.getElementById('content-' + stepId);
+      const arrow = document.getElementById('arrow-' + stepId);
+      const card = document.querySelector('[onclick="toggleStep(\'' + stepId + '\')"]');
+      if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        arrow.style.transform = 'rotate(180deg)';
+        card.classList.add('active');
+      } else {
+        content.classList.add('hidden');
+        arrow.style.transform = 'rotate(0deg)';
+        card.classList.remove('active');
+      }
+    }
+
+    // PROGRESS CALCULATION
+    function updateProgress(phase) {
+      const section = document.getElementById('section-' + (phase === 'biz' ? 'business' : phase === 'impl' ? 'implement' : phase === 'launch' ? 'launch' : phase));
+      const checkboxes = section.querySelectorAll('input[type="checkbox"]');
+      const checked = section.querySelectorAll('input[type="checkbox"]:checked');
+      const percent = checkboxes.length > 0 ? Math.round((checked.length / checkboxes.length) * 100) : 0;
+
+      const barId = phase === 'biz' ? 'biz-progress' : phase === 'impl' ? 'impl-progress' : 'launch-progress';
+      const textId = phase === 'biz' ? 'biz-progress-text' : phase === 'impl' ? 'impl-progress-text' : 'launch-progress-text';
+
+      document.getElementById(barId).style.width = percent + '%';
+      document.getElementById(textId).textContent = percent + '%';
+
+      updateGlobalProgress();
+    }
+
+    function updateGlobalProgress() {
+      const allBoxes = document.querySelectorAll('input[type="checkbox"]');
+      const allChecked = document.querySelectorAll('input[type="checkbox"]:checked');
+      const total = allBoxes.length > 0 ? Math.round((allChecked.length / allBoxes.length) * 100) : 0;
+      document.getElementById('global-progress').style.width = total + '%';
+      document.getElementById('global-percent').textContent = total + '%';
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      updateGlobalProgress();
+    });
+  </script>
+
+</body>
+</html>

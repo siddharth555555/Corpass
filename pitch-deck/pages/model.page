@@ -1,0 +1,245 @@
+pageType: content
+background:
+  type: solid
+  color: "$background"
+elements:
+  - elementId: m-title
+    elementType: text
+    bounds: [60, 50, 1100, 45]
+    content:
+      style: "$title"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>Revenue: 3–5% Commission + Tiered Subscriptions</p>
+
+  - elementId: m-line
+    elementType: shape
+    bounds: [60, 105, 80, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 2
+      color: "$copper"
+
+  - elementId: m-commission-num
+    elementType: text
+    bounds: [60, 150, 400, 70]
+    content:
+      style: "$bigNumber"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>3–5%</p>
+
+  - elementId: m-commission-label
+    elementType: text
+    bounds: [60, 225, 400, 30]
+    content:
+      fontSize: 20
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Commission on GMV</strong></p>
+
+  - elementId: m-commission-body
+    elementType: text
+    bounds: [60, 265, 400, 100]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Sellers pay only when they earn. No upfront fees, no listing charges. The platform takes a small percentage of every successful order.</p>
+
+  - elementId: m-divider
+    elementType: shape
+    bounds: [500, 150, 0, 220]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 1
+      color: "$border"
+
+  - elementId: m-sub-title
+    elementType: text
+    bounds: [540, 150, 400, 30]
+    content:
+      fontSize: 20
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Subscription Tiers</strong></p>
+
+  - elementId: m-tier-table
+    elementType: table
+    bounds: [540, 200, 680, 170]
+    columnWidths: [0.30, 0.25, 0.25, 0.20]
+    rowHeights: [0.30, 0.35, 0.35]
+    style: "$default"
+    rows:
+      - - content:
+            text: |
+              <p>Feature</p>
+        - content:
+            text: |
+              <p>Basic</p>
+        - content:
+            text: |
+              <p>Pro</p>
+        - content:
+            text: |
+              <p>Enterprise</p>
+      - - content:
+            text: |
+              <p>Price</p>
+        - content:
+            text: |
+              <p>Free</p>
+        - content:
+            text: |
+              <p>₹999/mo</p>
+        - content:
+            text: |
+              <p>₹2,999/mo</p>
+      - - content:
+            text: |
+              <p>Key Benefit</p>
+        - content:
+            text: |
+              <p>Standard listing</p>
+        - content:
+            text: |
+              <p>Featured placement</p>
+        - content:
+            text: |
+              <p>Dedicated manager</p>
+
+  - elementId: m-projection-bg
+    elementType: shape
+    bounds: [60, 420, 1160, 220]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: m-projection-label
+    elementType: text
+    bounds: [80, 435, 300, 25]
+    content:
+      fontSize: 14
+      color: "$copper"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      letterSpacing: 2
+      text: |
+        <p>90-DAY PROJECTION</p>
+
+  - elementId: m-proj-num1
+    elementType: text
+    bounds: [80, 480, 250, 55]
+    content:
+      style: "$bigNumber"
+      fontSize: 40
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>₹5L</p>
+
+  - elementId: m-proj-label1
+    elementType: text
+    bounds: [80, 540, 250, 25]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>GMV Target</p>
+
+  - elementId: m-proj-num2
+    elementType: text
+    bounds: [380, 480, 250, 55]
+    content:
+      style: "$bigNumber"
+      fontSize: 40
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>₹25K</p>
+
+  - elementId: m-proj-label2
+    elementType: text
+    bounds: [380, 540, 250, 25]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>Commission Revenue</p>
+
+  - elementId: m-proj-num3
+    elementType: text
+    bounds: [680, 480, 250, 55]
+    content:
+      style: "$bigNumber"
+      fontSize: 40
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>25</p>
+
+  - elementId: m-proj-label3
+    elementType: text
+    bounds: [680, 540, 250, 25]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>Active Sellers</p>
+
+  - elementId: m-proj-num4
+    elementType: text
+    bounds: [980, 480, 220, 55]
+    content:
+      style: "$bigNumber"
+      fontSize: 40
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>10</p>
+
+  - elementId: m-proj-label4
+    elementType: text
+    bounds: [980, 540, 220, 25]
+    content:
+      fontSize: 16
+      color: "$slate"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>Buyer Companies</p>
+
+  - elementId: m-pagenum
+    elementType: text
+    bounds: [1160, 670, 60, 30]
+    content:
+      style: "$caption"
+      align: [right, middle]
+      wrap: false
+      text: |
+        <p>14</p>

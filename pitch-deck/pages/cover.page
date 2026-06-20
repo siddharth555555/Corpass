@@ -1,0 +1,47 @@
+pageType: cover
+background:
+  type: solid
+  color: "$background"
+elements:
+  - elementId: cover-title
+    elementType: text
+    bounds: [140, 220, 1000, 70]
+    content:
+      style: "$coverTitle"
+      align: [center, middle]
+      wrap: false
+      text: |
+        <p>Corpass</p>
+
+  - elementId: cover-line
+    elementType: shape
+    bounds: [490, 310, 300, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 2
+      color: "$copper"
+
+  - elementId: cover-subtitle
+    elementType: text
+    bounds: [140, 330, 1000, 80]
+    content:
+      style: "$subtitle"
+      align: [center, middle]
+      lineHeight: 1.5
+      text: |
+        <p>Corporate Procurement & Asset Management Platform</p>
+        <p><span style="font-size:16px;">Where verified sellers meet enterprise buyers</span></p>
+
+  - elementId: cover-tagline
+    elementType: text
+    bounds: [340, 470, 600, 40]
+    content:
+      fontSize: 14
+      color: "$slate"
+      fontFamily: "Liter"
+      align: [center, middle]
+      wrap: false
+      letterSpacing: 2
+      text: |
+        <p>DISCOVER  ·  NEGOTIATE  ·  PURCHASE  ·  TRACK</p>

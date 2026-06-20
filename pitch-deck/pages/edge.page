@@ -1,0 +1,207 @@
+pageType: content
+background:
+  type: solid
+  color: "$background"
+elements:
+  - elementId: e-title
+    elementType: text
+    bounds: [60, 50, 1100, 45]
+    content:
+      style: "$title"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p>Why Corpass Wins: Asset Management Is the Moat</p>
+
+  - elementId: e-line
+    elementType: shape
+    bounds: [60, 105, 80, 0]
+    shapeName: straightConnector1
+    border:
+      style: solid
+      width: 2
+      color: "$copper"
+
+  - elementId: e-card1-bg
+    elementType: shape
+    bounds: [60, 140, 260, 240]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: e-card1-title
+    elementType: text
+    bounds: [75, 155, 230, 28]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>IndiaMart</strong></p>
+
+  - elementId: e-card1-body
+    elementType: text
+    bounds: [75, 195, 230, 170]
+    content:
+      fontSize: 15
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Discovery only</p>
+        <p>No order tracking</p>
+        <p>No payment records</p>
+        <p>No asset management</p>
+
+  - elementId: e-card2-bg
+    elementType: shape
+    bounds: [350, 140, 260, 240]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: e-card2-title
+    elementType: text
+    bounds: [365, 155, 230, 28]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Amazon Business</strong></p>
+
+  - elementId: e-card2-body
+    elementType: text
+    bounds: [365, 195, 230, 170]
+    content:
+      fontSize: 15
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>B2C checkout model</p>
+        <p>No negotiation</p>
+        <p>No asset tracking</p>
+        <p>No condition monitoring</p>
+
+  - elementId: e-card3-bg
+    elementType: shape
+    bounds: [640, 140, 260, 240]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: e-card3-title
+    elementType: text
+    bounds: [655, 155, 230, 28]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>SAP Ariba</strong></p>
+
+  - elementId: e-card3-body
+    elementType: text
+    bounds: [655, 195, 230, 170]
+    content:
+      fontSize: 15
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>Enterprise-only</p>
+        <p>Complex implementation</p>
+        <p>6-month onboarding</p>
+        <p>₹10L+ setup cost</p>
+
+  - elementId: e-card4-bg
+    elementType: shape
+    bounds: [930, 140, 290, 240]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$surface"
+
+  - elementId: e-card4-title
+    elementType: text
+    bounds: [945, 155, 260, 28]
+    content:
+      fontSize: 18
+      color: "$ink"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      text: |
+        <p><strong>Custom ERP</strong></p>
+
+  - elementId: e-card4-body
+    elementType: text
+    bounds: [945, 195, 260, 170]
+    content:
+      fontSize: 15
+      color: "$slate"
+      fontFamily: "Liter"
+      lineHeight: 1.5
+      align: [left, top]
+      text: |
+        <p>₹10L+ setup</p>
+        <p>Requires IT team</p>
+        <p>No marketplace discovery</p>
+        <p>Months to deploy</p>
+
+  - elementId: e-corpass-bg
+    elementType: shape
+    bounds: [60, 420, 1160, 200]
+    shapeName: rect
+    fill:
+      type: solid
+      color: "$copper"
+
+  - elementId: e-corpass-label
+    elementType: text
+    bounds: [80, 435, 200, 25]
+    content:
+      fontSize: 14
+      color: "#ffffff"
+      fontFamily: "Liter"
+      align: [left, middle]
+      wrap: false
+      letterSpacing: 2
+      text: |
+        <p>CORPASS</p>
+
+  - elementId: e-corpass-body
+    elementType: text
+    bounds: [80, 475, 1120, 120]
+    content:
+      fontSize: 20
+      color: "#ffffff"
+      fontFamily: "Liter"
+      lineHeight: 1.6
+      align: [left, top]
+      text: |
+        <p><strong>Marketplace</strong> + <strong>Negotiation</strong> + <strong>Payment Trust</strong> + <strong>Asset Management</strong> in one flow.</p>
+        <p>Built for Indian SMBs. Live in 48 hours. Zero setup cost.</p>
+
+  - elementId: e-pagenum
+    elementType: text
+    bounds: [1160, 670, 60, 30]
+    content:
+      style: "$caption"
+      align: [right, middle]
+      wrap: false
+      text: |
+        <p>16</p>

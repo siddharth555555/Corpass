@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationType } from '@prisma/client';
 
 @Injectable()
 export class NotificationsService {
+  private readonly logger = new Logger('NotificationsService');
   constructor(private prisma: PrismaService) {}
 
   private async runCleanup() {
@@ -16,7 +17,7 @@ export class NotificationsService {
         },
       });
     } catch (e) {
-      console.error('Failed to run notification cleanup:', e);
+      this.logger.error('Failed to run notification cleanup:', e);
     }
   }
 
@@ -64,20 +65,18 @@ export class NotificationsService {
     return this.notifyUsers(userIds, type, title, message, entityType, entityId);
   }
 
-  async getNotifications(userId: number, cursor?: string, limit: number = 20) {
-    const args: any = {
-      where: { userId },
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-    };
-
-    if (cursor) {
-      args.skip = 1; // Skip the cursor
-      args.cursor = { id: cursor };
-    }
-
-    const notifications = await this.prisma.notification.findMany(args);
-    return notifications;
+  async getNotifications(userId: number, page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.prisma.notification.findMany({
+        where: { userId },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.notification.count({ where: { userId } })
+    ]);
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async getUnreadCount(userId: number, type?: string) {

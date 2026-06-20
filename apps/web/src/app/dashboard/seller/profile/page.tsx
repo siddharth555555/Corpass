@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { AlertModal, AlertType } from "@/components/ui/AlertModal";
 
 export default function SellerProfile() {
   const router = useRouter();
+  const [alertConfig, setAlertConfig] = useState<{message: string, type: AlertType} | null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [reviews, setReviews] = useState<any[]>([]);
@@ -13,6 +15,11 @@ export default function SellerProfile() {
   // Edit Modal State
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<any>({});
+  
+  // Password Modal State
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [pwdForm, setPwdForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [pwdLoading, setPwdLoading] = useState(false);
   const [deliveryCities, setDeliveryCities] = useState<any[]>([]);
   const [deliveryPincodes, setDeliveryPincodes] = useState<string[]>([]);
   const [citySearchQuery, setCitySearchQuery] = useState("");
@@ -30,7 +37,8 @@ export default function SellerProfile() {
         const token = localStorage.getItem("access_token");
         const res = await fetch(`http://${window.location.hostname}:3001/cities?q=${citySearchQuery}`, { headers: { Authorization: `Bearer ${token}` } });
         if (res.ok) {
-          setCitySearchResults(await res.json());
+          const json = await res.json();
+          setCitySearchResults(json.data || json);
         }
       } catch (e) {}
     }, 300);
@@ -97,6 +105,40 @@ export default function SellerProfile() {
     } catch (e) { console.error(e); } finally { setSaving(false); }
   };
 
+  const handlePasswordChange = async (e: any) => {
+    e.preventDefault();
+    if (pwdForm.newPassword !== pwdForm.confirmPassword) {
+      setAlertConfig({ message: "Passwords do not match", type: "error" });
+      return;
+    }
+    setPwdLoading(true);
+    try {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch(`http://${window.location.hostname}:3001/auth/change-password`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          oldPassword: pwdForm.currentPassword,
+          newPassword: pwdForm.newPassword
+        })
+      });
+      if (res.ok) {
+        setIsChangingPassword(false);
+        setPwdForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setAlertConfig({ message: "Password changed successfully", type: "success" });
+      } else {
+        const data = await res.json();
+        const msg = Array.isArray(data.message) ? data.message.join(', ') : data.message;
+        setAlertConfig({ message: msg || "Failed to change password", type: "error" });
+      }
+    } catch (e) {
+      console.error(e);
+      setAlertConfig({ message: "An error occurred", type: "error" });
+    } finally {
+      setPwdLoading(false);
+    }
+  };
+
   if (loading) {
     return <div className="py-12 text-center text-slate text-sm">Loading profile...</div>;
   }
@@ -108,9 +150,14 @@ export default function SellerProfile() {
           <h1 className="text-2xl font-bold text-ink">Profile</h1>
           <p className="text-sm text-slate mt-1">Manage your store details and fulfillment settings.</p>
         </div>
-        <button onClick={() => setIsEditing(true)} className="cp-btn cp-btn--secondary">
-          Edit Settings
-        </button>
+        <div className="flex gap-3">
+          <button onClick={() => setIsChangingPassword(true)} className="cp-btn cp-btn--neutral text-sm">
+            Change Password
+          </button>
+          <button onClick={() => setIsEditing(true)} className="cp-btn cp-btn--secondary">
+            Edit Settings
+          </button>
+        </div>
       </div>
 
       <div className="cp-card mb-6">
@@ -195,20 +242,20 @@ export default function SellerProfile() {
 
       {isEditing && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-          <div className="fixed inset-0 backdrop-blur-sm transition-opacity" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => setIsEditing(false)}></div>
-          <div className="cp-modal relative w-full max-w-3xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200 overflow-hidden" style={{ padding: 0 }}>
+          <div className="fixed inset-0 bg-ink/30 backdrop-blur-sm transition-opacity" onClick={() => setIsEditing(false)}></div>
+          <div className="relative w-full max-w-3xl max-h-[90vh] bg-surface rounded-xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200 overflow-hidden border border-border">
             {/* Header */}
-            <div className="px-6 py-5 border-b flex justify-between items-center z-10" style={{ borderColor: 'var(--cp-border)' }}>
+            <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-surface z-10 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--cp-surface-2)', color: 'var(--cp-text)' }}>
+                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-brand-50 text-brand-600">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </div>
                 <div>
-                  <h2 className="text-[18px] font-[700] tracking-tight" style={{ color: 'var(--cp-text)' }}>Edit Settings</h2>
-                  <p className="text-[12px] mt-0.5" style={{ color: 'var(--cp-text-muted)' }}>Update your store and fulfillment details</p>
+                  <h2 className="text-[18px] font-bold text-ink tracking-tight">Edit Settings</h2>
+                  <p className="text-sm text-muted mt-0.5">Update your store and fulfillment details</p>
                 </div>
               </div>
-              <button onClick={() => setIsEditing(false)} className="h-8 w-8 rounded-full flex items-center justify-center transition-colors hover:shadow" style={{ backgroundColor: 'var(--cp-surface-2)', color: 'var(--cp-text-secondary)' }}>
+              <button onClick={() => setIsEditing(false)} className="h-8 w-8 rounded-full bg-surface-2 flex items-center justify-center text-muted hover:text-ink hover:bg-border transition-colors">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
@@ -369,6 +416,47 @@ export default function SellerProfile() {
           </div>
         </div>
       )}
+
+      {isChangingPassword && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div className="fixed inset-0 bg-ink/30 backdrop-blur-sm transition-opacity" onClick={() => setIsChangingPassword(false)}></div>
+          <div className="relative w-full max-w-md bg-surface rounded-xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200 overflow-hidden border border-border">
+            <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-surface z-10 shrink-0">
+              <h2 className="text-[18px] font-bold text-ink tracking-tight">Change Password</h2>
+              <button onClick={() => setIsChangingPassword(false)} className="h-8 w-8 rounded-full bg-surface-2 flex items-center justify-center text-muted hover:text-ink hover:bg-border transition-colors">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <form onSubmit={handlePasswordChange} className="p-6 space-y-5 bg-canvas">
+              <div>
+                <label className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Current Password</label>
+                <input value={pwdForm.currentPassword} onChange={e => setPwdForm({...pwdForm, currentPassword: e.target.value})} type="password" required className="cp-input w-full" placeholder="Enter current password" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wider">New Password</label>
+                <input value={pwdForm.newPassword} onChange={e => setPwdForm({...pwdForm, newPassword: e.target.value})} type="password" required minLength={6} className="cp-input w-full" placeholder="Enter new password" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Confirm New Password</label>
+                <input value={pwdForm.confirmPassword} onChange={e => setPwdForm({...pwdForm, confirmPassword: e.target.value})} type="password" required minLength={6} className="cp-input w-full" placeholder="Re-enter new password" />
+              </div>
+              <div className="pt-4 flex justify-end gap-3 border-t border-border mt-6">
+                <button type="button" onClick={() => setIsChangingPassword(false)} className="cp-btn cp-btn--secondary">Cancel</button>
+                <button type="submit" disabled={pwdLoading} className="cp-btn cp-btn--primary min-w-[100px] flex items-center justify-center">
+                  {pwdLoading ? 'Saving...' : 'Save Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <AlertModal 
+        isOpen={!!alertConfig} 
+        message={alertConfig?.message || ''} 
+        type={alertConfig?.type || 'error'} 
+        onClose={() => setAlertConfig(null)} 
+      />
     </div>
   );
 }

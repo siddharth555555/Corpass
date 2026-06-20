@@ -1,6 +1,7 @@
 import { Controller, Post, Get, Patch, Body, Param, Request, UseGuards } from '@nestjs/common';
 import { InquiriesService } from './inquiries.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { CreateInquiryDto } from './dto/create-inquiry.dto';
 
 @Controller()
 export class InquiriesController {
@@ -8,7 +9,7 @@ export class InquiriesController {
 
   @UseGuards(AuthGuard)
   @Post('inquiries')
-  async createInquiry(@Request() req, @Body() data: any) {
+  async createInquiry(@Request() req, @Body() data: CreateInquiryDto) {
     // Only BUYER should create, but for simplicity we rely on UI logic or enforce here
     return this.inquiriesService.createInquiry(req.user.sub, data);
   }

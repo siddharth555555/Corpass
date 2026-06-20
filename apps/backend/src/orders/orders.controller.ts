@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Patch, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, UseGuards, Request, Query } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { CreateOrderDto } from './dto/create-order.dto';
 
 @Controller('orders')
 @UseGuards(AuthGuard)
@@ -8,13 +9,15 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  create(@Request() req, @Body() data: any) {
+  create(@Request() req, @Body() data: CreateOrderDto) {
     return this.ordersService.create(req.user.sub, data);
   }
 
   @Get()
-  findAll(@Request() req) {
-    return this.ordersService.findAll(req.user.sub, req.user.role);
+  findAll(@Request() req, @Query('page') page?: string, @Query('limit') limit?: string) {
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 20;
+    return this.ordersService.findAll(req.user.sub, req.user.role, pageNum, limitNum);
   }
 
   @Patch(':id/counter')

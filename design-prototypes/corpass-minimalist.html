@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corpass — Editorial</title>
+<style>
+:root{--paper:#fff;--ink:#0a0a0a;--faded:#c0c0c0;--rule:#e5e5e5;--accent:#c41e3a;--serif:'Georgia','Times New Roman',serif;--sans:system-ui,-apple-system,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.5}
+
+/* LOGIN */
+.login{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
+@media(max-width:700px){.login{grid-template-columns:1fr}}
+.login-left{padding:80px 64px;display:flex;flex-direction:column;justify-content:space-between}
+@media(max-width:700px){.login-left{padding:40px 32px;min-height:50vh}}
+.issue{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--faded);margin-bottom:48px}
+.masthead{font-size:80px;font-family:var(--serif);font-weight:400;letter-spacing:-3px;line-height:.9;margin-bottom:16px}
+@media(max-width:700px){.masthead{font-size:56px;letter-spacing:-2px}}
+.masthead span{font-style:italic;color:var(--accent)}
+.tagline{font-size:18px;font-family:var(--serif);color:var(--ink);line-height:1.4;max-width:340px}
+.login-meta{margin-top:auto;padding-top:32px;border-top:1px solid var(--rule);font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--faded);display:flex;gap:32px;flex-wrap:wrap}
+
+.login-right{padding:80px 64px;display:flex;align-items:center;justify-content:center;background:var(--paper)}
+@media(max-width:700px){.login-right{padding:40px 32px;border-top:1px solid var(--rule)}}
+.login-form{width:100%;max-width:320px}
+.section-label{font-size:10px;text-transform:uppercase;letter-spacing:3px;color:var(--faded);margin-bottom:40px;padding-bottom:16px;border-bottom:1px solid var(--rule);font-weight:500}
+.field{margin-bottom:32px}
+.field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--faded);margin-bottom:12px;font-weight:500}
+.field input{width:100%;padding:12px 0;font-size:20px;font-family:var(--serif);color:var(--ink);background:transparent;border:none;border-bottom:1px solid var(--rule);outline:none;transition:border-color .3s}
+.field input:focus{border-bottom-color:var(--accent)}
+.submit-btn{width:100%;padding:16px;font-size:12px;font-family:var(--sans);font-weight:500;text-transform:uppercase;letter-spacing:2px;background:var(--ink);color:var(--paper);border:none;cursor:pointer;margin-top:16px;transition:background .2s}
+.submit-btn:hover{background:var(--accent)}
+.helper{margin-top:24px;font-size:12px;color:var(--faded);line-height:1.6}
+
+/* DASHBOARD */
+.dash{display:none;min-height:100vh}
+.dash-grid{display:grid;grid-template-columns:220px 1fr;gap:0;min-height:100vh}
+@media(max-width:900px){.dash-grid{grid-template-columns:1fr}.dash-grid>.dash-sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;transform:translateX(-100%);transition:transform .25s;z-index:100;background:var(--paper);border-right:1px solid var(--rule)}.dash-sidebar.open{transform:translateX(0)}}
+.dash-sidebar{padding:48px 32px;border-right:1px solid var(--rule);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.dash-mast{font-size:28px;font-family:var(--serif);letter-spacing:-1px;margin-bottom:4px}
+.dash-issue{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--faded);margin-bottom:48px;padding-bottom:24px;border-bottom:1px solid var(--rule)}
+.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--faded);margin-bottom:16px;margin-top:32px}
+.nav-item{font-size:14px;padding:6px 0;cursor:pointer;transition:color .15s;position:relative;display:flex;justify-content:space-between;align-items:center}
+.nav-item:hover{color:var(--accent)}
+.nav-item.active{font-family:var(--serif);font-size:18px;font-weight:400}
+.nav-item.active::after{content:'';width:24px;height:1px;background:var(--accent);position:absolute;right:0}
+.signout{margin-top:auto;padding-top:24px;border-top:1px solid var(--rule);font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--accent);cursor:pointer;font-weight:500}
+
+.dash-main{padding:48px 64px;min-width:0}
+@media(max-width:900px){.dash-main{padding:32px}}
+.menu-btn{display:none;background:none;border:none;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--faded);cursor:pointer;margin-bottom:24px;padding:4px 0}
+@media(max-width:900px){.menu-btn{display:block}}
+
+/* Hero stats - newspaper style */
+.hero{border-bottom:2px solid var(--ink);padding-bottom:32px;margin-bottom:40px}
+.hero-kicker{font-size:10px;text-transform:uppercase;letter-spacing:3px;color:var(--accent);font-weight:600;margin-bottom:16px}
+.hero-title{font-size:48px;font-family:var(--serif);font-weight:400;letter-spacing:-1px;line-height:1.1;margin-bottom:24px}
+@media(max-width:700px){.hero-title{font-size:36px}}
+.hero-deck{font-size:16px;color:var(--faded);font-family:var(--serif);line-height:1.5;max-width:600px}
+
+.stats-band{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--rule);margin-bottom:40px}
+@media(max-width:900px){.stats-band{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.stats-band{grid-template-columns:1fr}}
+.stat-cell{padding:24px 0;border-right:1px solid var(--rule);padding-right:24px}
+@media(max-width:600px){.stat-cell{border-right:none;border-bottom:1px solid var(--rule);padding-right:0}}
+.stat-cell:last-child{border-right:none}
+@media(max-width:600px){.stat-cell:last-child{border-bottom:none}}
+.stat-cell:nth-child(1){border-left:none;padding-left:0}
+.stat-num{font-size:32px;font-family:var(--serif);font-weight:400;letter-spacing:-1px;line-height:1;margin-bottom:8px}
+.stat-num span{color:var(--accent)}
+.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--faded);font-weight:500;margin-bottom:4px}
+.stat-detail{font-size:12px;color:var(--faded);line-height:1.5}
+
+/* Two column editorial */
+.editorial-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+@media(max-width:900px){.editorial-grid{grid-template-columns:1fr;gap:32px}}
+.column-header{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px;border-bottom:2px solid var(--ink);margin-bottom:24px}
+.column-title{font-size:18px;font-family:var(--serif);font-weight:400;letter-spacing:-0.5px}
+.column-link{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--faded);text-decoration:none;font-weight:500}
+.column-link:hover{color:var(--accent)}
+
+/* Order items as list, not cards */
+.item{padding:16px 0;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:baseline;gap:16px;cursor:pointer;transition:padding .15s}
+.item:hover{padding-left:8px}
+.item:last-child{border-bottom:none}
+.item-left{flex:1;min-width:0}
+.item-title{font-size:16px;font-family:var(--serif);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.item-meta{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--faded);font-weight:500}
+.item-right{text-align:right;flex-shrink:0}
+.item-price{font-size:18px;font-family:var(--serif);font-weight:400;letter-spacing:-0.5px}
+.item-status{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--faded);margin-top:2px}
+
+/* Activity as timeline */
+.timeline-item{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--rule);position:relative}
+.timeline-item:last-child{border-bottom:none}
+.timeline-time{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--faded);font-weight:500;flex-shrink:0;width:48px;text-align:right;padding-top:2px}
+.timeline-content{flex:1;position:relative;padding-left:16px;border-left:1px solid var(--rule)}
+.timeline-content::before{content:'';position:absolute;left:-3px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--paper);border:1px solid var(--accent)}
+.timeline-text{font-size:15px;font-family:var(--serif);font-weight:400;margin-bottom:2px}
+.timeline-detail{font-size:12px;color:var(--faded);line-height:1.5}
+
+#t:checked~.login{display:none}
+#t:checked~.dash{display:block}
+</style>
+</head>
+<body>
+<input type="checkbox" id="t" style="position:fixed;left:-999px">
+
+<div class="login">
+  <div class="login-left">
+    <div>
+      <div class="issue">Admin Portal &mdash; Vol. 2, Issue 4</div>
+      <div class="masthead">Cor<span>pass</span></div>
+      <div class="tagline">The industrial marketplace connecting India's manufacturers and suppliers.</div>
+    </div>
+    <div class="login-meta">
+      <span>Platform 2.4</span>
+      <span>System Active</span>
+      <span>23ms Latency</span>
+    </div>
+  </div>
+  <div class="login-right">
+    <div class="login-form">
+      <div class="section-label">Authentication</div>
+      <div class="field">
+        <label>Identifier</label>
+        <input type="text" value="admin@corpass.in">
+      </div>
+      <div class="field">
+        <label>Passcode</label>
+        <input type="password" value="password">
+      </div>
+      <label for="t" class="submit-btn" style="cursor:pointer">Enter</label>
+      <div class="helper">System administrator credentials required. Unauthorized access is strictly prohibited.</div>
+    </div>
+  </div>
+</div>
+
+<div class="dash">
+  <div class="dash-grid">
+    <div class="dash-sidebar" id="sb">
+      <div class="dash-mast">Cor<span style="color:var(--accent);font-style:italic">pass</span></div>
+      <div class="dash-issue">Admin Control</div>
+      <div class="nav-section">Platform</div>
+      <div class="nav-item active">Overview <span style="font-family:var(--serif);font-size:12px">01</span></div>
+      <div class="nav-item">Users <span style="font-family:var(--serif);font-size:12px">02</span></div>
+      <div class="nav-item">Orders <span style="font-family:var(--serif);font-size:12px">03</span></div>
+      <div class="nav-item">Products <span style="font-family:var(--serif);font-size:12px">04</span></div>
+      <div class="nav-item">Support <span style="font-family:var(--serif);font-size:12px">05</span></div>
+      <div class="nav-section">System</div>
+      <div class="nav-item">Logs</div>
+      <div class="nav-item">Settings</div>
+      <div class="signout" onclick="document.getElementById('t').checked=false;document.getElementById('sb').classList.remove('open')">Sign Out</div>
+    </div>
+
+    <div class="dash-main">
+      <button class="menu-btn" onclick="document.getElementById('sb').classList.toggle('open')">Menu</button>
+
+      <div class="hero">
+        <div class="hero-kicker">Platform Health</div>
+        <div class="hero-title">Marketplace Overview</div>
+        <div class="hero-deck">Real-time monitoring of user activity, order processing, and platform revenue across India's manufacturing corridors.</div>
+      </div>
+
+      <div class="stats-band">
+        <div class="stat-cell">
+          <div class="stat-label">Total Users</div>
+          <div class="stat-num">2,847</div>
+          <div class="stat-detail">1,920 buyers<br>927 sellers</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Orders</div>
+          <div class="stat-num"><span>12,405</span></div>
+          <div class="stat-detail">342 pending<br>this week</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Revenue</div>
+          <div class="stat-num">4.2<span>Cr</span></div>
+          <div class="stat-detail">All-time gross<br>merchandise value</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Tickets</div>
+          <div class="stat-num">18</div>
+          <div class="stat-detail">3,420 active<br>products listed</div>
+        </div>
+      </div>
+
+      <div class="editorial-grid">
+        <div>
+          <div class="column-header">
+            <div class="column-title">Recent Orders</div>
+            <a href="#" class="column-link">All Orders &rarr;</a>
+          </div>
+          <div class="item">
+            <div class="item-left">
+              <div class="item-title">Industrial CNC Router Machine</div>
+              <div class="item-meta">#ORD-2841 &mdash; Rajesh Engineering</div>
+            </div>
+            <div class="item-right">
+              <div class="item-price">12,45,000</div>
+              <div class="item-status">Placed</div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="item-left">
+              <div class="item-title">Hydraulic Press 50 Ton</div>
+              <div class="item-meta">#ORD-2840 &mdash; Aakash Industries</div>
+            </div>
+            <div class="item-right">
+              <div class="item-price">8,75,000</div>
+              <div class="item-status">Confirmed</div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="item-left">
+              <div class="item-title">Lathe Machine Heavy Duty</div>
+              <div class="item-meta">#ORD-2839 &mdash; Precision Tools</div>
+            </div>
+            <div class="item-right">
+              <div class="item-price">4,20,000</div>
+              <div class="item-status">Delivered</div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="item-left">
+              <div class="item-title">Welding Electrodes 5kg Box</div>
+              <div class="item-meta">#ORD-2838 &mdash; Sharma Fabricators</div>
+            </div>
+            <div class="item-right">
+              <div class="item-price">18,500</div>
+              <div class="item-status">Shipped</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="column-header">
+            <div class="column-title">Activity Log</div>
+            <div class="column-link">Live</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">2m</div>
+            <div class="timeline-content">
+              <div class="timeline-text">New order received</div>
+              <div class="timeline-detail">CNC Router Machine &mdash; 12,45,000</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">15m</div>
+            <div class="timeline-content">
+              <div class="timeline-text">Seller KYC approved</div>
+              <div class="timeline-detail">Krishna Manufacturing Ltd</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">42m</div>
+            <div class="timeline-content">
+              <div class="timeline-text">Support ticket opened</div>
+              <div class="timeline-detail">Payment delay dispute &mdash; Order #2835</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">1h</div>
+            <div class="timeline-content">
+              <div class="timeline-text">Product listing approved</div>
+              <div class="timeline-detail">Hydraulic Press 100 Ton by Patel Industries</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">2h</div>
+            <div class="timeline-content">
+              <div class="timeline-text">New user registered</div>
+              <div class="timeline-detail">Vikram Tools & Co. (Seller)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
