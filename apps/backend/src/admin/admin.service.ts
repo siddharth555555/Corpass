@@ -107,7 +107,7 @@ export class AdminService {
       role: u.role,
       company: u.company?.name || '-',
       city: u.city,
-      status: 'active', // Assuming all are active for now
+      status: u.role === 'SELLER' && !u.isVerified ? 'pending' : 'active',
       joinedAt: u.createdAt.toISOString().split('T')[0],
     }));
   }
@@ -154,8 +154,10 @@ export class AdminService {
 
   async getTickets() {
     const tickets = await this.prisma.supportMessage.findMany({
+      where: { parentId: null },
       include: {
-        user: true
+        user: true,
+        _count: { select: { replies: true } }
       },
       orderBy: { createdAt: 'desc' }
     });
@@ -167,7 +169,79 @@ export class AdminService {
       role: t.user?.role || 'UNKNOWN',
       priority: 'medium',
       status: t.status.toLowerCase(),
+      repliesCount: t._count.replies,
       createdAt: t.createdAt.toISOString().split('T')[0],
     }));
+  }
+
+  async getTicket(ticketId: number) {
+    return this.prisma.supportMessage.findUnique({
+      where: { id: ticketId },
+      include: {
+        user: { select: { id: true, name: true, role: true } },
+        replies: {
+          orderBy: { createdAt: 'asc' },
+          include: { user: { select: { id: true, name: true, role: true } } }
+        }
+      }
+    });
+  }
+
+  async replyToTicket(ticketId: number, adminId: number, message: string) {
+    const parent = await this.prisma.supportMessage.findUnique({ where: { id: ticketId } });
+    if (!parent) throw new Error("Ticket not found");
+
+    const reply = await this.prisma.supportMessage.create({
+      data: {
+        userId: adminId,
+        message,
+        parentId: ticketId
+      }
+    });
+
+    // We can also update the status to something like IN_PROGRESS or WAITING_ON_USER
+    if (parent.status === 'OPEN') {
+      await this.prisma.supportMessage.update({
+        where: { id: ticketId },
+        data: { status: 'IN_PROGRESS' }
+      });
+    }
+
+    return reply;
+  }
+
+  async updateTicketStatus(ticketId: number, status: string) {
+    return this.prisma.supportMessage.update({
+      where: { id: ticketId },
+      data: { status }
+    });
+  }
+
+  async getPendingSellers() {
+    const users = await this.prisma.user.findMany({
+      where: { role: 'SELLER', isVerified: false },
+      include: {
+        company: true,
+        sellerProfile: true,
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return users.map(u => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      company: u.company?.name || '-',
+      gstin: u.sellerProfile?.gstin || '-',
+      city: u.city,
+      joinedAt: u.createdAt.toISOString().split('T')[0],
+    }));
+  }
+
+  async verifyUser(id: number) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { isVerified: true },
+    });
   }
 }

@@ -51,7 +51,7 @@ export function useNotifications() {
       });
       if (res.ok) {
         const data = await res.json();
-        setNotifications(data);
+        setNotifications(Array.isArray(data) ? data : (data?.data || []));
       }
     } catch (e) {
       console.error('Failed to fetch notifications', e);

@@ -3,20 +3,22 @@
 import LogoLink from "@/components/ui/LogoLink";
 import Link from "next/link";
 import { useState } from "react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   return (
-    <div className="min-h-screen bg-paper selection:bg-ink selection:text-paper">
+    <div className="min-h-screen bg-paper animate-fade-up">
       {/* Navigation */}
-      <nav className="border-b border-border bg-paper/80 backdrop-blur-sm">
+      <nav className="border-b border-border bg-paper/80 backdrop-blur-sm relative z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-24">
             <div className="flex-shrink-0 flex items-center">
               <LogoLink className="w-32 md:w-40 h-auto object-contain" priority={true} />
             </div>
             {/* Desktop Nav */}
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-6">
+              <ThemeToggle />
               <Link href="/login" className="text-sm font-medium text-slate hover:text-ink transition-colors">
                 Sign in
               </Link>
@@ -25,7 +27,8 @@ export default function LandingPage() {
               </Link>
             </div>
             {/* Mobile Nav Toggle */}
-            <div className="md:hidden flex items-center">
+            <div className="md:hidden flex items-center gap-2">
+              <ThemeToggle />
               <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-slate hover:text-ink">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   {mobileMenuOpen ? (

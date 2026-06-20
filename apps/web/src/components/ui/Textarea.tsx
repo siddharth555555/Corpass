@@ -19,9 +19,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             ref={ref}
             required={required}
             className={`
-              w-full bg-paper-2 border border-border rounded px-4 py-3 text-sm text-ink placeholder:text-slate
-              focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-ink focus:bg-paper
-              transition-all duration-200 shadow-sm resize-y min-h-[100px]
+              cp-input w-full text-sm placeholder:text-slate
+              transition-all duration-200 resize-y min-h-[100px]
               disabled:opacity-50 disabled:cursor-not-allowed
               ${error ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-500/20' : ''}
               ${className}

@@ -13,12 +13,14 @@ import {
   Menu,
   X,
   Shield,
+  ShieldCheck,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 
 const navItems = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { name: "Users", href: "/dashboard/users", icon: Users },
+  { name: "Verifications", href: "/dashboard/verifications", icon: ShieldCheck },
   { name: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
   { name: "Products", href: "/dashboard/products", icon: Package },
   { name: "Support", href: "/dashboard/support", icon: HeadphonesIcon },

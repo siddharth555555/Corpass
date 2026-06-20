@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import LogoLink from "@/components/ui/LogoLink";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default function LoginPage() {
   const [role, setRole] = useState<'BUYER' | 'SELLER'>('BUYER');
@@ -53,7 +54,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-paper p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-paper p-4 sm:p-6 lg:p-8 relative overflow-hidden animate-fade-up">
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-50">
+        <ThemeToggle />
+      </div>
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <div className="flex justify-center items-center w-full mb-8">
@@ -68,12 +72,12 @@ export default function LoginPage() {
         </div>
 
         {/* Role Switch Bar */}
-        <div className="flex p-1 bg-paper-2 mb-8 border border-border">
+        <div className="flex p-1 bg-paper-2 mb-8 border border-border rounded-lg shadow-sm">
           <button
             onClick={() => setRole('BUYER')}
-            className={`flex-1 py-2.5 text-sm font-medium transition-all duration-300 ${
+            className={`flex-1 py-2.5 text-sm font-medium transition-all duration-300 rounded-md ${
               role === 'BUYER' 
-                ? 'bg-ink text-paper shadow-sm' 
+                ? 'bg-ink text-canvas shadow-sm' 
                 : 'text-slate hover:text-ink'
             }`}
           >
@@ -81,9 +85,9 @@ export default function LoginPage() {
           </button>
           <button
             onClick={() => setRole('SELLER')}
-            className={`flex-1 py-2.5 text-sm font-medium transition-all duration-300 ${
+            className={`flex-1 py-2.5 text-sm font-medium transition-all duration-300 rounded-md ${
               role === 'SELLER' 
-                ? 'bg-ink text-paper shadow-sm' 
+                ? 'bg-ink text-canvas shadow-sm' 
                 : 'text-slate hover:text-ink'
             }`}
           >

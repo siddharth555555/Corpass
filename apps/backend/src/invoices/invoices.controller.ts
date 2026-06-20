@@ -1,10 +1,11 @@
 import { Controller, Get, Post, Patch, Body, Param, UseGuards, Request, Query } from '@nestjs/common';
 import { InvoicesService } from './invoices.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { VerifiedGuard } from '../auth/verified.guard';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 
 @Controller('invoices')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, VerifiedGuard)
 export class InvoicesController {
   constructor(private readonly invoicesService: InvoicesService) {}
 

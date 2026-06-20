@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { useState, useEffect } from "react";
 import { NotificationBell } from "@/components/NotificationBell";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useNotifications } from "@/hooks/useNotifications";
 
 export default function SellerDashboardLayout({ children }: { children: React.ReactNode }) {
@@ -79,7 +80,7 @@ export default function SellerDashboardLayout({ children }: { children: React.Re
 
         <div className="flex flex-col flex-1 overflow-y-auto">
           <nav className="flex-1 space-y-1.5 pb-4 mt-4">
-            {navItems.map((item) => {
+            {navItems.filter(item => user?.isVerified || ['Support', 'Profile', 'Product Catalog'].includes(item.name)).map((item) => {
               const isActive = (item.href === '/dashboard/seller') 
                 ? pathname === item.href 
                 : (pathname === item.href || pathname.startsWith(item.href + '/'));
@@ -130,6 +131,7 @@ export default function SellerDashboardLayout({ children }: { children: React.Re
             </button>
           </div>
           <div className="flex items-center gap-4 ml-auto">
+            <ThemeToggle />
             <NotificationBell href="/dashboard/seller/notifications" />
             <Link href="/dashboard/seller/profile" className="cp-avatar w-9 h-9 transition-all duration-300" style={{ backgroundColor: 'var(--cp-surface)', border: '1px solid var(--cp-border)' }}>
               <svg className="h-4 w-4" style={{ color: 'var(--cp-text-secondary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -140,7 +142,27 @@ export default function SellerDashboardLayout({ children }: { children: React.Re
         </header>
 
         <main className="flex-1 overflow-y-auto p-6 md:p-8">
-          {children}
+          {!userLoaded ? (
+            <div className="flex h-full items-center justify-center text-slate">Loading...</div>
+          ) : user && !user.isVerified && !['/dashboard/seller/support', '/dashboard/seller/profile', '/dashboard/seller/catalog'].some(p => pathname.startsWith(p)) ? (
+            <div className="flex flex-col items-center justify-center h-full text-center max-w-lg mx-auto">
+               <div className="bg-paper p-8 border" style={{ borderColor: 'var(--cp-danger)' }}>
+                 <div className="w-16 h-16 mx-auto mb-4 bg-danger/10 text-danger flex items-center justify-center rounded-full">
+                   <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                   </svg>
+                 </div>
+                 <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--cp-text)' }}>Account Pending Verification</h2>
+                 <p style={{ color: 'var(--cp-text-secondary)' }} className="mb-6 leading-relaxed">Your seller account is currently under review by our administration team. You can only access Support, Profile, and Product Catalog until your account is approved.</p>
+                 <div className="flex gap-4 w-full">
+                   <Link href="/dashboard/seller/profile" className="cp-btn cp-btn--primary flex-1 justify-center">View Profile</Link>
+                   <button onClick={handleLogout} className="cp-btn cp-btn-outline flex-1 justify-center">Sign Out</button>
+                 </div>
+               </div>
+            </div>
+          ) : (
+            children
+          )}
         </main>
       </div>
     </div>

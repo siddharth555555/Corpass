@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { useState, useEffect } from "react";
 import { NotificationBell } from "@/components/NotificationBell";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useNotifications } from "@/hooks/useNotifications";
 
 export default function BuyerDashboardLayout({ children }: { children: React.ReactNode }) {
@@ -74,10 +75,10 @@ export default function BuyerDashboardLayout({ children }: { children: React.Rea
         
         <div className="flex flex-col flex-1 overflow-y-auto">
           {/* Workspace Identifier */}
-          <div className="px-2 mb-6 mt-4">
-            <div className="w-full flex items-center justify-between bg-surface border border-border-strong rounded-md px-3 py-2 text-sm font-medium text-ink">
-              <span>{userLoaded ? (user?.company?.name || "—") : "Loading..."}</span>
-            </div>
+          <div className="px-5 mb-4 mt-6">
+            <h2 className="w-full text-lg font-bold text-ink truncate">
+              {userLoaded ? (user?.company?.name || "—") : "Loading..."}
+            </h2>
           </div>
 
           <nav className="flex-1 space-y-1 pb-4 px-2">
@@ -134,6 +135,7 @@ export default function BuyerDashboardLayout({ children }: { children: React.Rea
           {/* Global Search Removed for now */}
 
           <div className="flex items-center gap-4 ml-auto">
+            <ThemeToggle />
             <NotificationBell href="/dashboard/buyer/notifications" />
             <button onClick={handleLogout} className="text-sm font-medium text-danger hover:text-danger-700 transition-colors">
               Sign Out

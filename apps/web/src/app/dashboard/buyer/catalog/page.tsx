@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import LogoLink from "@/components/ui/LogoLink";
+import { Select } from "@/components/ui/Select";
 
 const CATEGORIES = [
   { name: "Office Supplies", desc: "Stationery, paper, desk accessories" },
@@ -254,12 +256,12 @@ export default function BuyerMarketplace() {
           {(companyPincode || personalPincode) && (
             <div className="flex items-center gap-2 ml-2">
               {companyPincode && (
-                <button onClick={() => { setBuyerPincode(companyPincode); setTempPincode(companyPincode); }} className={`text-[10px] px-2.5 py-1 rounded-pill font-bold uppercase tracking-wider transition-all duration-300 ${buyerPincode === companyPincode ? 'bg-ink text-white shadow-sm' : 'bg-surface border border-border-strong text-muted hover:border-ink hover:text-ink'}`}>
+                <button onClick={() => { setBuyerPincode(companyPincode); setTempPincode(companyPincode); }} className={`text-[10px] px-2.5 py-1 rounded-pill font-bold uppercase tracking-wider transition-all duration-300 ${buyerPincode === companyPincode ? 'bg-ink text-canvas shadow-sm' : 'bg-surface border border-border-strong text-muted hover:border-ink hover:text-ink'}`}>
                   Company
                 </button>
               )}
               {personalPincode && (
-                <button onClick={() => { setBuyerPincode(personalPincode); setTempPincode(personalPincode); }} className={`text-[10px] px-2.5 py-1 rounded-pill font-bold uppercase tracking-wider transition-all duration-300 ${buyerPincode === personalPincode ? 'bg-ink text-white shadow-sm' : 'bg-surface border border-border-strong text-muted hover:border-ink hover:text-ink'}`}>
+                <button onClick={() => { setBuyerPincode(personalPincode); setTempPincode(personalPincode); }} className={`text-[10px] px-2.5 py-1 rounded-pill font-bold uppercase tracking-wider transition-all duration-300 ${buyerPincode === personalPincode ? 'bg-ink text-canvas shadow-sm' : 'bg-surface border border-border-strong text-muted hover:border-ink hover:text-ink'}`}>
                   Personal
                 </button>
               )}
@@ -277,7 +279,7 @@ export default function BuyerMarketplace() {
             if (buyerPincode) setShowUndeliverable(e.target.checked);
           }} 
             className="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 border-border cursor-pointer" />
-          <span className="text-[13px] font-medium text-text-secondary select-none">Show out-of-range products (Inquiry only)</span>
+          <span className="text-[13px] font-medium text-ink-secondary select-none">Show out-of-range products (Inquiry only)</span>
         </label>
       </div>
 
@@ -288,25 +290,37 @@ export default function BuyerMarketplace() {
           <input type="text" placeholder="Search products, brands or categories..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
             className="cp-input pl-10 pr-4" />
         </div>
-        <select value={selectedCategory ? selectedCategory : "all"} onChange={(e) => setSelectedCategory(e.target.value === "all" ? "" : e.target.value)}
-          className="cp-input cursor-pointer min-w-[160px] w-auto">
-          <option value="all">All Categories</option>
-          {CATEGORIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-        </select>
-        <select value={minRating} onChange={(e) => setMinRating(e.target.value)}
-          className="cp-input cursor-pointer min-w-[120px] w-auto">
-          <option value="">Any Rating</option>
-          <option value="4.5">4.5+ Stars</option>
-          <option value="4">4.0+ Stars</option>
-          <option value="3">3.0+ Stars</option>
-        </select>
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
-          className="cp-input cursor-pointer min-w-[140px] w-auto">
-          <option value="newest">Sort: Newest</option>
-          <option value="rating">Top Rated</option>
-          <option value="price_asc">Price: Low → High</option>
-          <option value="price_desc">Price: High → Low</option>
-        </select>
+        <Select
+          value={selectedCategory ? selectedCategory : "all"}
+          onChange={val => setSelectedCategory(val === "all" ? "" : val)}
+          className="min-w-[160px]"
+          options={[
+            {value: "all", label: "All Categories"},
+            ...CATEGORIES.map(c => ({value: c.name, label: c.name}))
+          ]}
+        />
+        <Select
+          value={minRating}
+          onChange={val => setMinRating(val)}
+          className="min-w-[140px]"
+          options={[
+            {value: "", label: "Any Rating"},
+            {value: "4.5", label: "4.5+ Stars"},
+            {value: "4", label: "4.0+ Stars"},
+            {value: "3", label: "3.0+ Stars"}
+          ]}
+        />
+        <Select
+          value={sortBy}
+          onChange={val => setSortBy(val)}
+          className="min-w-[160px]"
+          options={[
+            {value: "newest", label: "Sort: Newest"},
+            {value: "rating", label: "Top Rated"},
+            {value: "price_asc", label: "Price: Low → High"},
+            {value: "price_desc", label: "Price: High → Low"}
+          ]}
+        />
         {(searchQuery || selectedCategory || minRating) && (
           <button onClick={() => { setSearchQuery(""); setSelectedCategory(""); setSortBy("newest"); setMinRating(""); }}
             className="cp-btn cp-btn--ghost whitespace-nowrap border border-border-strong">
@@ -500,7 +514,7 @@ export default function BuyerMarketplace() {
              <button onClick={() => setBundleCart([])} className="h-9 w-9 rounded-full flex items-center justify-center text-slate hover:bg-paper-2 hover:text-ink transition-colors">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
              </button>
-             <button onClick={() => { setSelectedProduct('BUNDLE'); setInquiryType('QUOTE'); }} className="px-5 py-2.5 bg-ink hover:bg-ink text-white shadow-sm text-sm font-bold rounded-full transition-colors flex items-center gap-2">
+             <button onClick={() => { setSelectedProduct('BUNDLE'); setInquiryType('QUOTE'); }} className="px-5 py-2.5 bg-ink hover:bg-ink text-canvas shadow-sm text-sm font-bold rounded-full transition-colors flex items-center gap-2">
                Request Quote
                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
              </button>
@@ -569,7 +583,7 @@ export default function BuyerMarketplace() {
                   <div className="grid grid-cols-3 gap-2">
                     {[{v:'QUOTE',l:'Get Quote'},{v:'FEASIBILITY',l:'Feasibility'},{v:'AVAILABILITY',l:'Availability'}].map(t => (
                       <button key={t.v} type="button" onClick={() => setInquiryType(t.v)}
-                        className={`py-3 px-2 rounded border text-xs font-semibold transition-all duration-300 text-center ${inquiryType === t.v ? 'bg-ink border-ink text-white shadow-sm' : 'bg-paper border-border text-slate hover:border-border hover:bg-paper-2'}`}>
+                        className={`py-3 px-2 rounded border text-xs font-semibold transition-all duration-300 text-center ${inquiryType === t.v ? 'bg-ink border-ink text-canvas shadow-sm' : 'bg-paper border-border text-slate hover:border-border hover:bg-paper-2'}`}>
                         {t.l}
                       </button>
                     ))}
@@ -641,13 +655,19 @@ export default function BuyerMarketplace() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate mb-1">Payment Mode <span className="text-copper">*</span></label>
-                <select id="payment-mode-select" required value={paymentMode} onChange={e => setPaymentMode(e.target.value)} className="w-full px-3 py-2 bg-paper-2 border border-border rounded text-sm outline-none">
-                  <option value="BANK_TRANSFER">Bank Transfer (NEFT/RTGS/IMPS)</option>
-                  <option value="UPI">UPI</option>
-                  <option value="CHEQUE">Cheque</option>
-                  <option value="CASH">Cash</option>
-                  <option value="OTHER">Other</option>
-                </select>
+                <Select
+                  name="paymentMode"
+                  value={paymentMode}
+                  onChange={val => setPaymentMode(val)}
+                  options={[
+                    {value: "BANK_TRANSFER", label: "Bank Transfer (NEFT/RTGS/IMPS)"},
+                    {value: "UPI", label: "UPI"},
+                    {value: "CHEQUE", label: "Cheque"},
+                    {value: "CASH", label: "Cash"},
+                    {value: "OTHER", label: "Other"}
+                  ]}
+                  required
+                />
               </div>
 
               <div>

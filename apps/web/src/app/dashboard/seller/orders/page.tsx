@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import LogoLink from "@/components/ui/LogoLink";
+import { Select } from "@/components/ui/Select";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { DisputeModal } from "@/components/DisputeModal";
 import { AlertModal, AlertType } from "@/components/ui/AlertModal";
@@ -35,10 +37,13 @@ const UOM: Record<string, string> = {
   YEAR: "Year", PROJECT: "Project",
 };
 
-export default function SellerOrdersPage() {
+import { Suspense } from 'react';
+
+function SellerOrdersContent() {
   const router = useRouter();
   const [alertConfig, setAlertConfig] = useState<{message: string, type: AlertType} | null>(null);
-  const [tab, setTab] = useState<"orders" | "invoices">("orders");
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<"orders" | "invoices">((searchParams.get("tab") as "orders" | "invoices") || "orders");
   const [orders, setOrders] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -247,7 +252,7 @@ export default function SellerOrdersPage() {
             <p className="text-sm text-slate mt-1">Manage incoming orders and invoices.</p>
           </div>
           {tab === "invoices" && (
-            <button onClick={() => { setShowInvModal(true); fetchBuyers(); }} className="bg-ink hover:bg-ink text-white px-4 py-2 rounded text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-sm">
+            <button onClick={() => { setShowInvModal(true); fetchBuyers(); }} className="bg-ink hover:bg-ink text-canvas px-4 py-2 rounded text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-sm">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
               Create Invoice
             </button>
@@ -274,10 +279,15 @@ export default function SellerOrdersPage() {
               </div>
               <div className="flex gap-2">
                 <input type="date" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} className="cp-input" style={{ padding: '6px 10px', fontSize: '13px' }} />
-                <select value={sortOrder} onChange={e => setSortOrder(e.target.value as any)} className="cp-input font-[600]" style={{ padding: '6px 10px', fontSize: '13px', width: 'auto' }}>
-                  <option value="newest">Newest First</option>
-                  <option value="highest_amount">Highest Amt</option>
-                </select>
+                <Select
+                  value={sortOrder}
+                  onChange={val => setSortOrder(val as any)}
+                  className="min-w-[130px]"
+                  options={[
+                    {value: "newest", label: "Newest First"},
+                    {value: "highest_amount", label: "Highest Amt"}
+                  ]}
+                />
               </div>
             </div>
 
@@ -320,17 +330,19 @@ export default function SellerOrdersPage() {
         )}
 
         {tab === "invoices" && (
-          <div className="space-y-3">
-             {invoices.length > 0 ? invoices.map(inv => {
+          <div className="bg-surface border border-border rounded-lg overflow-hidden flex flex-col h-[calc(100vh-220px)] shadow-sm">
+            <div className="flex-1 overflow-y-auto bg-paper-2/30 p-2 space-y-1.5">
+              {invoices.length > 0 ? invoices.map(inv => {
               const st = INV_STATUS[inv.status] || INV_STATUS.PENDING;
               const buyerName = inv.buyer?.company?.name || inv.buyer?.name || '--';
+              const isSelected = selectedInvoice?.id === inv.id;
               return (
-                <button key={inv.id} onClick={() => setSelectedInvoice(inv)} className={`w-full text-left bg-surface border rounded p-4 transition-all flex flex-col ${selectedInvoice?.id === inv.id ? 'bg-indigo-50/50 border-indigo-200 shadow-sm' : 'border-border hover:border-slate-300'}`}>
-                  <div className="flex items-start justify-between mb-3">
+                <button key={inv.id} onClick={() => setSelectedInvoice(inv)} className={`w-full text-left p-3 rounded border transition-all hover:bg-paper-2/50 flex flex-col group ${isSelected ? 'bg-[var(--cp-surface-2)] border-[var(--cp-border)] shadow-sm' : 'bg-surface border-transparent hover:border-border'}`}>
+                  <div className="flex items-start justify-between mb-3 w-full">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-bold text-slate font-mono">{inv.invoiceNumber}</span>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold ${st.color} ${st.bg}`}>{st.label}</span>
+                        <span className="text-xs font-bold text-slate font-mono group-hover:text-ink transition-colors">{inv.invoiceNumber}</span>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${st.color} ${st.bg}`}>{st.label}</span>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${inv.type === 'AUTO' ? 'bg-paper-2 text-ink' : 'bg-paper-2 text-slate'}`}>{inv.type === 'AUTO' ? 'Auto' : 'Manual'}</span>
                       </div>
                       <h3 className="text-sm font-bold text-ink">{inv.productName}</h3>
@@ -365,8 +377,9 @@ export default function SellerOrdersPage() {
                 </button>
               );
             }) : (
-              <div className="py-16 text-center bg-paper border border-border rounded"><p className="text-sm text-slate">No invoices yet</p></div>
+              <div className="p-8 text-center text-slate text-sm">No invoices found.</div>
             )}
+            </div>
           </div>
         )}
       </div>
@@ -544,7 +557,7 @@ export default function SellerOrdersPage() {
                     <p className="text-[11px] text-slate mb-3">Require a partial payment before shipping. This will be shown to the buyer.</p>
                     <div className="flex gap-2">
                       <input required type="number" min="1" max={selectedOrder.totalAmount} value={advanceAmount} onChange={e => setAdvanceAmount(e.target.value)} className="flex-1 px-3 py-1.5 bg-paper-2 border border-border rounded text-sm outline-none" placeholder="Amount (₹)" />
-                      <button type="submit" disabled={actionLoading === selectedOrder.id} className="px-4 py-1.5 bg-ink text-white rounded text-sm font-semibold hover:bg-ink/90 disabled:opacity-50">Request</button>
+                      <button type="submit" disabled={actionLoading === selectedOrder.id} className="px-4 py-1.5 bg-ink text-canvas rounded text-sm font-semibold hover:bg-ink/90 disabled:opacity-50">Request</button>
                     </div>
                   </form>
                 )}
@@ -666,9 +679,9 @@ export default function SellerOrdersPage() {
             </div>
 
             {selectedInvoice.type === 'AUTO' && selectedInvoice.order && (
-              <div className="bg-indigo-50 border border-indigo-200 rounded p-4 text-center">
-                <p className="text-sm text-indigo-800 mb-3 font-medium">This invoice was automatically generated from an order.</p>
-                <button onClick={() => { setTab("orders"); setSelectedInvoice(null); setSelectedOrder(orders.find(o => o.id === selectedInvoice.orderId)); setDetailTab("payments"); }} className="px-4 py-2 bg-indigo-600 text-white rounded text-sm font-semibold hover:bg-indigo-700 w-full transition-colors shadow-sm">View Full Order</button>
+              <div className="cp-card cp-card--flush p-4 text-center mt-6">
+                <p className="text-[13px] text-[var(--cp-text-secondary)] mb-4 font-[500]">This invoice was automatically generated from an order.</p>
+                <button onClick={() => { setTab("orders"); setSelectedInvoice(null); setSelectedOrder(orders.find(o => o.id === selectedInvoice.orderId)); setDetailTab("payments"); }} className="cp-btn cp-btn--secondary w-full">View Full Order</button>
               </div>
             )}
           </div>
@@ -708,7 +721,19 @@ export default function SellerOrdersPage() {
             </div>
             <div className="flex-1 overflow-y-auto p-6">
               <form id="inv-form" onSubmit={handleCreateInvoice} className="space-y-5">
-                <div><label className="block text-sm font-semibold mb-2">Buyer</label><select required value={invForm.buyerId} onChange={e => setInvForm({...invForm, buyerId: e.target.value})} className="w-full px-3 py-2 bg-paper-2 border border-border rounded text-sm"><option value="">Select buyer...</option>{buyers.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Buyer</label>
+                  <Select
+                    name="buyerId"
+                    value={invForm.buyerId}
+                    onChange={val => setInvForm({...invForm, buyerId: val})}
+                    options={[
+                      {value: "", label: "Select buyer..."},
+                      ...buyers.map(b => ({value: b.id, label: b.name}))
+                    ]}
+                    required
+                  />
+                </div>
                 <div><label className="block text-sm font-semibold mb-2">Product Name</label><input required value={invForm.productName} onChange={e => setInvForm({...invForm, productName: e.target.value})} className="w-full px-3 py-2 bg-paper-2 border border-border rounded text-sm" /></div>
                 <div className="grid grid-cols-2 gap-3">
                   <div><label className="block text-sm font-semibold mb-2">Price (₹)</label><input required type="number" min="0" value={invForm.unitPrice} onChange={e => setInvForm({...invForm, unitPrice: e.target.value})} className="w-full px-3 py-2 bg-paper-2 border border-border rounded text-sm" /></div>
@@ -740,7 +765,7 @@ export default function SellerOrdersPage() {
                 </div>
               </div>
               <div><label className="block text-sm font-semibold mb-2">Comment</label><textarea value={reviewForm.comment} onChange={e => setReviewForm({...reviewForm, comment: e.target.value})} rows={3} className="w-full px-3 py-2 bg-paper-2 border border-border rounded text-sm" /></div>
-              <div className="flex justify-end gap-3"><button type="button" onClick={() => setShowReviewModal(false)} className="px-4 py-2 border rounded text-sm">Cancel</button><button type="submit" className="px-4 py-2 bg-ink text-white rounded text-sm">Submit</button></div>
+              <div className="flex justify-end gap-3"><button type="button" onClick={() => setShowReviewModal(false)} className="px-4 py-2 border rounded text-sm">Cancel</button><button type="submit" className="px-4 py-2 bg-ink text-canvas rounded text-sm">Submit</button></div>
             </form>
           </div>
         </div>
@@ -770,5 +795,13 @@ export default function SellerOrdersPage() {
         onClose={() => setAlertConfig(null)} 
       />
     </div>
+  );
+}
+
+export default function SellerOrdersPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate">Loading orders...</div>}>
+      <SellerOrdersContent />
+    </Suspense>
   );
 }

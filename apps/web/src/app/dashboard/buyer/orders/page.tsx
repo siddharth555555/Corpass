@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import LogoLink from "@/components/ui/LogoLink";
+import { Select } from "@/components/ui/Select";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { DisputeModal } from "@/components/DisputeModal";
 import { AlertModal, AlertType } from "@/components/ui/AlertModal";
@@ -35,10 +37,13 @@ const UOM: Record<string, string> = {
   YEAR: "Year", PROJECT: "Project",
 };
 
-export default function BuyerOrdersPage() {
+import { Suspense } from 'react';
+
+function BuyerOrdersContent() {
   const router = useRouter();
   const [alertConfig, setAlertConfig] = useState<{message: string, type: AlertType} | null>(null);
-  const [tab, setTab] = useState<"orders" | "invoices">("orders");
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<"orders" | "invoices">((searchParams.get("tab") as "orders" | "invoices") || "orders");
   const [orders, setOrders] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -255,17 +260,22 @@ export default function BuyerOrdersPage() {
             <div className="p-3 border-b border-border bg-surface-2 flex flex-wrap gap-2 items-center justify-between shrink-0">
               <div className="flex flex-wrap gap-1">
                 {['ALL', 'PLACED', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map(s => (
-                  <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${statusFilter === s ? 'bg-ink text-white shadow-sm' : 'bg-surface border border-border text-muted hover:text-ink'}`}>
+                  <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${statusFilter === s ? 'bg-ink text-canvas shadow-sm' : 'bg-surface border border-border text-muted hover:text-ink'}`}>
                     {s === 'ALL' ? 'All' : STATUS_CONFIG[s]?.label || s} <span className="opacity-70 ml-1">{stats[s] || 0}</span>
                   </button>
                 ))}
               </div>
               <div className="flex gap-2">
                 <input type="date" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} className="cp-input py-1.5 px-2 text-xs" />
-                <select value={sortOrder} onChange={e => setSortOrder(e.target.value as any)} className="cp-input py-1.5 px-2 text-xs font-semibold cursor-pointer">
-                  <option value="newest">Newest First</option>
-                  <option value="highest_amount">Highest Amt</option>
-                </select>
+                <Select
+                  value={sortOrder}
+                  onChange={val => setSortOrder(val as any)}
+                  className="min-w-[130px]"
+                  options={[
+                    {value: "newest", label: "Newest First"},
+                    {value: "highest_amount", label: "Highest Amt"}
+                  ]}
+                />
               </div>
             </div>
 
@@ -676,7 +686,19 @@ export default function BuyerOrdersPage() {
             </div>
             <div className="flex-1 overflow-y-auto p-6 bg-canvas">
               <form id="inv-form" onSubmit={handleCreateInvoice} className="space-y-5">
-                <div><label className="block text-[13px] font-semibold text-ink mb-1.5">Supplier</label><select required value={invForm.sellerProfileId} onChange={e => setInvForm({...invForm, sellerProfileId: e.target.value})} className="cp-input text-[13px] cursor-pointer"><option value="">Select supplier...</option>{sellers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></div>
+                <div>
+                  <label className="block text-[13px] font-semibold text-ink mb-1.5">Supplier</label>
+                  <Select
+                    name="sellerProfileId"
+                    value={invForm.sellerProfileId}
+                    onChange={val => setInvForm({...invForm, sellerProfileId: val})}
+                    options={[
+                      {value: "", label: "Select supplier..."},
+                      ...sellers.map(s => ({value: s.id, label: s.name}))
+                    ]}
+                    required
+                  />
+                </div>
                 <div><label className="block text-[13px] font-semibold text-ink mb-1.5">Product Name</label><input required value={invForm.productName} onChange={e => setInvForm({...invForm, productName: e.target.value})} className="cp-input text-[13px]" /></div>
                 <div className="grid grid-cols-2 gap-4">
                   <div><label className="block text-[13px] font-semibold text-ink mb-1.5">Price (₹)</label><input required type="number" min="0" value={invForm.unitPrice} onChange={e => setInvForm({...invForm, unitPrice: e.target.value})} className="cp-input text-[13px]" /></div>
@@ -739,5 +761,13 @@ export default function BuyerOrdersPage() {
         onClose={() => setAlertConfig(null)} 
       />
     </div>
+  );
+}
+
+export default function BuyerOrdersPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate">Loading orders...</div>}>
+      <BuyerOrdersContent />
+    </Suspense>
   );
 }

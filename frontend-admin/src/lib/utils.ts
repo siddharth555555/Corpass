@@ -12,6 +12,7 @@ export function formatCurrency(amount: number) {
 export function statusColor(status: string) {
   const map: Record<string, string> = {
     active: "bg-success-bg text-success",
+    pending: "bg-warning-bg text-warning",
     suspended: "bg-danger-bg text-danger",
     PLACED: "bg-warning-bg text-warning",
     CONFIRMED: "bg-info-bg text-info",

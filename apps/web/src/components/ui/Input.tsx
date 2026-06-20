@@ -26,8 +26,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             required={required}
             className={`
-              w-full bg-paper-2 border border-border rounded px-4 py-2.5 text-sm text-ink placeholder:text-slate
-              focus:outline-none focus:ring-0 focus:shadow-[0_0_0_3px_rgba(13,10,62,0.08)] focus:border-ink focus:bg-white
+              cp-input w-full text-sm placeholder:text-slate
               transition-all duration-300 ease-out
               disabled:opacity-50 disabled:cursor-not-allowed
               ${error ? 'border-danger-500 focus:border-danger-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)]' : ''}

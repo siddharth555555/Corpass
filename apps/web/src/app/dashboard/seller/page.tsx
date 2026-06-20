@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SellerDashboardOverview() {
   const router = useRouter();
@@ -81,26 +82,26 @@ export default function SellerDashboardOverview() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="cp-card relative overflow-hidden card-hover opacity-0 animate-fade-up">
+        <Link href="/dashboard/seller/orders" className="cp-card relative overflow-hidden card-hover opacity-0 animate-fade-up block">
           <h3 className="cp-stat__label mb-2">Pending Orders</h3>
           <p className="cp-stat__value">{loading ? "..." : stats.pendingOrders}</p>
           <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[var(--cp-brand-600)]"></div>
-        </div>
-        <div className="cp-card card-hover opacity-0 animate-fade-up-1">
+        </Link>
+        <Link href="/dashboard/seller/orders" className="cp-card card-hover opacity-0 animate-fade-up-1 block">
           <h3 className="cp-stat__label mb-2">Total Sales (YTD)</h3>
           <p className="cp-stat__value">{loading ? "..." : `₹${stats.totalSales.toLocaleString('en-IN')}`}</p>
-        </div>
-        <div className="cp-card card-hover opacity-0 animate-fade-up-2">
+        </Link>
+        <Link href="/dashboard/seller/catalog" className="cp-card card-hover opacity-0 animate-fade-up-2 block">
           <h3 className="cp-stat__label mb-2">Active Items</h3>
           <p className="cp-stat__value">{loading ? "..." : products.length}</p>
-        </div>
-        <div className="cp-card card-hover opacity-0 animate-fade-up-2">
+        </Link>
+        <Link href="/dashboard/seller/profile" className="cp-card card-hover opacity-0 animate-fade-up-2 block">
           <h3 className="cp-stat__label mb-2">Review Rating</h3>
           <div className="flex items-end gap-2">
             <p className="cp-stat__value">{loading ? "..." : stats.avgRating}</p>
             <span className="text-[var(--cp-text-muted)] text-[13px] mb-1">({loading ? "..." : stats.reviewCount} reviews)</span>
           </div>
-        </div>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 opacity-0 animate-fade-up-3">
@@ -116,20 +117,22 @@ export default function SellerDashboardOverview() {
           ) : recentOrders.length > 0 ? (
             <div className="divide-y divide-[var(--cp-border)]">
               {recentOrders.map(order => (
-                <div key={order.id} className="cp-row justify-between">
-                  <div>
-                    <p className="text-[14px] font-[600] text-[var(--cp-text)] truncate max-w-[200px]">{order.productName}</p>
-                    <p className="text-[13px] text-[var(--cp-text-muted)] mt-0.5">{order.orderNumber} • {new Date(order.createdAt).toLocaleDateString()}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[15px] font-[700] text-[var(--cp-text)]">₹{Number(order.totalAmount).toLocaleString('en-IN')}</p>
-                    <div className="mt-1 flex justify-end">
-                      <span className={`cp-badge ${order.status === 'PLACED' ? 'cp-badge--info' : order.status === 'CONFIRMED' ? 'cp-badge--neutral' : order.status === 'SHIPPED' ? 'cp-badge--info' : order.status === 'DELIVERED' ? 'cp-badge--success' : order.status === 'CANCELLED' ? 'cp-badge--danger' : 'cp-badge--warning'}`}>
-                        {order.status}
-                      </span>
+                <Link href="/dashboard/seller/orders" key={order.id} className="cp-row justify-between hover:bg-surface-2 transition-colors block">
+                  <div className="flex justify-between items-center w-full">
+                    <div>
+                      <p className="text-[14px] font-[600] text-[var(--cp-text)] truncate max-w-[200px]">{order.productName}</p>
+                      <p className="text-[13px] text-[var(--cp-text-muted)] mt-0.5">{order.orderNumber} • {new Date(order.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div className="text-right shrink-0 ml-4">
+                      <p className="text-[15px] font-[700] text-[var(--cp-text)]">₹{Number(order.totalAmount).toLocaleString('en-IN')}</p>
+                      <div className="mt-1 flex justify-end">
+                        <span className={`cp-badge ${order.status === 'PLACED' ? 'cp-badge--info' : order.status === 'CONFIRMED' ? 'cp-badge--neutral' : order.status === 'SHIPPED' ? 'cp-badge--info' : order.status === 'DELIVERED' ? 'cp-badge--success' : order.status === 'CANCELLED' ? 'cp-badge--danger' : 'cp-badge--warning'}`}>
+                          {order.status}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (
@@ -159,29 +162,31 @@ export default function SellerDashboardOverview() {
           ) : products.length > 0 ? (
             <div className="divide-y divide-[var(--cp-border)]">
               {products.slice(0, 4).map(product => (
-                <div key={product.id} className="cp-row justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="cp-thumb flex items-center justify-center shrink-0 overflow-hidden">
-                      {product.images && product.images[0] ? (
-                        <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <svg className="w-5 h-5 text-[var(--cp-text-disabled)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      )}
+                <Link href="/dashboard/seller/catalog" key={product.id} className="cp-row justify-between hover:bg-surface-2 transition-colors block">
+                  <div className="flex justify-between items-center w-full">
+                    <div className="flex items-center gap-4">
+                      <div className="cp-thumb flex items-center justify-center shrink-0 overflow-hidden">
+                        {product.images && product.images[0] ? (
+                          <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <svg className="w-5 h-5 text-[var(--cp-text-disabled)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-[14px] font-[600] text-[var(--cp-text)] truncate max-w-[150px] md:max-w-[180px]">{product.name}</p>
+                        <p className="text-[13px] text-[var(--cp-text-muted)] mt-0.5">{product.category} • {product.stockQuantity} in stock</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[14px] font-[600] text-[var(--cp-text)] truncate max-w-[150px] md:max-w-[180px]">{product.name}</p>
-                      <p className="text-[13px] text-[var(--cp-text-muted)] mt-0.5">{product.category} • {product.stockQuantity} in stock</p>
+                    <div className="text-right shrink-0">
+                      <p className="text-[15px] font-[700] text-[var(--cp-text)]">
+                        {product.price ? `₹${Number(product.price).toLocaleString('en-IN')}` : 'Ask Quote'}
+                      </p>
+                      <p className="text-[11px] uppercase text-[var(--cp-text-muted)] mt-0.5 tracking-wider">Per {product.pricingUnit.toLowerCase()}</p>
                     </div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-[15px] font-[700] text-[var(--cp-text)]">
-                      {product.price ? `₹${Number(product.price).toLocaleString('en-IN')}` : 'Ask Quote'}
-                    </p>
-                    <p className="text-[11px] uppercase text-[var(--cp-text-muted)] mt-0.5 tracking-wider">Per {product.pricingUnit.toLowerCase()}</p>
-                  </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (

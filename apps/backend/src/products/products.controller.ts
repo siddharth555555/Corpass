@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Patch, Param, Body, UseGuards, Request, BadRequestException, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { VerifiedGuard } from '../auth/verified.guard';
 import { CreateProductDto } from './dto/create-product.dto';
 
 @Controller('products')

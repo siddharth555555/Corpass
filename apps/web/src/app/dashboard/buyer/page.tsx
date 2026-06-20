@@ -13,6 +13,7 @@ export default function BuyerDashboardOverview() {
     pendingApprovals: 0
   });
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [pendingInvoices, setPendingInvoices] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,6 +40,8 @@ export default function BuyerDashboardOverview() {
 
         setStats({ totalSpend, activeOrders, pendingApprovals });
         setRecentOrders(orders.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 3));
+        const pInvoices = invoices.filter((i: any) => i.status === 'PENDING' && !i.buyerAcknowledged);
+        setPendingInvoices(pInvoices.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 3));
       } catch (e) {
         console.error(e);
       } finally {
@@ -64,26 +67,26 @@ export default function BuyerDashboardOverview() {
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div className="cp-card opacity-0 animate-fade-up">
+        <Link href="/dashboard/buyer/orders" className="cp-card hover:bg-surface-2 transition-colors opacity-0 animate-fade-up block">
           <h3 className="cp-stat__label">Total Spend (YTD)</h3>
           <p className="cp-stat__value">
             {loading ? "..." : `₹${stats.totalSpend.toLocaleString('en-IN')}`}
           </p>
-        </div>
+        </Link>
 
-        <div className="cp-card opacity-0 animate-fade-up" style={{ animationDelay: '100ms' }}>
+        <Link href="/dashboard/buyer/orders" className="cp-card hover:bg-surface-2 transition-colors opacity-0 animate-fade-up block" style={{ animationDelay: '100ms' }}>
           <h3 className="cp-stat__label">Active Orders</h3>
           <p className="cp-stat__value">
             {loading ? "..." : stats.activeOrders}
           </p>
-        </div>
+        </Link>
 
-        <div className="cp-card opacity-0 animate-fade-up" style={{ animationDelay: '200ms' }}>
+        <Link href="/dashboard/buyer/orders?tab=invoices" className="cp-card hover:bg-surface-2 transition-colors opacity-0 animate-fade-up block" style={{ animationDelay: '200ms' }}>
           <h3 className="cp-stat__label">Pending Approvals</h3>
           <p className="cp-stat__value">
             {loading ? "..." : stats.pendingApprovals}
           </p>
-        </div>
+        </Link>
       </div>
 
       {/* Main Content Grid */}
@@ -109,7 +112,7 @@ export default function BuyerDashboardOverview() {
                   if (order.status === 'NEW') badgeClass = "cp-badge--info";
 
                   return (
-                    <div key={order.id} className="cp-row justify-between">
+                    <Link href="/dashboard/buyer/orders" key={order.id} className="cp-row justify-between hover:bg-surface-2 transition-colors cursor-pointer">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-ink truncate">{order.productName}</p>
                         <p className="text-xs text-muted mt-0.5">{order.orderNumber} • {new Date(order.createdAt).toLocaleDateString()}</p>
@@ -120,7 +123,7 @@ export default function BuyerDashboardOverview() {
                           {order.status}
                         </span>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
@@ -143,39 +146,38 @@ export default function BuyerDashboardOverview() {
           </div>
         </div>
 
-        {/* Right Column: Quick Actions */}
+        {/* Right Column: Pending Invoices */}
         <div className="space-y-6">
-          <div className="cp-card">
-            <h3 className="cp-card-title">Quick Actions</h3>
-            <div className="space-y-3 mt-4">
-              <Link href="/dashboard/buyer/catalog" className="flex items-center gap-3 p-3 rounded-xl border border-border hover:bg-surface-2 transition-colors group">
-                <div className="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center shrink-0 group-hover:bg-brand-100 transition-colors">
-                  <svg className="w-5 h-5 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-ink">New Order</h4>
-                  <p className="text-[13px] text-muted mt-0.5">Place a new order</p>
-                </div>
-              </Link>
-              <Link href="/dashboard/buyer/messages" className="flex items-center gap-3 p-3 rounded-xl border border-border hover:bg-surface-2 transition-colors group">
-                <div className="w-10 h-10 rounded-lg bg-warning-bg flex items-center justify-center shrink-0 group-hover:bg-warning-bg/80 transition-colors">
-                  <svg className="w-5 h-5 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-ink">Create Inquiry</h4>
-                  <p className="text-[13px] text-muted mt-0.5">Ask vendor for info</p>
-                </div>
-              </Link>
-              <Link href="/dashboard/buyer/assets" className="flex items-center gap-3 p-3 rounded-xl border border-border hover:bg-surface-2 transition-colors group">
-                <div className="w-10 h-10 rounded-lg bg-info-bg flex items-center justify-center shrink-0 group-hover:bg-info-bg/80 transition-colors">
-                  <svg className="w-5 h-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-ink">Add New Asset</h4>
-                  <p className="text-[13px] text-muted mt-0.5">Track company asset</p>
-                </div>
-              </Link>
+          <div className="cp-card cp-card--flush">
+            <div className="px-6 py-4 border-b border-border flex justify-between items-center">
+              <h3 className="cp-card-title !mb-0">Pending Invoices</h3>
+              <Link href="/dashboard/buyer/orders?tab=invoices" className="text-[13px] font-semibold text-brand-600 hover:text-brand-700 transition-colors">View all</Link>
             </div>
+            {loading ? (
+              <div className="py-8 flex justify-center"><div className="animate-spin h-5 w-5 border-2 border-brand-600 border-t-transparent rounded-full"></div></div>
+            ) : pendingInvoices.length > 0 ? (
+              <div className="divide-y divide-border">
+                {pendingInvoices.map(invoice => (
+                  <Link href="/dashboard/buyer/orders?tab=invoices" key={invoice.id} className="block p-4 hover:bg-surface-2 transition-colors">
+                    <div className="flex justify-between items-start mb-1">
+                      <p className="text-sm font-semibold text-ink">{invoice.invoiceNumber || `INV-${invoice.id}`}</p>
+                      <p className="text-sm font-bold text-ink">₹{Number(invoice.totalAmount || 0).toLocaleString('en-IN')}</p>
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                      <p className="text-xs text-muted truncate pr-4">{invoice.order?.productName || "Product Invoice"}</p>
+                      <span className="cp-badge cp-badge--warning text-[10px] px-1.5 py-0.5">PENDING</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="p-6 text-center text-muted text-sm flex flex-col items-center">
+                <svg className="w-8 h-8 text-slate mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                No pending invoices.
+              </div>
+            )}
           </div>
         </div>
       </div>

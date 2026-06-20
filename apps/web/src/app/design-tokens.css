@@ -14,42 +14,43 @@
    Palette sampled directly from the CORPASS reference mockup.
    ========================================================================== */
 
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.0.0/index.min.css');
+
 :root {
-  /* ---- Brand: deep petrol teal -------------------------------------------- */
-  --cp-brand-50:  #EAF4F3;
-  --cp-brand-100: #D2E8E6;
-  --cp-brand-200: #A7D0CD;
-  --cp-brand-300: #6FB1AD;
-  --cp-brand-400: #2E8C88;
-  --cp-brand-500: #0A6E6E;   /* primary interactive (links, focus) */
-  --cp-brand-600: #015C5D;   /* DEFAULT brand — primary buttons, logo */
-  --cp-brand-700: #034849;   /* hover / pressed */
-  --cp-brand-800: #023638;
-  --cp-brand-900: #012829;   /* deepest — logo plate */
+  /* ---- Brand: Accent ----------------------------------------------- */
+  --cp-brand-50:  #fff0e6;
+  --cp-brand-100: #ffd1b3;
+  --cp-brand-200: #ffb380;
+  --cp-brand-300: #ff944d;
+  --cp-brand-400: #ff751a;
+  --cp-brand-500: #ff6600;   /* primary interactive (links, focus) */
+  --cp-brand-600: #ff5c00;   /* DEFAULT brand — primary buttons, logo */
+  --cp-brand-700: #cc4a00;   /* hover / pressed */
+  --cp-brand-800: #993700;
+  --cp-brand-900: #662500;   /* deepest */
 
-  /* ---- Neutrals: cool gray ------------------------------------------------ */
-  --cp-bg:            #F4F5F7;   /* app canvas / page background */
-  --cp-surface:       #FFFFFF;   /* cards, panels, sidebar */
-  --cp-surface-2:     #FAFBFC;   /* subtle nested sections, row hover */
-  --cp-surface-3:     #F1F2F5;   /* inputs at rest, chips */
-  --cp-border:        #ECEDF0;   /* default hairline borders */
-  --cp-border-strong: #E0E2E7;   /* input borders, dividers needing weight */
+  /* ---- Neutrals: Concrete & Marigold base -------------------------------------- */
+  --cp-bg:            #ece9e1;   /* Page */
+  --cp-surface:       #fbfaf6;   /* Card */
+  --cp-surface-2:     #e3dfd3;   /* subtle nested sections, row hover */
+  --cp-surface-3:     #d7d2c3;   /* inputs at rest, chips */
+  --cp-border:        #14110c;   /* Ink / border */
+  --cp-border-strong: #14110c;   /* input borders, dividers needing weight */
 
-  --cp-text:           #16191C;  /* primary text, headings, big numbers */
-  --cp-text-secondary: #4B5563;  /* body, nav labels */
-  --cp-text-muted:     #8A909A;  /* captions, timestamps, placeholders */
-  --cp-text-disabled:  #B4B9C0;
+  --cp-text:           #14110c;  /* primary text, headings, big numbers */
+  --cp-text-secondary: #4a4235;  /* body, nav labels */
+  --cp-text-muted:     #827a69;  /* placeholders, timestamps */
+  --cp-text-disabled:  #aba394;
 
-  /* ---- Status (text + soft background pairs) ------------------------------ */
-  --cp-success:     #0F7A57;  --cp-success-bg: #E4F4EC;  --cp-success-border: #C9E9D9;
-  --cp-warning:     #9A6700;  --cp-warning-bg: #FBF0D6;  --cp-warning-border: #F1E0AE;
-  --cp-danger:      #C23B3B;  --cp-danger-bg:  #FBE7E7;  --cp-danger-border:  #F3CFCF;
-  --cp-info:        #2C68B5;  --cp-info-bg:    #E7F0FB;  --cp-info-border:    #CFE0F6;
-  --cp-neutral:     #5B6470;  --cp-neutral-bg: #EFF1F4;  --cp-neutral-border: #E1E4E9;
+  /* ---- Status (high contrast brutalism) ----------------------------------- */
+  --cp-success:     #14110c;  --cp-success-bg: #82d182;  --cp-success-border: #14110c;
+  --cp-warning:     #14110c;  --cp-warning-bg: #ffb200;  --cp-warning-border: #14110c;
+  --cp-danger:      #14110c;  --cp-danger-bg:  #ff5c00;  --cp-danger-border:  #14110c;
+  --cp-info:        #14110c;  --cp-info-bg:    #ece9e1;  --cp-info-border:    #14110c;
+  --cp-neutral:     #fbfaf6;  --cp-neutral-bg: #14110c;  --cp-neutral-border: #14110c;
 
   /* ---- Typography --------------------------------------------------------- */
-  --cp-font-sans: "Inter", "Plus Jakarta Sans", "Geist", -apple-system,
-                  BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --cp-font-sans: "OpenDyslexic", "Courier New", Courier, monospace;
   --cp-font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --cp-text-2xs: 11px;
@@ -82,24 +83,65 @@
   --cp-space-10: 40px;
   --cp-space-12: 48px;
 
-  /* ---- Radius ------------------------------------------------------------- */
-  --cp-radius-sm:   8px;    /* thumbnails, small chips */
-  --cp-radius-md:   12px;   /* buttons, inputs, list items */
-  --cp-radius-lg:   16px;   /* cards, panels */
-  --cp-radius-xl:   20px;
-  --cp-radius-pill: 999px;  /* badges, avatars, toggles */
+  /* ---- Radius (Brutalism: none) ------------------------------------------- */
+  --cp-radius-sm:   0px;    /* thumbnails, small chips */
+  --cp-radius-md:   0px;   /* buttons, inputs, list items */
+  --cp-radius-lg:   0px;   /* cards, panels */
+  --cp-radius-xl:   0px;
+  --cp-radius-pill: 0px;  /* badges, avatars, toggles */
 
-  /* ---- Shadows (soft, low) ----------------------------------------------- */
-  --cp-shadow-xs: 0 1px 2px rgba(16,24,40,.04);
-  --cp-shadow-sm: 0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
-  --cp-shadow-md: 0 4px 12px rgba(16,24,40,.06), 0 2px 4px rgba(16,24,40,.04);
-  --cp-shadow-lg: 0 12px 32px rgba(16,24,40,.10);
-  --cp-shadow-focus: 0 0 0 3px rgba(1,92,93,.18);   /* focus ring */
+  /* ---- Shadows (hard offset) --------------------------------------------- */
+  --cp-shadow-xs: 2px 2px 0 rgba(20,17,12,1);
+  --cp-shadow-sm: 4px 4px 0 rgba(20,17,12,1);
+  --cp-shadow-md: 6px 6px 0 rgba(20,17,12,1);
+  --cp-shadow-lg: 12px 12px 0 rgba(20,17,12,1);
+  --cp-shadow-focus: 0 0 0 3px #ff5c00;   /* hazard focus ring */
 
   /* ---- Layout knobs ------------------------------------------------------- */
   --cp-sidebar-width: 240px;
   --cp-card-padding: 22px;
   --cp-transition: 140ms cubic-bezier(.4,0,.2,1);
+}
+
+:root.dark {
+    /* ---- Brand: Dark Mode Overrides ---- */
+    --cp-brand-50:  #2b1810;  /* subtle dark orange background */
+    --cp-brand-100: #3d2216;
+    --cp-brand-200: #573120;
+    --cp-brand-300: #78432a;
+    --cp-brand-400: #9e5535;
+    --cp-brand-500: #ff6600;
+    --cp-brand-600: #ff8533;  /* lighter orange for text and borders */
+    --cp-brand-700: #ff9955;
+    --cp-brand-800: #ffad77;
+    --cp-brand-900: #ffc299;
+
+    /* ---- Neutrals: Dark Mode ---------------------------------------------- */
+    --cp-bg:            #14110c;
+    --cp-surface:       #1f1c16;
+    --cp-surface-2:     #2b271f;
+    --cp-surface-3:     #383328;
+    --cp-border:        #4a4235;
+    --cp-border-strong: #5c5243;
+
+    --cp-text:           #fbfaf6;
+    --cp-text-secondary: #d7d2c3;
+    --cp-text-muted:     #aba394;
+    --cp-text-disabled:  #5c574c;
+
+    /* ---- Status (Neon text on dark backgrounds) --------------------------- */
+    --cp-success:     #82d182;  --cp-success-bg: #1f1c16;  --cp-success-border: #bcb4a0;
+    --cp-warning:     #ffb200;  --cp-warning-bg: #1f1c16;  --cp-warning-border: #bcb4a0;
+    --cp-danger:      #ff5c00;  --cp-danger-bg:  #1f1c16;  --cp-danger-border:  #bcb4a0;
+    --cp-info:        #bcb4a0;  --cp-info-bg:    #1f1c16;  --cp-info-border:    #bcb4a0;
+    --cp-neutral:     #fbfaf6;  --cp-neutral-bg: #1f1c16;  --cp-neutral-border: #bcb4a0;
+
+    /* ---- Shadows ------------------------------------ */
+    --cp-shadow-xs: 2px 2px 0 rgba(188, 180, 160, 1);
+    --cp-shadow-sm: 4px 4px 0 rgba(188, 180, 160, 1);
+    --cp-shadow-md: 6px 6px 0 rgba(188, 180, 160, 1);
+    --cp-shadow-lg: 12px 12px 0 rgba(188, 180, 160, 1);
+    --cp-shadow-focus: 0 0 0 3px #bcb4a0;
 }
 
 /* ----------------------------------------------------------------------------
@@ -111,6 +153,7 @@ body {
   background: var(--cp-bg);
   color: var(--cp-text);
   font-family: var(--cp-font-sans);
+  letter-spacing: -0.04em;
   font-size: var(--cp-text-base);
   line-height: var(--cp-leading-base);
   -webkit-font-smoothing: antialiased;
@@ -118,7 +161,10 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-::selection { background: var(--cp-brand-100); color: var(--cp-brand-800); }
+::selection {
+  background-color: var(--cp-brand-500);
+  color: #fff;
+}
 
 :where(a) { color: var(--cp-brand-600); text-decoration: none; }
 :where(a:hover) { color: var(--cp-brand-700); }
@@ -128,4 +174,14 @@ body {
   outline: none;
   box-shadow: var(--cp-shadow-focus);
   border-radius: var(--cp-radius-sm);
+}
+
+/* Fix WebKit Autofill in Dark Mode */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--cp-surface) inset !important;
+    -webkit-text-fill-color: var(--cp-text) !important;
+    transition: background-color 5000s ease-in-out 0s;
 }

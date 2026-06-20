@@ -1,9 +1,11 @@
 import { Controller, Post, Get, Patch, Body, Param, Request, UseGuards } from '@nestjs/common';
 import { InquiriesService } from './inquiries.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { VerifiedGuard } from '../auth/verified.guard';
 import { CreateInquiryDto } from './dto/create-inquiry.dto';
 
 @Controller()
+@UseGuards(AuthGuard, VerifiedGuard)
 export class InquiriesController {
   constructor(private readonly inquiriesService: InquiriesService) {}
 

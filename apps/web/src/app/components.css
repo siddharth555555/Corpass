@@ -40,27 +40,40 @@
 /* ---- Buttons -------------------------------------------------------------- */
 .cp-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--cp-space-2);
-  font-family: var(--cp-font-sans); font-size: var(--cp-text-base); font-weight: var(--cp-fw-semibold);
+  font-family: var(--cp-font-sans); font-size: var(--cp-text-base); font-weight: var(--cp-fw-bold);
   padding: 10px 16px; border-radius: var(--cp-radius-md);
-  border: 1px solid transparent; cursor: pointer;
-  transition: background var(--cp-transition), border-color var(--cp-transition), color var(--cp-transition);
+  border: 1px solid var(--cp-border); cursor: pointer;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease, color 150ms ease;
 }
-.cp-btn--primary   { background: var(--cp-brand-600); color: #fff; box-shadow: var(--cp-shadow-xs); }
-.cp-btn--primary:hover { background: var(--cp-brand-700); }
-.cp-btn--secondary { background: var(--cp-surface); color: var(--cp-text-secondary); border-color: var(--cp-border-strong); }
-.cp-btn--secondary:hover { background: var(--cp-surface-2); }
-.cp-btn--ghost     { background: transparent; color: var(--cp-text-secondary); }
-.cp-btn--ghost:hover { background: var(--cp-surface-2); }
+.cp-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--cp-shadow-sm);
+}
+.cp-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.cp-btn--primary   { background: var(--cp-brand-600); color: var(--cp-text); box-shadow: var(--cp-shadow-xs); border-color: var(--cp-border); }
+.cp-btn--primary:hover { background: var(--cp-brand-700); border-color: var(--cp-brand-700); color: var(--cp-text); }
+.cp-btn--secondary { background: var(--cp-surface); color: var(--cp-text-secondary); border-color: var(--cp-border); }
+.cp-btn--secondary:hover { background: var(--cp-brand-700); color: var(--cp-surface); border-color: var(--cp-brand-700); }
+.cp-btn--ghost     { background: transparent; color: var(--cp-text-secondary); border-color: transparent; }
+.cp-btn--ghost:hover { background: var(--cp-surface-2); border-color: var(--cp-border); }
 .cp-btn--success   { background: var(--cp-success); color: #fff; }
 .cp-btn--danger-outline { background: var(--cp-surface); color: var(--cp-danger); border-color: var(--cp-danger-border); }
 .cp-btn--sm { padding: 7px 12px; font-size: var(--cp-text-sm); }
+
+/* Aliases for legacy classes */
+.btn-primary { @apply cp-btn cp-btn--primary; }
+.btn-secondary { @apply cp-btn cp-btn--secondary; }
 
 /* ---- Badges / status pills ----------------------------------------------- */
 .cp-badge {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 3px 10px; border-radius: var(--cp-radius-pill);
-  font-size: var(--cp-text-xs); font-weight: var(--cp-fw-semibold); line-height: 1.6;
-  border: 1px solid transparent;
+  font-size: var(--cp-text-xs); font-weight: var(--cp-fw-bold); line-height: 1.6;
+  border: 1px solid var(--cp-border); text-transform: uppercase; letter-spacing: 1px;
 }
 .cp-badge--success { color: var(--cp-success); background: var(--cp-success-bg); border-color: var(--cp-success-border); }
 .cp-badge--warning { color: var(--cp-warning); background: var(--cp-warning-bg); border-color: var(--cp-warning-border); }
@@ -74,7 +87,7 @@
 .cp-input {
   width: 100%; font-family: var(--cp-font-sans); font-size: var(--cp-text-base);
   color: var(--cp-text); background: var(--cp-surface);
-  border: 1px solid var(--cp-border-strong); border-radius: var(--cp-radius-md);
+  border: 1px solid var(--cp-border-strong); border-radius: var(--cp-radius-sm);
   padding: 10px 12px; transition: border-color var(--cp-transition), box-shadow var(--cp-transition);
 }
 .cp-input::placeholder { color: var(--cp-text-muted); }

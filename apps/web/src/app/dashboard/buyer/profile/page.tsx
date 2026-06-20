@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AlertModal, AlertType } from "@/components/ui/AlertModal";
+import { Select } from "@/components/ui/Select";
 
 export default function BuyerProfile() {
   const router = useRouter();
@@ -319,32 +320,32 @@ export default function BuyerProfile() {
                     <div className="space-y-5">
                       <div>
                         <label className="block text-[13px] font-semibold text-ink mb-1.5">Company Type</label>
-                        <div className="relative">
-                          <select value={formData.companyType} onChange={e => setFormData({...formData, companyType: e.target.value})} className="cp-input text-[13px] appearance-none cursor-pointer">
-                            <option value="LLC">LLC</option>
-                            <option value="Corporation">Corporation</option>
-                            <option value="Partnership">Partnership</option>
-                            <option value="Sole Proprietorship">Sole Proprietorship</option>
-                          </select>
-                          <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-muted">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                          </div>
-                        </div>
+                        <Select
+                          name="companyType"
+                          value={formData.companyType}
+                          onChange={val => setFormData({...formData, companyType: val})}
+                          options={[
+                            {value: "LLC", label: "LLC"},
+                            {value: "Corporation", label: "Corporation"},
+                            {value: "Partnership", label: "Partnership"},
+                            {value: "Sole Proprietorship", label: "Sole Proprietorship"}
+                          ]}
+                        />
                       </div>
                       <div>
                         <label className="block text-[13px] font-semibold text-ink mb-1.5">Employee Count</label>
-                        <div className="relative">
-                          <select value={formData.employeeCount} onChange={e => setFormData({...formData, employeeCount: e.target.value})} className="cp-input text-[13px] appearance-none cursor-pointer">
-                            <option value="1-10">1-10</option>
-                            <option value="11-50">11-50</option>
-                            <option value="51-200">51-200</option>
-                            <option value="201-500">201-500</option>
-                            <option value="500+">500+</option>
-                          </select>
-                          <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-muted">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                          </div>
-                        </div>
+                        <Select
+                          name="employeeCount"
+                          value={formData.employeeCount}
+                          onChange={val => setFormData({...formData, employeeCount: val})}
+                          options={[
+                            {value: "1-10", label: "1-10 Employees"},
+                            {value: "11-50", label: "11-50 Employees"},
+                            {value: "51-200", label: "51-200 Employees"},
+                            {value: "201-500", label: "201-500 Employees"},
+                            {value: "500+", label: "500+ Employees"}
+                          ]}
+                        />
                       </div>
                     </div>
                   </div>

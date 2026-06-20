@@ -4,13 +4,15 @@ import { useState, useEffect } from "react";
 import LogoLink from "@/components/ui/LogoLink";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { Select } from "@/components/ui/Select";
 
 export default function RegisterPage() {
   const [role, setRole] = useState<'BUYER' | 'SELLER'>('BUYER');
   const [error, setError] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [formData, setFormData] = useState({
-    name: "", loginId: "", password: "", email: "", mobile: "",
+    name: "", loginId: "", password: "", email: "", mobile: "", dialCode: "+91",
     address: "", city: "", pincode: "",
     companyName: "", companyAddress: "", companyType: "LLC", employeeCount: "1-10",
     gstin: "", deliveryRange: "HYPER_LOCAL_20KM"
@@ -66,7 +68,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-paper py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-canvas flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative selection:bg-brand-500 selection:text-white animate-fade-up">
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-50">
+        <ThemeToggle />
+      </div>
       <div className="flex justify-center items-center w-full mb-8 relative z-10">
         <LogoLink src="/logo.png" className="w-56 sm:w-72 h-auto object-contain mx-auto" priority={true} />
       </div>
@@ -85,7 +90,7 @@ export default function RegisterPage() {
             onClick={() => setRole('BUYER')}
             className={`flex-1 py-2.5 text-sm font-medium transition-all duration-300 ${
               role === 'BUYER' 
-                ? 'bg-ink text-paper shadow-sm' 
+                ? 'bg-ink text-canvas shadow-sm' 
                 : 'text-slate hover:text-ink'
             }`}
           >
@@ -95,7 +100,7 @@ export default function RegisterPage() {
             onClick={() => setRole('SELLER')}
             className={`flex-1 py-2.5 text-sm font-medium transition-all duration-300 ${
               role === 'SELLER' 
-                ? 'bg-ink text-paper shadow-sm' 
+                ? 'bg-ink text-canvas shadow-sm' 
                 : 'text-slate hover:text-ink'
             }`}
           >
@@ -122,15 +127,21 @@ export default function RegisterPage() {
               <div>
                 <label className="block text-sm font-medium text-slate mb-1.5">Mobile <span className="text-copper">*</span></label>
                 <div className="flex relative">
-                  <select name="dialCode" className="flex-shrink-0 w-24 px-2 py-2.5 bg-paper border border-r-0 border-border text-sm text-ink focus:outline-none" defaultValue="+91">
-                    <option value="+1">US (+1)</option>
-                    <option value="+44">UK (+44)</option>
-                    <option value="+91">IN (+91)</option>
-                    <option value="+61">AU (+61)</option>
-                    <option value="+971">UAE (+971)</option>
-                    <option value="+65">SG (+65)</option>
-                  </select>
-                  <input name="mobile" type="tel" pattern="[0-9]{7,15}" title="Please enter a valid phone number" className="flex-1 w-full px-4 py-2.5 bg-paper border border-border text-sm text-ink placeholder:text-slate focus:outline-none focus:border-border-focus" placeholder="9876543210" required />
+                  <Select
+                    name="dialCode"
+                    value={formData.dialCode}
+                    onChange={val => setFormData({...formData, dialCode: val})}
+                    options={[
+                      {value: "+1", label: "US (+1)"},
+                      {value: "+44", label: "UK (+44)"},
+                      {value: "+91", label: "IN (+91)"},
+                      {value: "+61", label: "AU (+61)"},
+                      {value: "+971", label: "UAE (+971)"},
+                      {value: "+65", label: "SG (+65)"}
+                    ]}
+                    className="w-28"
+                  />
+                  <input name="mobile" type="tel" pattern="[0-9]{7,15}" title="Please enter a valid phone number" className="flex-1 w-full px-4 py-2.5 bg-paper border border-border-strong text-sm text-ink placeholder:text-slate focus:outline-none focus:border-brand-600" placeholder="9876543210" required />
                 </div>
               </div>
               <div className="md:col-span-2">
@@ -171,24 +182,34 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate mb-1.5">Company Type</label>
-                  <select name="companyType" className="w-full px-4 py-2.5 bg-paper border border-border text-sm text-ink focus:outline-none focus:border-border-focus" required defaultValue="">
-                    <option value="" disabled>Select Type</option>
-                    <option value="LLC">LLC</option>
-                    <option value="Corporation">Corporation</option>
-                    <option value="Partnership">Partnership</option>
-                    <option value="Sole Proprietorship">Sole Proprietorship</option>
-                  </select>
+                  <Select
+                    name="companyType"
+                    value={formData.companyType}
+                    onChange={val => setFormData({...formData, companyType: val})}
+                    options={[
+                      {value: "LLC", label: "LLC"},
+                      {value: "Corporation", label: "Corporation"},
+                      {value: "Partnership", label: "Partnership"},
+                      {value: "Sole Proprietorship", label: "Sole Proprietorship"}
+                    ]}
+                    required
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate mb-1.5">Number of Employees</label>
-                  <select name="employeeCount" className="w-full px-4 py-2.5 bg-paper border border-border text-sm text-ink focus:outline-none focus:border-border-focus" required defaultValue="">
-                    <option value="" disabled>Select Range</option>
-                    <option value="1-10">1-10</option>
-                    <option value="11-50">11-50</option>
-                    <option value="51-200">51-200</option>
-                    <option value="201-500">201-500</option>
-                    <option value="500+">500+</option>
-                  </select>
+                  <Select
+                    name="employeeCount"
+                    value={formData.employeeCount}
+                    onChange={val => setFormData({...formData, employeeCount: val})}
+                    options={[
+                      {value: "1-10", label: "1-10"},
+                      {value: "11-50", label: "11-50"},
+                      {value: "51-200", label: "51-200"},
+                      {value: "201-500", label: "201-500"},
+                      {value: "500+", label: "500+"}
+                    ]}
+                    required
+                  />
                 </div>
               </div>
             ) : (
@@ -198,11 +219,17 @@ export default function RegisterPage() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-slate mb-1.5">Delivery Range Options</label>
-                  <select name="deliveryRange" className="w-full px-4 py-2.5 bg-paper border border-border text-sm text-ink focus:outline-none focus:border-border-focus" required defaultValue="">
-                    <option value="HYPER_LOCAL_20KM">Hyper Local</option>
-                    <option value="LOCAL_100KM">Local</option>
-                    <option value="SHIPPING_AVAILABLE">Pan India</option>
-                  </select>
+                  <Select
+                    name="deliveryRange"
+                    value={formData.deliveryRange}
+                    onChange={val => setFormData({...formData, deliveryRange: val})}
+                    options={[
+                      {value: "HYPER_LOCAL_20KM", label: "Hyper Local"},
+                      {value: "LOCAL_100KM", label: "Local"},
+                      {value: "SHIPPING_AVAILABLE", label: "Pan India"}
+                    ]}
+                    required
+                  />
                   <p className="mt-2 text-xs text-slate">This helps buyers discover vendors that can deliver to their pincode efficiently.</p>
                 </div>
               </div>

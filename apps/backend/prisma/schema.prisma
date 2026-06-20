@@ -67,6 +67,7 @@ model User {
   notifications       Notification[]
 
   isDeleted           Boolean        @default(false)
+  isVerified          Boolean        @default(false)
 
   @@index([role])
   @@index([email])
@@ -421,11 +422,15 @@ model SupportMessage {
   message   String   @db.Text
   status    String   @default("OPEN")
   createdAt DateTime @default(now())
+  parentId  Int?
 
   user      User     @relation("UserSupportMessages", fields: [userId], references: [id], onDelete: Cascade)
+  parent    SupportMessage?  @relation("SupportReplies", fields: [parentId], references: [id])
+  replies   SupportMessage[] @relation("SupportReplies")
 
   @@index([userId])
   @@index([status])
+  @@index([parentId])
 }
 
 // ── Notification System ──

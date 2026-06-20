@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AlertModal, AlertType } from "@/components/ui/AlertModal";
+import { Select } from "@/components/ui/Select";
 
 export default function SellerProfile() {
   const router = useRouter();
@@ -310,14 +311,16 @@ export default function SellerProfile() {
                     <div>
                       <label className="block text-[12px] font-[600] mb-1.5" style={{ color: 'var(--cp-text-muted)' }}>Delivery Range Capability</label>
                       <div className="relative">
-                        <select value={formData.deliveryRange} onChange={e => setFormData({...formData, deliveryRange: e.target.value})} className="cp-input w-full appearance-none font-[500]">
-                          <option value="HYPER_LOCAL_20KM">Hyper Local</option>
-                          <option value="LOCAL_100KM">Local</option>
-                          <option value="SHIPPING_AVAILABLE">Pan India</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none" style={{ color: 'var(--cp-text-muted)' }}>
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                        </div>
+                        <Select
+                          name="deliveryRange"
+                          value={formData.deliveryRange}
+                          onChange={val => setFormData({...formData, deliveryRange: val})}
+                          options={[
+                            {value: "HYPER_LOCAL_20KM", label: "Hyper Local (20km)"},
+                            {value: "LOCAL_100KM", label: "Local (100km)"},
+                            {value: "SHIPPING_AVAILABLE", label: "Pan India Shipping"}
+                          ]}
+                        />
                       </div>
                     </div>
 

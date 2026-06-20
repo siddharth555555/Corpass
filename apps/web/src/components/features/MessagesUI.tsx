@@ -53,7 +53,10 @@ export function MessagesUI({ role }: { role: Role }) {
   const fetchThreads = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      if (!token) return;
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
       const [ordersRes, inqsRes] = await Promise.all([
         fetch(`http://${window.location.hostname}:3001/orders`, {
@@ -64,8 +67,11 @@ export function MessagesUI({ role }: { role: Role }) {
         })
       ]);
 
-      const orders = await ordersRes.json();
-      const inqs = await inqsRes.json();
+      const ordersJson = await ordersRes.json();
+      const inqsJson = await inqsRes.json();
+
+      const orders = Array.isArray(ordersJson?.data) ? ordersJson.data : (Array.isArray(ordersJson) ? ordersJson : []);
+      const inqs = Array.isArray(inqsJson?.data) ? inqsJson.data : (Array.isArray(inqsJson) ? inqsJson : []);
 
       const cpMap = new Map<string, Counterparty>();
 
@@ -115,7 +121,6 @@ export function MessagesUI({ role }: { role: Role }) {
       combinedCp.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
       
       setCounterparties(combinedCp);
-      setLoading(false);
 
       // Deep link resolution
       if (typeof window !== "undefined") {
@@ -135,6 +140,7 @@ export function MessagesUI({ role }: { role: Role }) {
       }
     } catch (err) {
       console.error(err);
+    } finally {
       setLoading(false);
     }
   };
@@ -152,7 +158,7 @@ export function MessagesUI({ role }: { role: Role }) {
       
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
-      setMessages(data);
+      setMessages(Array.isArray(data) ? data : (data?.data || []));
       scrollToBottom();
     } catch (err) {
       console.error(err);
@@ -306,7 +312,7 @@ export function MessagesUI({ role }: { role: Role }) {
                   key={f}
                   onClick={() => { setFilterType(f); setActiveThread(null); }}
                   className={`flex-1 px-3 py-1.5 text-[12px] font-[600] rounded-md transition-colors ${
-                    filterType === f ? "bg-ink text-white shadow-sm" : "text-muted hover:bg-surface-2"
+                    filterType === f ? "bg-ink text-canvas shadow-sm" : "text-muted hover:bg-surface-2"
                   }`}
                 >
                   {f.charAt(0) + f.slice(1).toLowerCase()}
@@ -374,7 +380,7 @@ export function MessagesUI({ role }: { role: Role }) {
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 <div className="h-10 w-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-lg shrink-0 ring-2 ring-brand-50">
-                  {activeCounterparty.name.substring(0, 2).toUpperCase()}
+                  {activeCounterparty?.name?.substring(0, 2).toUpperCase() || '?'}
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-base font-bold text-ink truncate">{activeCounterparty.name}</h3>

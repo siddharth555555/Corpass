@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import LogoLink from "@/components/ui/LogoLink";
+import { Select } from "@/components/ui/Select";
 import { AlertModal, AlertType } from "@/components/ui/AlertModal";
 
 const CATEGORIES = {
@@ -243,16 +245,15 @@ export default function SellerProductCatalog() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <select 
+          <Select 
             value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            className="cp-input w-auto cursor-pointer"
-          >
-            <option value="All">All Categories</option>
-            {Object.keys(categoryStats).map(cat => (
-              <option key={cat} value={cat}>{cat} ({categoryStats[cat].count})</option>
-            ))}
-          </select>
+            onChange={val => setFilterCategory(val)}
+            options={[
+              {label: "All Categories", value: "All"},
+              ...Object.keys(categoryStats).map(cat => ({label: `${cat} (${categoryStats[cat].count})`, value: cat}))
+            ]}
+            className="w-56"
+          />
         </div>
       </div>
         
@@ -363,15 +364,21 @@ export default function SellerProductCatalog() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-ink mb-1">Category</label>
-                    <select value={formData.category} onChange={handleCategoryChange} className="w-full px-3 py-2 bg-paper border border-border rounded text-sm text-ink focus:border-ink outline-none">
-                      {Object.keys(CATEGORIES).map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                    </select>
+                    <Select
+                      name="category"
+                      value={formData.category}
+                      onChange={val => handleCategoryChange({target: {value: val}} as any)}
+                      options={Object.keys(CATEGORIES).map(cat => ({value: cat, label: cat}))}
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-ink mb-1">Subcategory</label>
-                    <select value={formData.subCategory} onChange={e => setFormData({...formData, subCategory: e.target.value})} className="w-full px-3 py-2 bg-paper border border-border rounded text-sm text-ink focus:border-ink outline-none">
-                      {CATEGORIES[formData.category as keyof typeof CATEGORIES].map((sub: string) => <option key={sub} value={sub}>{sub}</option>)}
-                    </select>
+                    <Select
+                      name="subCategory"
+                      value={formData.subCategory}
+                      onChange={val => setFormData({...formData, subCategory: val})}
+                      options={CATEGORIES[formData.category as keyof typeof CATEGORIES].map((sub: string) => ({value: sub, label: sub}))}
+                    />
                   </div>
                 </div>
 
@@ -390,13 +397,12 @@ export default function SellerProductCatalog() {
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-slate mb-1">Unit of Measure</label>
-                      <select value={formData.pricingUnit} onChange={e => setFormData({...formData, pricingUnit: e.target.value, piecesPerUnit: ""})} className="w-full px-3 py-2 bg-paper border border-border rounded text-sm text-ink focus:border-ink outline-none">
-                        {Object.entries(UOM_GROUPS).map(([group, units]) => (
-                          <optgroup key={group} label={group}>
-                            {units.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
-                          </optgroup>
-                        ))}
-                      </select>
+                      <Select
+                        name="pricingUnit"
+                        value={formData.pricingUnit}
+                        onChange={val => setFormData({...formData, pricingUnit: val, piecesPerUnit: ""})}
+                        options={Object.entries(UOM_GROUPS).flatMap(([group, units]) => units.map(u => ({value: u.value, label: `${u.label} (${group})`})))}
+                      />
                     </div>
                   </div>
 
@@ -444,11 +450,16 @@ export default function SellerProductCatalog() {
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-slate mb-1">Delivery Range</label>
-                        <select value={formData.deliveryRange} onChange={e => setFormData({...formData, deliveryRange: e.target.value})} className="w-full px-3 py-2 bg-paper border border-border rounded text-sm text-ink focus:border-ink outline-none">
-                          <option value="HYPER_LOCAL_20KM">Hyper Local</option>
-                          <option value="LOCAL_100KM">Local</option>
-                          <option value="SHIPPING_AVAILABLE">Pan India</option>
-                        </select>
+                        <Select
+                          name="deliveryRange"
+                          value={formData.deliveryRange}
+                          onChange={val => setFormData({...formData, deliveryRange: val})}
+                          options={[
+                            {value: "HYPER_LOCAL_20KM", label: "Hyper Local"},
+                            {value: "LOCAL_100KM", label: "Local"},
+                            {value: "SHIPPING_AVAILABLE", label: "Pan India"}
+                          ]}
+                        />
                       </div>
                     </div>
                   )}
