@@ -3,6 +3,7 @@ import { ProductsService } from './products.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { VerifiedGuard } from '../auth/verified.guard';
 import { CreateProductDto } from './dto/create-product.dto';
+import { Public } from '../auth/public.decorator';
 
 @Controller('products')
 @UseGuards(AuthGuard)
@@ -17,6 +18,7 @@ export class ProductsController {
     return this.productsService.create(req.user.sub, createProductDto);
   }
 
+  @Public()
   @Get('marketplace')
   getMarketplaceProducts(@Request() req) {
     // Both buyers and sellers can browse the marketplace

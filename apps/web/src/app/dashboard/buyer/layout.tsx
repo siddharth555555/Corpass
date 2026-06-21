@@ -110,13 +110,23 @@ export default function BuyerDashboardLayout({ children }: { children: React.Rea
         </div>
         
         <div className="pb-6 pt-4 border-t border-border mt-auto px-2">
-          <Link href="/dashboard/buyer/profile" className="flex items-center gap-3 px-2 py-2 mb-2 rounded-md hover:bg-surface-2 transition-colors">
-             <div className="cp-avatar shrink-0">{user?.name?.substring(0, 2).toUpperCase() || "SJ"}</div>
-             <div className="min-w-0 flex-1">
-               <div className="text-sm font-semibold text-ink truncate">{userLoaded ? (user?.name || "—") : "Loading..."}</div>
-               <div className="text-xs text-muted truncate">Buyer</div>
-             </div>
-          </Link>
+          {user ? (
+            <Link href="/dashboard/buyer/profile" className="flex items-center gap-3 px-2 py-2 mb-2 rounded-md hover:bg-surface-2 transition-colors">
+               <div className="cp-avatar shrink-0">{user?.name?.substring(0, 2).toUpperCase() || "SJ"}</div>
+               <div className="min-w-0 flex-1">
+                 <div className="text-sm font-semibold text-ink truncate">{user.name}</div>
+                 <div className="text-xs text-muted truncate">Buyer</div>
+               </div>
+            </Link>
+          ) : (
+            <Link href="/login" className="flex items-center gap-3 px-2 py-2 mb-2 rounded-md hover:bg-surface-2 transition-colors">
+               <div className="cp-avatar shrink-0 bg-slate text-white">GU</div>
+               <div className="min-w-0 flex-1">
+                 <div className="text-sm font-semibold text-ink truncate">Guest User</div>
+                 <div className="text-xs text-muted truncate">Not logged in</div>
+               </div>
+            </Link>
+          )}
         </div>
       </aside>
 
@@ -137,9 +147,15 @@ export default function BuyerDashboardLayout({ children }: { children: React.Rea
           <div className="flex items-center gap-4 ml-auto">
             <ThemeToggle />
             <NotificationBell href="/dashboard/buyer/notifications" />
-            <button onClick={handleLogout} className="text-sm font-medium text-danger hover:text-danger-700 transition-colors">
-              Sign Out
-            </button>
+            {user ? (
+              <button onClick={handleLogout} className="text-sm font-medium text-danger hover:text-danger-700 transition-colors">
+                Sign Out
+              </button>
+            ) : (
+              <Link href="/login" className="text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors">
+                Log In
+              </Link>
+            )}
           </div>
         </header>
 

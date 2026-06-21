@@ -128,6 +128,10 @@ export default function BuyerMarketplace() {
     setBuySubmitting(true);
     try {
       const token = localStorage.getItem('access_token');
+      if (!token) {
+        router.push("/login");
+        return;
+      }
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/orders`, {
         method: 'POST',
@@ -146,7 +150,6 @@ export default function BuyerMarketplace() {
     setLoading(true);
     try {
       const token = localStorage.getItem("access_token");
-      if (!token) return router.push("/login");
       const params = new URLSearchParams();
       if (searchQuery) params.append("search", searchQuery);
       if (selectedCategory) params.append("category", selectedCategory);
@@ -155,8 +158,11 @@ export default function BuyerMarketplace() {
       if (buyerPincode) params.append("buyerPincode", buyerPincode);
       if (showUndeliverable || !buyerPincode) params.append("showUndeliverable", "true");
       
+      const headers: any = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/products/marketplace?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers
       });
       if (res.ok) {
         const prodData = await res.json();
@@ -179,6 +185,10 @@ export default function BuyerMarketplace() {
     setSubmitting(true);
     try {
       const token = localStorage.getItem("access_token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
       
       let payload;
       if (selectedProduct === 'BUNDLE') {

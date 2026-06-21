@@ -19,6 +19,9 @@ export default function LandingPage() {
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center space-x-6">
               <ThemeToggle />
+              <Link href="/dashboard/buyer/catalog" className="text-sm font-medium text-slate hover:text-ink transition-colors">
+                Marketplace
+              </Link>
               <Link href="/login" className="text-sm font-medium text-slate hover:text-ink transition-colors">
                 Sign in
               </Link>
@@ -45,6 +48,9 @@ export default function LandingPage() {
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border bg-paper px-4 py-4 space-y-4">
+            <Link href="/dashboard/buyer/catalog" className="block text-base font-medium text-slate hover:text-ink transition-colors" onClick={() => setMobileMenuOpen(false)}>
+              Marketplace
+            </Link>
             <Link href="/login" className="block text-base font-medium text-slate hover:text-ink transition-colors" onClick={() => setMobileMenuOpen(false)}>
               Sign in
             </Link>
@@ -110,10 +116,10 @@ export default function LandingPage() {
           {/* Call to Actions */}
           <div className="mt-10 flex items-center justify-center gap-x-6 pt-6">
             <Link
-              href="/register"
+              href="/dashboard/buyer/catalog"
               className="btn-cta text-sm"
             >
-              Get started for free
+              Browse Marketplace
             </Link>
             <Link href="/login" className="text-sm font-medium leading-6 text-ink hover:text-copper transition-colors">
               Log in to portal <span aria-hidden="true">→</span>
