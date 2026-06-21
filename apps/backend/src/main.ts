@@ -39,10 +39,14 @@ async function bootstrap() {
     },
   }));
 
-  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000')
+    .split(',')
+    .map(origin => origin.trim().replace(/\/$/, ''));
   app.enableCors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Normalize origin by removing trailing slash if present
+      const normalizedOrigin = origin ? origin.replace(/\/$/, '') : '';
+      if (!origin || allowedOrigins.includes(normalizedOrigin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
