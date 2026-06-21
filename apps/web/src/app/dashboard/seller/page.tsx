@@ -24,10 +24,10 @@ export default function SellerDashboardOverview() {
       if (!token) return router.push("/login");
 
       const [resProducts, resProfile, resOrders, resMe] = await Promise.all([
-        fetch(`http://${window.location.hostname}:3001/products`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`http://${window.location.hostname}:3001/auth/profile`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`http://${window.location.hostname}:3001/orders`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`http://${window.location.hostname}:3001/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/products`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/auth/profile`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/orders`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
       
       if (resProducts.ok) { const pData = await resProducts.json(); setProducts(Array.isArray(pData) ? pData : pData.data || []); }
@@ -38,7 +38,7 @@ export default function SellerDashboardOverview() {
         const me = await resMe.json();
         const meData = me.data || me;
         if (meData.id) {
-          const resReviews = await fetch(`http://${window.location.hostname}:3001/reviews/stats/${meData.id}`);
+          const resReviews = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/reviews/stats/${meData.id}`);
           if (resReviews.ok) { const rData = await resReviews.json(); reviewStats = rData.data || rData; }
         }
       }

@@ -17,7 +17,7 @@ export default function ProductsPage() {
       router.push("/login");
       return;
     }
-    fetch(`http://${window.location.hostname}:3001/admin/products`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/admin/products`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())

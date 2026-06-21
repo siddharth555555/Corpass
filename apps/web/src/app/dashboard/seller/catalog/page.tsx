@@ -105,7 +105,7 @@ export default function SellerProductCatalog() {
     const delayDebounceFn = setTimeout(async () => {
       try {
         const token = localStorage.getItem("access_token");
-        const res = await fetch(`http://${window.location.hostname}:3001/cities?q=${citySearchQuery}`, { headers: { Authorization: `Bearer ${token}` } });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/cities?q=${citySearchQuery}`, { headers: { Authorization: `Bearer ${token}` } });
         if (res.ok) {
           const json = await res.json();
           setCitySearchResults(json.data || json);
@@ -136,7 +136,7 @@ export default function SellerProductCatalog() {
       const token = localStorage.getItem("access_token");
       if (!token) return router.push("/login");
 
-      const resProducts = await fetch(`http://${window.location.hostname}:3001/products`, { headers: { Authorization: `Bearer ${token}` } });
+      const resProducts = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/products`, { headers: { Authorization: `Bearer ${token}` } });
       
       if (resProducts.ok) {
         const prodData = await resProducts.json();
@@ -184,7 +184,7 @@ export default function SellerProductCatalog() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const url = editingProductId ? `http://${window.location.hostname}:3001/products/${editingProductId}` : `http://${window.location.hostname}:3001/products`;
+      const url = editingProductId ? `${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/products/${editingProductId}` : `${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/products`;
       const method = editingProductId ? "PATCH" : "POST";
       const payload = { ...formData, deliveryCities, deliveryPincodes };
       if (editingProductId) {
@@ -590,7 +590,7 @@ export default function SellerProductCatalog() {
                               
                               try {
                                 const token = localStorage.getItem("access_token");
-                                const res = await fetch(`http://${window.location.hostname}:3001/media/upload`, {
+                                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/media/upload`, {
                                   method: "POST",
                                   headers: {
                                     Authorization: `Bearer ${token}`

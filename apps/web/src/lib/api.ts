@@ -3,7 +3,7 @@ import { toast } from 'react-hot-toast';
 
 // Use environment variable for API URL or default to localhost
 const API_BASE_URL = typeof window !== 'undefined' 
-  ? `http://${window.location.hostname}:3001`
+  ? `${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}`
   : 'http://localhost:3001';
 
 const api = axios.create({

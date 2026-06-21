@@ -28,7 +28,7 @@ export default function BuyerAssetsPage() {
   const PREDEFINED_CATEGORIES = ["Electronics", "Furniture", "Hardware", "Software", "Office Supplies", "Vehicle"];
 
   const token = () => localStorage.getItem("access_token");
-  const api = (path: string, opts?: any) => fetch(`http://${window.location.hostname}:3001${path}`, { ...opts, headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}`, ...opts?.headers } });
+  const api = (path: string, opts?: any) => fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}${path}`, { ...opts, headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}`, ...opts?.headers } });
 
   const fetchAssets = async () => {
     setLoading(true);

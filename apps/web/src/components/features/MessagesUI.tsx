@@ -59,10 +59,10 @@ export function MessagesUI({ role }: { role: Role }) {
       }
 
       const [ordersRes, inqsRes] = await Promise.all([
-        fetch(`http://${window.location.hostname}:3001/orders`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/orders`, {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        fetch(`http://${window.location.hostname}:3001/inquiries`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/inquiries`, {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);
@@ -153,8 +153,8 @@ export function MessagesUI({ role }: { role: Role }) {
     try {
       const token = localStorage.getItem("access_token");
       const url = thread.type === "ORDER" 
-        ? `http://${window.location.hostname}:3001/orders/${thread.rawId}/messages`
-        : `http://${window.location.hostname}:3001/inquiries/${thread.rawId}/messages`;
+        ? `${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/orders/${thread.rawId}/messages`
+        : `${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/inquiries/${thread.rawId}/messages`;
       
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
@@ -200,8 +200,8 @@ export function MessagesUI({ role }: { role: Role }) {
     try {
       const token = localStorage.getItem("access_token");
       const url = activeThread.type === "ORDER" 
-        ? `http://${window.location.hostname}:3001/orders/${activeThread.rawId}/messages`
-        : `http://${window.location.hostname}:3001/inquiries/${activeThread.rawId}/messages`;
+        ? `${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/orders/${activeThread.rawId}/messages`
+        : `${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/inquiries/${activeThread.rawId}/messages`;
       
       await fetch(url, {
         method: "POST",
@@ -221,7 +221,7 @@ export function MessagesUI({ role }: { role: Role }) {
 
     try {
       const token = localStorage.getItem("access_token");
-      await fetch(`http://${window.location.hostname}:3001/orders/${activeThread.rawId}/counter`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/orders/${activeThread.rawId}/counter`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -249,7 +249,7 @@ export function MessagesUI({ role }: { role: Role }) {
     if (!activeThread || activeThread.type !== "ORDER") return;
     try {
       const token = localStorage.getItem("access_token");
-      await fetch(`http://${window.location.hostname}:3001/orders/${activeThread.rawId}/accept`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/orders/${activeThread.rawId}/accept`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -266,7 +266,7 @@ export function MessagesUI({ role }: { role: Role }) {
     if (!activeThread || activeThread.type !== "ORDER") return;
     try {
       const token = localStorage.getItem("access_token");
-      await fetch(`http://${window.location.hostname}:3001/orders/${activeThread.rawId}/decline-counter`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/orders/${activeThread.rawId}/decline-counter`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
       });

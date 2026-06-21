@@ -24,7 +24,7 @@ export default function LogoLink({ className = "w-48 sm:w-64 h-auto object-conta
     }
 
     try {
-      const res = await fetch(`http://${window.location.hostname}:3001/auth/profile`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {

@@ -36,7 +36,7 @@ export default function SellerProfile() {
     const delayDebounceFn = setTimeout(async () => {
       try {
         const token = localStorage.getItem("access_token");
-        const res = await fetch(`http://${window.location.hostname}:3001/cities?q=${citySearchQuery}`, { headers: { Authorization: `Bearer ${token}` } });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/cities?q=${citySearchQuery}`, { headers: { Authorization: `Bearer ${token}` } });
         if (res.ok) {
           const json = await res.json();
           setCitySearchResults(json.data || json);
@@ -51,7 +51,7 @@ export default function SellerProfile() {
       const token = localStorage.getItem("access_token");
       if (!token) return router.push("/login");
 
-      const res = await fetch(`http://${window.location.hostname}:3001/auth/profile`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -72,8 +72,8 @@ export default function SellerProfile() {
         // Fetch reviews & stats
         try {
           const [sRes, rRes] = await Promise.all([
-            fetch(`http://${window.location.hostname}:3001/reviews/stats/${data.id}`, { headers: { Authorization: `Bearer ${token}` } }),
-            fetch(`http://${window.location.hostname}:3001/reviews/user/${data.id}`, { headers: { Authorization: `Bearer ${token}` } })
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/reviews/stats/${data.id}`, { headers: { Authorization: `Bearer ${token}` } }),
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/reviews/user/${data.id}`, { headers: { Authorization: `Bearer ${token}` } })
           ]);
           if (sRes.ok) setStats(await sRes.json());
           if (rRes.ok) setReviews(await rRes.json());
@@ -94,7 +94,7 @@ export default function SellerProfile() {
     try {
       const token = localStorage.getItem("access_token");
       const payload = { ...formData, deliveryCities, deliveryPincodes };
-      const res = await fetch(`http://${window.location.hostname}:3001/auth/profile`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/auth/profile`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload)
@@ -115,7 +115,7 @@ export default function SellerProfile() {
     setPwdLoading(true);
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`http://${window.location.hostname}:3001/auth/change-password`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/auth/change-password`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({

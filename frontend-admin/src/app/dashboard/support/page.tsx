@@ -18,7 +18,7 @@ export default function SupportPage() {
     const token = localStorage.getItem("admin_session");
     if (!token) return;
     
-    fetch(`http://${window.location.hostname}:3001/admin/tickets`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/admin/tickets`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -43,7 +43,7 @@ export default function SupportPage() {
 
   const fetchThread = (id: number) => {
     const token = localStorage.getItem("admin_session");
-    fetch(`http://${window.location.hostname}:3001/admin/tickets/${id}`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/admin/tickets/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -66,7 +66,7 @@ export default function SupportPage() {
     setIsReplying(true);
     try {
       const token = localStorage.getItem("admin_session");
-      const res = await fetch(`http://${window.location.hostname}:3001/admin/tickets/${ticketThread.id}/reply`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/admin/tickets/${ticketThread.id}/reply`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -91,7 +91,7 @@ export default function SupportPage() {
     if (!ticketThread) return;
     try {
       const token = localStorage.getItem("admin_session");
-      const res = await fetch(`http://${window.location.hostname}:3001/admin/tickets/${ticketThread.id}/status`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/admin/tickets/${ticketThread.id}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

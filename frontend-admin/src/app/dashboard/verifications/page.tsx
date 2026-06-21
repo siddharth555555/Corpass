@@ -9,7 +9,7 @@ export default function VerificationsPage() {
   const fetchPending = async () => {
     try {
       const token = localStorage.getItem("admin_session");
-      const res = await fetch(`http://${window.location.hostname}:3001/admin/users/pending`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/admin/users/pending`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -29,7 +29,7 @@ export default function VerificationsPage() {
   const handleVerify = async (id: number) => {
     try {
       const token = localStorage.getItem("admin_session");
-      const res = await fetch(`http://${window.location.hostname}:3001/admin/users/${id}/verify`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/admin/users/${id}/verify`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` }
       });

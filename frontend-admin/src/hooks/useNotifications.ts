@@ -20,7 +20,7 @@ export function useNotifications() {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) return;
-      const res = await fetch(`http://${window.location.hostname}:3001/notifications/unread-count`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/notifications/unread-count`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -37,7 +37,7 @@ export function useNotifications() {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) return;
-      const res = await fetch(`http://${window.location.hostname}:3001/notifications`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/notifications`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -54,7 +54,7 @@ export function useNotifications() {
   const markAsRead = async (id: string) => {
     try {
       const token = localStorage.getItem('access_token');
-      await fetch(`http://${window.location.hostname}:3001/notifications/${id}/read`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/notifications/${id}/read`, {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -68,7 +68,7 @@ export function useNotifications() {
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem('access_token');
-      await fetch(`http://${window.location.hostname}:3001/notifications/read-all`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/notifications/read-all`, {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${token}` }
       });

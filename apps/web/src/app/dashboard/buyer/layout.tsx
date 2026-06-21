@@ -22,7 +22,7 @@ export default function BuyerDashboardLayout({ children }: { children: React.Rea
       const token = localStorage.getItem("access_token");
       if (!token) { setUserLoaded(true); return; }
       try {
-        const res = await fetch(`http://${window.location.hostname}:3001/auth/profile`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {

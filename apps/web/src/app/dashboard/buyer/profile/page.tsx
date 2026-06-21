@@ -28,7 +28,7 @@ export default function BuyerProfile() {
       const token = localStorage.getItem("access_token");
       if (!token) return router.push("/login");
 
-      const res = await fetch(`http://${window.location.hostname}:3001/auth/profile`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -49,8 +49,8 @@ export default function BuyerProfile() {
         // Fetch reviews & stats
         try {
           const [sRes, rRes] = await Promise.all([
-            fetch(`http://${window.location.hostname}:3001/reviews/stats/${data.id}`, { headers: { Authorization: `Bearer ${token}` } }),
-            fetch(`http://${window.location.hostname}:3001/reviews/user/${data.id}`, { headers: { Authorization: `Bearer ${token}` } })
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/reviews/stats/${data.id}`, { headers: { Authorization: `Bearer ${token}` } }),
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/reviews/user/${data.id}`, { headers: { Authorization: `Bearer ${token}` } })
           ]);
           if (sRes.ok) setStats(await sRes.json());
           if (rRes.ok) setReviews(await rRes.json());
@@ -70,7 +70,7 @@ export default function BuyerProfile() {
     setSaving(true);
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`http://${window.location.hostname}:3001/auth/profile`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/auth/profile`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(formData)
@@ -91,7 +91,7 @@ export default function BuyerProfile() {
     setPwdLoading(true);
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`http://${window.location.hostname}:3001/auth/change-password`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/auth/change-password`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({

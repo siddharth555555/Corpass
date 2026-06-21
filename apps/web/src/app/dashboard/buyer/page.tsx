@@ -24,8 +24,8 @@ export default function BuyerDashboardOverview() {
 
       try {
         const [oRes, iRes] = await Promise.all([
-          fetch(`http://${window.location.hostname}:3001/orders`, { headers }),
-          fetch(`http://${window.location.hostname}:3001/invoices`, { headers })
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/orders`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/invoices`, { headers })
         ]);
 
         let orders = [];

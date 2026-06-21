@@ -15,7 +15,7 @@ export default function SupportPageUI({ userRole }: { userRole: 'buyer' | 'selle
   const fetchTickets = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`http://${window.location.hostname}:3001/support`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/support`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -29,7 +29,7 @@ export default function SupportPageUI({ userRole }: { userRole: 'buyer' | 'selle
   const fetchTicketThread = async (id: number) => {
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`http://${window.location.hostname}:3001/support/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/support/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -54,7 +54,7 @@ export default function SupportPageUI({ userRole }: { userRole: 'buyer' | 'selle
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`http://${window.location.hostname}:3001/support`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/support`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -85,7 +85,7 @@ export default function SupportPageUI({ userRole }: { userRole: 'buyer' | 'selle
     setIsReplying(true);
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`http://${window.location.hostname}:3001/support/${selectedTicket.id}/reply`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/support/${selectedTicket.id}/reply`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

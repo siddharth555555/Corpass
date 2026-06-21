@@ -60,7 +60,7 @@ export default function BuyerMarketplace() {
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (token) {
-      fetch(`http://${window.location.hostname}:3001/auth/profile`, { headers: { Authorization: `Bearer ${token}` } })
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/auth/profile`, { headers: { Authorization: `Bearer ${token}` } })
         .then(res => res.json())
         .then(data => {
           if (data.pincode) {
@@ -129,7 +129,7 @@ export default function BuyerMarketplace() {
     try {
       const token = localStorage.getItem('access_token');
 
-      const res = await fetch(`http://${window.location.hostname}:3001/orders`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ productId: buyProduct.id, quantity: buyQty, unitPrice: buyProduct.price, buyerNote: buyNote, buyerPincode, shippingAddress, billingAddress: finalBilling, paymentMode })
@@ -155,7 +155,7 @@ export default function BuyerMarketplace() {
       if (buyerPincode) params.append("buyerPincode", buyerPincode);
       if (showUndeliverable || !buyerPincode) params.append("showUndeliverable", "true");
       
-      const res = await fetch(`http://${window.location.hostname}:3001/products/marketplace?${params.toString()}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/products/marketplace?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -201,7 +201,7 @@ export default function BuyerMarketplace() {
         };
       }
 
-      const res = await fetch(`http://${window.location.hostname}:3001/inquiries`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/inquiries`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload)

@@ -23,7 +23,7 @@ export default function SellerStockManagement() {
       const token = localStorage.getItem("access_token");
       if (!token) return router.push("/login");
 
-      const res = await fetch(`http://${window.location.hostname}:3001/products`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/products`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -52,7 +52,7 @@ export default function SellerStockManagement() {
     
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`http://${window.location.hostname}:3001/products/${editingProduct.id}/stock`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/products/${editingProduct.id}/stock`, {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json", 
@@ -105,7 +105,7 @@ export default function SellerStockManagement() {
     
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch(`http://${window.location.hostname}:3001/products/${product.id}/stock`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/products/${product.id}/stock`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ stockQuantity: adjustedStock })

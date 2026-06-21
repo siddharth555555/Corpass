@@ -24,9 +24,9 @@ export default function DashboardOverview() {
       try {
         const headers = { Authorization: `Bearer ${token}` };
         const [statsRes, ordersRes, activityRes] = await Promise.all([
-          fetch(`http://${window.location.hostname}:3001/admin/stats`, { headers }),
-          fetch(`http://${window.location.hostname}:3001/admin/orders`, { headers }),
-          fetch(`http://${window.location.hostname}:3001/admin/activity`, { headers })
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/admin/stats`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/admin/orders`, { headers }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/admin/activity`, { headers })
         ]);
 
         if (statsRes.ok) setStats(await statsRes.json());
