@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { DataTable } from "@/components/DataTable";
-import { type AdminOrder } from "@/lib/mock-data";
-import { formatCurrency, statusColor } from "@/lib/utils";
+import { DataTable } from "@/components/admin/DataTable";
+import { type AdminOrder } from "@/lib/admin-mock-data";
+import { formatCurrency, statusColor } from "@/lib/admin-utils";
 
 export default function OrdersPage() {
   const router = useRouter();

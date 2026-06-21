@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { DataTable } from "@/components/DataTable";
-import { statusColor } from "@/lib/utils";
+import { DataTable } from "@/components/admin/DataTable";
+import { statusColor } from "@/lib/admin-utils";
 
 export default function SupportPage() {
   const router = useRouter();

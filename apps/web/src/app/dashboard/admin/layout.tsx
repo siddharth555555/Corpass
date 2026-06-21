@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { AdminSidebar } from "@/components/AdminSidebar";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();

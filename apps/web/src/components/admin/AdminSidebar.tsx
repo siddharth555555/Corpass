@@ -54,11 +54,11 @@ export function AdminSidebar() {
         }`}
       >
         <div className="flex items-center justify-between px-4 py-5 border-b border-border">
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <Link href="/dashboard/admin" className="flex items-center gap-2">
             <img src="/logo-compact.png" alt="Corpass" className="h-8 w-auto" />
           </Link>
           <div className="flex items-center gap-2">
-            <NotificationBell href="/dashboard/notifications" />
+            <NotificationBell href="/dashboard/admin/notifications" />
             <button onClick={() => setMobileOpen(false)} className="md:hidden p-1 text-slate hover:text-ink">
               <X className="w-5 h-5" />
             </button>
@@ -117,7 +117,7 @@ export function AdminSidebar() {
           </button>
           <span className="ml-2 text-sm font-semibold text-ink">Corpass Admin</span>
         </div>
-        <NotificationBell href="/dashboard/notifications" />
+        <NotificationBell href="/dashboard/admin/notifications" />
       </header>
     </>
   );

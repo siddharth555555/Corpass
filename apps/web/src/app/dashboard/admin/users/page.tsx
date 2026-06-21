@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { DataTable } from "@/components/DataTable";
-import { type AdminUser } from "@/lib/mock-data";
-import { statusColor } from "@/lib/utils";
+import { DataTable } from "@/components/admin/DataTable";
+import { type AdminUser } from "@/lib/admin-mock-data";
+import { statusColor } from "@/lib/admin-utils";
 
 export default function UsersPage() {
   const router = useRouter();

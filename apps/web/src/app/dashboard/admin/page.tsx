@@ -1,7 +1,7 @@
 "use client";
 
-import { StatCard } from "@/components/StatCard";
-import { formatCurrency, statusColor } from "@/lib/utils";
+import { StatCard } from "@/components/admin/StatCard";
+import { formatCurrency, statusColor } from "@/lib/admin-utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -63,7 +63,7 @@ export default function DashboardOverview() {
         <div className="bg-paper border border-border rounded overflow-hidden">
           <div className="px-6 py-4 border-b border-border flex justify-between items-center">
             <h3 className="text-sm font-semibold text-ink">Recent Orders</h3>
-            <Link href="/dashboard/orders" className="text-xs font-semibold text-brand hover:text-brand-700">
+            <Link href="/dashboard/admin/orders" className="text-xs font-semibold text-brand hover:text-brand-700">
               View All
             </Link>
           </div>

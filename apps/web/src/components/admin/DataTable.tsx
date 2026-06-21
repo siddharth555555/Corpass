@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/admin-utils";
 
 interface Column<T> {
   key: keyof T | string;

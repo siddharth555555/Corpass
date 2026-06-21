@@ -20,7 +20,7 @@ export default function AdminLoginPage() {
       if (res.ok) {
         const data = await res.json();
         localStorage.setItem("admin_session", data.access_token);
-        router.push("/dashboard");
+        router.push("/dashboard/admin");
       } else {
         const err = await res.json();
         alert(err.message || "Login failed");

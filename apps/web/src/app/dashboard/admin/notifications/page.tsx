@@ -1,6 +1,6 @@
 "use client";
 
-import { NotificationsList } from "@/components/NotificationsList";
+import { NotificationsList } from "@/components/admin/NotificationsList";
 
 export default function AdminNotificationsPage() {
   return (
