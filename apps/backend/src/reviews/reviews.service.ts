@@ -13,6 +13,8 @@ export class ReviewsService {
     rating: number;
     title?: string;
     comment?: string;
+    productRating?: number;
+    productComment?: string;
   }) {
     // 1. Fetch order to validate
     const order = await this.prisma.order.findUnique({
@@ -54,7 +56,9 @@ export class ReviewsService {
           reviewerRole: data.reviewerRole,
           rating: data.rating,
           title: data.title,
-          comment: data.comment
+          comment: data.comment,
+          productRating: data.productRating,
+          productComment: data.productComment
         }
       });
       return review;

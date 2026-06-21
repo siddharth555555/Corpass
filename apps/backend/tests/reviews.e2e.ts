@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import * as assert from 'assert';
 
 const prisma = new PrismaClient();
-const API_URL = 'http://localhost:3001';
+const API_URL = process.env.API_URL || 'http://localhost:3003';
 
 async function fetchApi(path: string, method: string, body?: any, token?: string) {
   const headers: any = { 'Content-Type': 'application/json' };

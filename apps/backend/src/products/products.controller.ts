@@ -25,6 +25,20 @@ export class ProductsController {
     return this.productsService.getMarketplaceProducts(req.query);
   }
 
+  @Public()
+  @Get('marketplace/:id')
+  getProductDetails(@Param('id') id: string) {
+    return this.productsService.getProductDetails(parseInt(id, 10));
+  }
+
+  @Public()
+  @Get('marketplace/:id/reviews')
+  getProductReviews(@Param('id') id: string, @Query('page') page?: string, @Query('limit') limit?: string) {
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 10;
+    return this.productsService.getProductReviews(parseInt(id, 10), pageNum, limitNum);
+  }
+
   @Get()
   findAll(@Request() req, @Query('page') page?: string, @Query('limit') limit?: string) {
     if (req.user.role !== 'SELLER') {

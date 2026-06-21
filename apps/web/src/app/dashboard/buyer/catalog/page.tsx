@@ -135,12 +135,13 @@ export default function BuyerMarketplace() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ productId: buyProduct.id, quantity: buyQty, unitPrice: buyProduct.price, buyerNote: buyNote, buyerPincode, shippingAddress, billingAddress: finalBilling, paymentMode })
+        body: JSON.stringify({ productId: buyProduct.id, quantity: Number(buyQty), unitPrice: Number(buyProduct.price), buyerNote: buyNote, buyerPincode, shippingAddress, billingAddress: finalBilling, paymentMode })
       });
       if (res.ok) { setBuyProduct(null); setBuyQty('1'); setBuyNote(''); setShippingAddress(''); setBillingAddress(''); setPaymentMode('BANK_TRANSFER'); router.push('/dashboard/buyer/orders'); }
       else {
         const error = await res.json();
-        setAlertMessage(error.message || "Failed to place order");
+        const errorMessage = Array.isArray(error.message) ? error.message.join('. ') : (error.message || "Failed to place order");
+        setAlertMessage(errorMessage);
       }
     } catch (e) { console.error(e); } finally { setBuySubmitting(false); }
   };
@@ -409,7 +410,7 @@ export default function BuyerMarketplace() {
               const isBundled = bundleCart.some(b => b.id === p.id);
 
               return (
-                <div key={p.id} className={`group bg-surface border rounded-xl overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col ${isBundled ? 'border-brand-600 shadow-sm ring-1 ring-brand-500/20' : 'border-border hover:border-border-strong'}`}>
+                <div key={p.id} onClick={() => router.push(`/dashboard/buyer/catalog/${p.id}`)} className={`group bg-surface border rounded-xl overflow-hidden cursor-pointer hover:shadow-md transition-all duration-300 flex flex-col ${isBundled ? 'border-brand-600 shadow-sm ring-1 ring-brand-500/20' : 'border-border hover:border-border-strong'}`}>
                   {/* Product Image */}
                   <div className="bg-surface-3 h-48 flex items-center justify-center relative overflow-hidden">
                     {p.images && p.images.length > 0 ? (
@@ -444,14 +445,25 @@ export default function BuyerMarketplace() {
                     <h3 className="text-sm font-semibold text-ink leading-snug mb-1 pr-8 truncate">{p.name}</h3>
                     <p className="text-[11px] text-muted mb-2 truncate">By {companyName}</p>
 
-                    {/* Rating */}
-                    {p.sellerReviewCount > 0 && (
-                      <div className="flex items-center gap-1 mb-3">
-                        <span className="text-[11px] font-bold text-warning">{p.sellerAvgRating}</span>
-                        <svg className="w-3 h-3 text-warning" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                        <span className="text-[11px] text-muted">({p.sellerReviewCount})</span>
-                      </div>
-                    )}
+                    {/* Ratings */}
+                    <div className="flex flex-col gap-1 mb-3">
+                      {p.productReviewCount > 0 && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] font-bold text-ink uppercase tracking-wider">Product:</span>
+                          <span className="text-[11px] font-bold text-warning ml-1">{p.productAvgRating}</span>
+                          <svg className="w-3 h-3 text-warning" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                          <span className="text-[11px] text-muted">({p.productReviewCount})</span>
+                        </div>
+                      )}
+                      {p.sellerReviewCount > 0 && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] font-bold text-ink uppercase tracking-wider">Supplier:</span>
+                          <span className="text-[11px] font-bold text-warning ml-1">{p.sellerAvgRating}</span>
+                          <svg className="w-3 h-3 text-warning" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                          <span className="text-[11px] text-muted">({p.sellerReviewCount})</span>
+                        </div>
+                      )}
+                    </div>
 
                     {/* Price */}
                     <div className="mt-auto pt-2">
@@ -460,11 +472,11 @@ export default function BuyerMarketplace() {
                       </div>
                       
                       <div className="flex gap-2">
-                        <button onClick={() => requireAuth(() => setBuyProduct(p))} disabled={p.isOutOfRange}
+                        <button onClick={(e) => { e.stopPropagation(); requireAuth(() => setBuyProduct(p)); }} disabled={p.isOutOfRange}
                           className={`flex-1 cp-btn cp-btn--secondary text-brand-600 border-brand-200 hover:border-brand-600 ${p.isOutOfRange ? 'opacity-50 cursor-not-allowed text-muted border-border hover:border-border hover:bg-surface' : ''}`}>
                           {p.isOutOfRange ? 'Out of Range' : 'Buy Now'}
                         </button>
-                        <button onClick={() => requireAuth(() => setSelectedProduct(p))}
+                        <button onClick={(e) => { e.stopPropagation(); requireAuth(() => setSelectedProduct(p)); }}
                           className="flex-1 cp-btn cp-btn--ghost border border-border-strong hover:border-brand-300">
                           Inquire
                         </button>

@@ -12,7 +12,7 @@ export class ReviewsController {
     const userId = req.user.sub;
     const role = req.user.role;
     
-    const { orderId, rating, title, comment } = body;
+    const { orderId, rating, title, comment, productRating, productComment } = body;
     if (!orderId || !rating) {
       throw new HttpException('orderId and rating are required', HttpStatus.BAD_REQUEST);
     }
@@ -23,7 +23,9 @@ export class ReviewsController {
       reviewerRole: role,
       rating: Number(rating),
       title,
-      comment
+      comment,
+      productRating: productRating ? Number(productRating) : undefined,
+      productComment
     });
   }
 

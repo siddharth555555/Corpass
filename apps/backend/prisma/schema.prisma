@@ -402,6 +402,8 @@ model Review {
   rating          Int
   title           String?
   comment         String?  @db.Text
+  productRating   Int?
+  productComment  String?  @db.Text
   reviewerRole    Role
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

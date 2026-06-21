@@ -1,6 +1,6 @@
 import * as crypto from 'crypto';
 
-const API_URL = 'http://localhost:3001';
+const API_URL = process.env.API_URL || 'http://localhost:3003';
 
 async function fetchApi(path: string, options: RequestInit = {}) {
   const headers: Record<string, string> = {
@@ -122,6 +122,18 @@ async function runE2E() {
   const sellerProfile = await fetchApi('/auth/profile', { method: 'PATCH', headers: authS, body: JSON.stringify(profileData) });
   console.log('✅ Seller profile created');
 
+  // Admin verifies the seller
+  await fetchApi(`/admin/users/${sellerUser.user.id}/verify`, { 
+    method: 'PATCH', headers: authA, 
+    body: JSON.stringify({ status: 'VERIFIED' }) 
+  });
+  console.log('✅ Admin verified seller');
+
+  // Need to get a fresh seller token because the role/status might be cached in JWT?
+  // Let's re-login the seller to ensure the JWT has the VERIFIED status
+  const freshSellerAuth = await fetchApi('/auth/login', { method: 'POST', body: JSON.stringify({ identifier: sellerCreds.loginId, password: sellerCreds.password, role: 'SELLER' }) });
+  authS.Authorization = `Bearer ${freshSellerAuth.access_token}`;
+
   const productData = {
     name: 'Industrial Steel Pipes',
     description: 'High-quality industrial steel pipes.',
@@ -140,6 +152,43 @@ async function runE2E() {
   console.log('✅ Seller created product:', product.name, `[ID: ${product.id}]`);
 
   // ---------------------------------------------------------
+  // 3.1 MARKETPLACE & STOCK UPDATE
+  // ---------------------------------------------------------
+  console.log(`\n--- 3.1 Marketplace & Stock Update ---`);
+  
+  const marketplaceRes = await fetchApi(`/products/marketplace?search=Steel`);
+  console.log(`✅ Fetched Marketplace products. Found: ${marketplaceRes.data?.length || 0}`);
+
+  const stockUpdate = await fetchApi(`/products/${product.id}/stock`, { method: 'PATCH', headers: authS, body: JSON.stringify({ stockQuantity: 90 }) });
+  console.log(`✅ Seller updated stock to: ${stockUpdate.stockQuantity}`);
+
+  // ---------------------------------------------------------
+  // 3.2 INQUIRIES & MESSAGES
+  // ---------------------------------------------------------
+  console.log(`\n--- 3.2 Inquiries & Messages ---`);
+
+  // Buyer sends inquiry
+  const inquiryData = {
+    sellerProfileId: product.sellerProfileId,
+    productId: product.id,
+    inquiryType: 'QUOTE',
+    buyerMessage: 'Can you provide a bulk discount for 50 tonnes?'
+  };
+  const inquiry = await fetchApi('/inquiries', { method: 'POST', headers: authB, body: JSON.stringify(inquiryData) });
+  console.log(`✅ Buyer initiated inquiry [ID: ${inquiry.id}]`);
+
+  // Seller replies
+  const replyData = {
+    message: 'Yes, we can do 1400 per tonne for 50 tonnes.'
+  };
+  await fetchApi(`/inquiries/${inquiry.id}/messages`, { method: 'POST', headers: authS, body: JSON.stringify(replyData) });
+  console.log('✅ Seller replied to inquiry');
+
+  // Buyer fetches messages
+  const buyerMessages = await fetchApi(`/inquiries/${inquiry.id}/messages`, { headers: authB });
+  console.log(`✅ Buyer fetched inquiry messages. Count: ${buyerMessages.length || 0}`);
+
+  // ---------------------------------------------------------
   // 4. BUYER ORDERS PRODUCT
   // ---------------------------------------------------------
   console.log(`\n--- 4. Buyer Places Order ---`);
@@ -147,6 +196,7 @@ async function runE2E() {
   const orderData = {
     productId: product.id,
     quantity: 20, // 20 * 1500 = 30000
+    unitPrice: 1500,
     buyerPincode: '110001',
     shippingAddress: '123 Buyer Street, Delhi',
     billingAddress: '123 Buyer Street, Delhi',
@@ -200,13 +250,20 @@ async function runE2E() {
   console.log('✅ Seller delivered order (Invoice auto-generated)');
 
   // ---------------------------------------------------------
+  // 6.1 ASSETS
+  // ---------------------------------------------------------
+  console.log(`\n--- 6.1 Assets ---`);
+  const buyerAssets = await fetchApi('/assets', { headers: authB });
+  console.log(`✅ Buyer fetched assets. Count: ${buyerAssets.length}`);
+
+  // ---------------------------------------------------------
   // 7. INVOICES & DISPUTES
   // ---------------------------------------------------------
   console.log(`\n--- 7. Invoices & Disputes ---`);
   
   // Fetch invoices for buyer
   const buyerInvoices = await fetchApi('/invoices', { headers: authB });
-  const invoice = buyerInvoices[0];
+  const invoice = buyerInvoices.data[0];
   console.log(`✅ Found Invoice [ID: ${invoice.id}] from Order delivery`);
 
   // Buyer disputes invoice
@@ -228,15 +285,21 @@ async function runE2E() {
   console.log('✅ Seller disputed Invoice Payment with details (LESS_AMOUNT)');
 
   // ---------------------------------------------------------
-  // 8. REVIEWS
+  // 8. REVIEWS & PRODUCT DETAILS
   // ---------------------------------------------------------
-  console.log(`\n--- 8. Reviews ---`);
+  console.log(`\n--- 8. Reviews & Product Details ---`);
   
   await fetchApi('/reviews', { 
     method: 'POST', headers: authB, 
-    body: JSON.stringify({ orderId: order.id, rating: 5, comment: 'Great product and quick delivery' }) 
+    body: JSON.stringify({ orderId: order.id, rating: 5, comment: 'Great supplier', productRating: 5, productComment: 'Great product' }) 
   });
-  console.log('✅ Buyer reviewed Seller');
+  console.log('✅ Buyer reviewed Seller and Product');
+
+  const productDetails = await fetchApi(`/products/marketplace/${product.id}`);
+  console.log(`✅ Fetched Product Details. Avg Rating: ${productDetails.productAvgRating}`);
+
+  const productReviews = await fetchApi(`/products/marketplace/${product.id}/reviews`);
+  console.log(`✅ Fetched Product Reviews. Count: ${productReviews.data?.length || 0}`);
 
   // ---------------------------------------------------------
   // 9. SUPPORT TICKETS
@@ -255,13 +318,32 @@ async function runE2E() {
   console.log(`\n--- 10. Notifications Verification ---`);
   
   const sellerNotifs = await fetchApi('/notifications', { headers: authS });
-  console.log(`✅ Seller has ${sellerNotifs.length} notifications`);
+  console.log(`✅ Seller has ${sellerNotifs.data?.length || 0} notifications`);
   
   const buyerNotifs = await fetchApi('/notifications', { headers: authB });
-  console.log(`✅ Buyer has ${buyerNotifs.length} notifications`);
+  console.log(`✅ Buyer has ${buyerNotifs.data?.length || 0} notifications`);
   
   const adminNotifs = await fetchApi('/notifications', { headers: authA });
-  console.log(`✅ Admin has ${adminNotifs.length} notifications`);
+  console.log(`✅ Admin has ${adminNotifs.data?.length || 0} notifications`);
+
+  // ---------------------------------------------------------
+  // 11. ADMIN OPERATIONS
+  // ---------------------------------------------------------
+  console.log(`\n--- 11. Admin Operations ---`);
+
+  const adminUsers = await fetchApi('/admin/users', { headers: authA });
+  console.log(`✅ Admin fetched users. Count: ${adminUsers.length}`);
+
+  const adminMetrics = await fetchApi('/admin/stats', { headers: authA });
+  console.log(`✅ Admin fetched dashboard stats`);
+
+  // ---------------------------------------------------------
+  // 12. CITIES DIRECTORY
+  // ---------------------------------------------------------
+  console.log(`\n--- 12. Cities Directory ---`);
+
+  const topCities = await fetchApi('/cities?q=Mum');
+  console.log(`✅ Fetched cities search. Count: ${topCities.data?.length || 0}`);
 
   console.log('\n🎉 E2E TEST COMPLETED SUCCESSFULLY! 🎉');
 }

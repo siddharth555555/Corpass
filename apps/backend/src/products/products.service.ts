@@ -174,6 +174,14 @@ export class ProductsService {
               }
             }
           }
+        },
+        orders: {
+          select: {
+            reviews: {
+              where: { productRating: { not: null } },
+              select: { productRating: true }
+            }
+          }
         }
       }
     });
@@ -218,16 +226,33 @@ export class ProductsService {
         ? Number((reviews.reduce((sum, r) => sum + r.rating, 0) / sellerReviewCount).toFixed(1))
         : 0;
 
-      // Remove reviewsReceived from payload to save bandwidth
+      let productReviewCount = 0;
+      let productRatingSum = 0;
+      if ((p as any).orders) {
+        for (const order of (p as any).orders) {
+          for (const review of order.reviews || []) {
+            if (review.productRating) {
+               productRatingSum += review.productRating;
+               productReviewCount++;
+            }
+          }
+        }
+      }
+      const productAvgRating = productReviewCount > 0 ? Number((productRatingSum / productReviewCount).toFixed(1)) : 0;
+
+      // Remove nested arrays to save bandwidth
       if (p.sellerProfile?.user) {
         delete (p.sellerProfile.user as any).reviewsReceived;
       }
+      delete (p as any).orders;
 
       return {
         ...p,
         isOutOfRange,
         sellerAvgRating,
-        sellerReviewCount
+        sellerReviewCount,
+        productAvgRating,
+        productReviewCount
       };
     });
 
@@ -275,5 +300,101 @@ export class ProductsService {
       where: { id: productId },
       data: { stockQuantity },
     });
+  }
+
+  async getProductDetails(productId: number) {
+    const product = await this.prisma.productCatalog.findUnique({
+      where: { id: productId },
+      include: {
+        sellerProfile: {
+          include: {
+            user: {
+              include: { company: true }
+            }
+          }
+        },
+        orders: {
+          select: {
+            reviews: {
+              where: { productRating: { not: null } },
+              include: {
+                reviewer: { select: { name: true, company: { select: { name: true } } } }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!product) {
+      throw new BadRequestException('Product not found');
+    }
+
+    // Process reviews
+    let allReviews = [];
+    if ((product as any).orders) {
+      for (const order of (product as any).orders) {
+        for (const review of order.reviews || []) {
+          allReviews.push(review);
+        }
+      }
+    }
+
+    const productReviewCount = allReviews.length;
+    const productRatingSum = allReviews.reduce((sum, r) => sum + (r.productRating || 0), 0);
+    const productAvgRating = productReviewCount > 0 ? Number((productRatingSum / productReviewCount).toFixed(1)) : 0;
+
+    // Sort by rating desc
+    allReviews.sort((a, b) => (b.productRating || 0) - (a.productRating || 0));
+
+    // Get top 2 positive (4-5) and top 2 negative (1-3)
+    const positiveReviews = allReviews.filter(r => (r.productRating || 0) >= 4).slice(0, 2);
+    const negativeReviews = allReviews.filter(r => (r.productRating || 0) < 4).reverse().slice(0, 2); // reverse to get lowest
+
+    delete (product as any).orders;
+
+    return {
+      ...product,
+      productAvgRating,
+      productReviewCount,
+      topReviews: {
+        positive: positiveReviews,
+        negative: negativeReviews
+      }
+    };
+  }
+
+  async getProductReviews(productId: number, page: number = 1, limit: number = 10) {
+    // Since reviews are linked via orders, we need to query Reviews where order.productId = productId
+    const skip = (page - 1) * limit;
+    
+    const [data, total] = await Promise.all([
+      this.prisma.review.findMany({
+        where: {
+          productRating: { not: null },
+          order: { productId }
+        },
+        include: {
+          reviewer: { select: { name: true, company: { select: { name: true } } } }
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit
+      }),
+      this.prisma.review.count({
+        where: {
+          productRating: { not: null },
+          order: { productId }
+        }
+      })
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
   }
 }

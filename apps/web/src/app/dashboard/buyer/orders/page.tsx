@@ -67,7 +67,7 @@ function BuyerOrdersContent() {
   // Review Modal
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewOrder, setReviewOrder] = useState<any>(null);
-  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "", productRating: 5, productComment: "" });
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
 
   // Payment Form
@@ -166,7 +166,7 @@ function BuyerOrdersContent() {
     e.preventDefault();
     setReviewSubmitting(true);
     try {
-      const res = await api('/reviews', { method: 'POST', body: JSON.stringify({ orderId: reviewOrder.id, rating: reviewForm.rating, comment: reviewForm.comment }) });
+      const res = await api('/reviews', { method: 'POST', body: JSON.stringify({ orderId: reviewOrder.id, rating: reviewForm.rating, comment: reviewForm.comment, productRating: reviewForm.productRating, productComment: reviewForm.productComment }) });
       if (res.ok) { setShowReviewModal(false); setReviewOrder(null); setAlertConfig({ message: 'Review submitted successfully!', type: 'success' }); fetchData(); }
       else { const err = await res.json(); const msg = Array.isArray(err.message) ? err.message.join(', ') : err.message; setAlertConfig({ message: msg || 'Failed to submit review', type: 'error' }); }
     } catch (e) { console.error(e); } finally { setReviewSubmitting(false); }
@@ -718,21 +718,58 @@ function BuyerOrdersContent() {
       {showReviewModal && reviewOrder && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-ink/30 backdrop-blur-sm" onClick={() => setShowReviewModal(false)}></div>
-          <div className="relative bg-surface rounded-xl shadow-2xl w-full max-w-md p-6 border border-border">
-            <h2 className="text-[18px] font-bold text-ink mb-1">Rate Supplier</h2>
-            <p className="text-[13px] text-muted mb-5">Share your experience with <span className="font-semibold text-ink">{reviewOrder.sellerProfile?.user?.company?.name || reviewOrder.sellerProfile?.user?.name}</span></p>
-            <form onSubmit={handleReviewSubmit} className="space-y-5">
-              <div>
-                <label className="block text-[13px] font-semibold text-ink mb-2">Rating</label>
-                <div className="flex gap-2">
-                  {[1,2,3,4,5].map(star => (
-                    <button type="button" key={star} onClick={() => setReviewForm({...reviewForm, rating: star})} className={`h-10 w-10 rounded-full flex items-center justify-center transition-all ${reviewForm.rating >= star ? 'bg-warning-bg text-warning shadow-sm' : 'bg-surface-2 text-muted hover:bg-surface-3'}`}><svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg></button>
-                  ))}
+          <div className="relative bg-surface rounded-xl shadow-2xl w-full max-w-lg p-6 border border-border flex flex-col max-h-[90vh]">
+            <h2 className="text-[18px] font-bold text-ink mb-1">Rate Your Order</h2>
+            <p className="text-[13px] text-muted mb-5">Share your experience with the product and the supplier.</p>
+            <div className="flex-1 overflow-y-auto">
+            <form id="review-form" onSubmit={handleReviewSubmit} className="space-y-6 pr-2">
+              
+              {/* Product Rating Section */}
+              <div className="p-4 bg-surface-2 border border-border rounded-lg">
+                <h3 className="text-sm font-bold text-ink mb-3 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                  Rate the Product
+                </h3>
+                <p className="text-[12px] font-medium text-muted mb-4">{reviewOrder.productName}</p>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[12px] font-semibold text-ink mb-2">Rating</label>
+                    <div className="flex gap-2">
+                      {[1,2,3,4,5].map(star => (
+                        <button type="button" key={`prod-${star}`} onClick={() => setReviewForm({...reviewForm, productRating: star})} className={`h-8 w-8 rounded-full flex items-center justify-center transition-all ${reviewForm.productRating >= star ? 'bg-warning-bg text-warning shadow-sm' : 'bg-surface-3 text-muted hover:bg-border'}`}><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg></button>
+                      ))}
+                    </div>
+                  </div>
+                  <div><label className="block text-[12px] font-semibold text-ink mb-1.5">Product Comment</label><textarea value={reviewForm.productComment} onChange={e => setReviewForm({...reviewForm, productComment: e.target.value})} rows={2} className="cp-input text-[13px] bg-surface" placeholder="How was the quality?" /></div>
                 </div>
               </div>
-              <div><label className="block text-[13px] font-semibold text-ink mb-1.5">Comment</label><textarea value={reviewForm.comment} onChange={e => setReviewForm({...reviewForm, comment: e.target.value})} rows={3} className="cp-input text-[13px]" placeholder="What did you like or dislike?" /></div>
-              <div className="flex justify-end gap-3 pt-2"><button type="button" onClick={() => setShowReviewModal(false)} className="cp-btn cp-btn--secondary">Cancel</button><button type="submit" disabled={reviewSubmitting} className="cp-btn cp-btn--primary">Submit Review</button></div>
+
+              {/* Supplier Rating Section */}
+              <div className="p-4 bg-surface-2 border border-border rounded-lg">
+                <h3 className="text-sm font-bold text-ink mb-3 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                  Rate the Supplier
+                </h3>
+                <p className="text-[12px] font-medium text-muted mb-4">{reviewOrder.sellerProfile?.user?.company?.name || reviewOrder.sellerProfile?.user?.name}</p>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[12px] font-semibold text-ink mb-2">Rating</label>
+                    <div className="flex gap-2">
+                      {[1,2,3,4,5].map(star => (
+                        <button type="button" key={`sup-${star}`} onClick={() => setReviewForm({...reviewForm, rating: star})} className={`h-8 w-8 rounded-full flex items-center justify-center transition-all ${reviewForm.rating >= star ? 'bg-warning-bg text-warning shadow-sm' : 'bg-surface-3 text-muted hover:bg-border'}`}><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg></button>
+                      ))}
+                    </div>
+                  </div>
+                  <div><label className="block text-[12px] font-semibold text-ink mb-1.5">Supplier Comment</label><textarea value={reviewForm.comment} onChange={e => setReviewForm({...reviewForm, comment: e.target.value})} rows={2} className="cp-input text-[13px] bg-surface" placeholder="How was the communication and delivery?" /></div>
+                </div>
+              </div>
+
             </form>
+            </div>
+            <div className="flex justify-end gap-3 pt-4 mt-2 border-t border-border">
+              <button type="button" onClick={() => setShowReviewModal(false)} className="cp-btn cp-btn--secondary">Cancel</button>
+              <button type="submit" form="review-form" disabled={reviewSubmitting} className="cp-btn cp-btn--primary">Submit Reviews</button>
+            </div>
           </div>
         </div>
       )}
