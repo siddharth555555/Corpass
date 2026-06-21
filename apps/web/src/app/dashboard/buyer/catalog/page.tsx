@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import LogoLink from "@/components/ui/LogoLink";
 import { Select } from "@/components/ui/Select";
+import { LoginModal } from "@/components/ui/LoginModal";
 
 const CATEGORIES = [
   { name: "Office Supplies", desc: "Stationery, paper, desk accessories" },
@@ -95,6 +96,7 @@ export default function BuyerMarketplace() {
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
   const [billingAddress, setBillingAddress] = useState('');
   const [paymentMode, setPaymentMode] = useState('BANK_TRANSFER');
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [buySubmitting, setBuySubmitting] = useState(false);
 
   const handleToggleBundle = (product: any) => {
@@ -129,7 +131,8 @@ export default function BuyerMarketplace() {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {
-        router.push("/login");
+        setShowLoginModal(true);
+        setBuySubmitting(false);
         return;
       }
 
@@ -186,7 +189,8 @@ export default function BuyerMarketplace() {
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
-        router.push("/login");
+        setShowLoginModal(true);
+        setSubmitting(false);
         return;
       }
       
@@ -712,6 +716,17 @@ export default function BuyerMarketplace() {
           </div>
         </div>
       )}
+
+      {/* Login Popup */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+        onSuccess={() => {
+          setShowLoginModal(false);
+          // Reload to apply the token to all states and layout
+          window.location.reload();
+        }} 
+      />
     </div>
   );
 }

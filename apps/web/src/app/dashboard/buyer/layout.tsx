@@ -63,7 +63,8 @@ export default function BuyerDashboardLayout({ children }: { children: React.Rea
       )}
 
       {/* Sidebar Navigation */}
-      <aside className={`fixed inset-y-0 left-0 z-50 cp-sidebar flex flex-col transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex pt-6 px-4 ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}>
+      {(!userLoaded || user) && (
+        <aside className={`fixed inset-y-0 left-0 z-50 cp-sidebar flex flex-col transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex pt-6 px-4 ${mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}>
         <div className="flex justify-center items-center w-full py-4 relative">
           <Link href="/dashboard/buyer" className="block flex items-center">
             <img src="/logo-compact.png" alt="Corpass Logo" style={{ width: '160px' }} className="w-full h-auto object-contain scale-[1.35]" />
@@ -128,19 +129,28 @@ export default function BuyerDashboardLayout({ children }: { children: React.Rea
             </Link>
           )}
         </div>
-      </aside>
+        </aside>
+      )}
 
       {/* Main Content Wrapper */}
       <div className="flex-1 flex flex-col min-w-0 md:pl-0">
         <header className="h-[64px] flex items-center px-4 md:px-8 bg-canvas shrink-0 z-20">
-          <button 
-            onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden p-2 -ml-2 mr-4 text-muted hover:bg-surface-2 rounded transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+          {(!userLoaded || user) && (
+            <button 
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden p-2 -ml-2 mr-4 text-muted hover:bg-surface-2 rounded transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          )}
+
+          {userLoaded && !user && (
+            <Link href="/" className="mr-6 flex items-center">
+              <img src="/logo-compact.png" alt="Corpass Logo" style={{ width: '130px' }} className="h-auto object-contain scale-[1.2]" />
+            </Link>
+          )}
 
           {/* Global Search Removed for now */}
 
