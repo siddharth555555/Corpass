@@ -29,6 +29,22 @@ export default function RegisterPage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (formData.pincode.length === 6) {
+      fetch(`https://api.postalpincode.in/pincode/${formData.pincode}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data[0] && data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
+            const city = data[0].PostOffice[0].District || data[0].PostOffice[0].Division;
+            if (city) {
+              setFormData(prev => ({ ...prev, city }));
+            }
+          }
+        })
+        .catch(() => {});
+    }
+  }, [formData.pincode]);
+
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -36,8 +52,22 @@ export default function RegisterPage() {
       setError("You must agree to the Terms & Conditions to register.");
       return;
     }
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
+    const formDataObj = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formDataObj.entries());
+    
+    // Basic frontend validation for required fields
+    const requiredFields = ['name', 'loginId', 'password', 'email', 'mobile', 'address', 'city', 'pincode'];
+    if (role === 'BUYER') {
+      requiredFields.push('companyName', 'companyAddress', 'companyType', 'employeeCount');
+    } else {
+      requiredFields.push('gstin', 'deliveryRange');
+    }
+    
+    const missing = requiredFields.filter(f => !data[f] || String(data[f]).trim() === "");
+    if (missing.length > 0) {
+      setError("Please fill in all required fields.");
+      return;
+    }
     
     // Combine dial code and mobile number, then remove non-DTO fields
     if (data.dialCode && data.mobile) {
@@ -116,7 +146,7 @@ export default function RegisterPage() {
           </button>
         </div>
 
-        <form onSubmit={handleRegister} className="space-y-8">
+        <form onSubmit={handleRegister} className="space-y-8" noValidate>
           {error && (
             <div className="p-4 bg-copper-bg/50 text-copper text-sm border border-copper/30 rounded-md shadow-sm">
               <div className="flex items-start">
