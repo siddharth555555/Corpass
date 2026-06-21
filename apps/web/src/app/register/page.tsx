@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const [role, setRole] = useState<'BUYER' | 'SELLER'>('BUYER');
   const [error, setError] = useState<string | string[] | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const [formData, setFormData] = useState({
     name: "", loginId: "", password: "", email: "", mobile: "", dialCode: "+91",
     address: "", city: "", pincode: "",
@@ -181,11 +182,11 @@ export default function RegisterPage() {
               </div>
               <div className="grid grid-cols-2 gap-4 col-span-2">
                 <div>
-                  <label className="block text-sm font-medium text-slate mb-1.5">City</label>
+                  <label className="block text-sm font-medium text-slate mb-1.5">City <span className="text-copper">*</span></label>
                   <input name="city" required value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} type="text" className="w-full px-4 py-2.5 bg-paper border border-border text-sm text-ink focus:outline-none focus:border-border-focus" placeholder="New Delhi" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate mb-1.5">Pincode</label>
+                  <label className="block text-sm font-medium text-slate mb-1.5">Pincode <span className="text-copper">*</span></label>
                   <input name="pincode" required value={formData.pincode} onChange={e => setFormData({...formData, pincode: e.target.value})} type="text" className="w-full px-4 py-2.5 bg-paper border border-border text-sm text-ink focus:outline-none focus:border-border-focus" placeholder="110001" />
                 </div>
               </div>
@@ -207,7 +208,7 @@ export default function RegisterPage() {
                   <Input label="Company Address" name="companyAddress" type="text" placeholder="Corporate HQ Address" required />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate mb-1.5">Company Type</label>
+                  <label className="block text-sm font-medium text-slate mb-1.5">Company Type <span className="text-copper">*</span></label>
                   <Select
                     name="companyType"
                     value={formData.companyType}
@@ -222,7 +223,7 @@ export default function RegisterPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate mb-1.5">Number of Employees</label>
+                  <label className="block text-sm font-medium text-slate mb-1.5">Number of Employees <span className="text-copper">*</span></label>
                   <Select
                     name="employeeCount"
                     value={formData.employeeCount}
@@ -244,7 +245,7 @@ export default function RegisterPage() {
                   <Input label="GSTIN (Mandatory)" name="gstin" type="text" placeholder="22AAAAA0000A1Z5" required />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-slate mb-1.5">Delivery Range Options</label>
+                  <label className="block text-sm font-medium text-slate mb-1.5">Delivery Range Options <span className="text-copper">*</span></label>
                   <Select
                     name="deliveryRange"
                     value={formData.deliveryRange}
@@ -278,9 +279,9 @@ export default function RegisterPage() {
               <div className="ml-3 text-sm">
                 <label htmlFor="terms" className="font-medium text-slate">
                   I agree to the{" "}
-                  <a href="/terms" target="_blank" className="text-copper hover:underline">
+                  <button type="button" onClick={() => setShowTerms(true)} className="text-copper hover:underline focus:outline-none">
                     Terms & Conditions
-                  </a>
+                  </button>
                 </label>
               </div>
             </div>
@@ -301,6 +302,35 @@ export default function RegisterPage() {
           </a>
         </div>
       </div>
+
+      {/* Terms & Conditions Modal */}
+      {showTerms && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowTerms(false)}></div>
+          <div className="relative bg-paper rounded shadow-2xl w-full max-w-2xl p-6 md:p-8 animate-in zoom-in-95 duration-200 max-h-[85vh] flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-serif font-bold text-ink">Terms & Conditions</h2>
+              <button onClick={() => setShowTerms(false)} className="h-8 w-8 rounded-full bg-paper-2 flex items-center justify-center text-slate hover:text-ink hover:bg-border transition-all">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto pr-2 space-y-4 text-sm text-slate">
+              <p>Welcome to Corpass. By registering an account, you agree to these terms.</p>
+              <h3 className="font-bold text-ink text-base mt-4">1. Account Responsibilities</h3>
+              <p>You are responsible for maintaining the confidentiality of your login credentials and for all activities that occur under your account.</p>
+              <h3 className="font-bold text-ink text-base mt-4">2. Marketplace Transactions</h3>
+              <p>Corpass facilitates transactions between buyers and sellers but is not a party to the actual contract of sale. Vendors are responsible for fulfilling orders and ensuring product quality.</p>
+              <h3 className="font-bold text-ink text-base mt-4">3. Prohibited Content</h3>
+              <p>You agree not to list or sell any illegal, counterfeit, or otherwise prohibited items on the platform. Violation will result in immediate account termination.</p>
+            </div>
+            <div className="mt-6 pt-4 border-t border-border flex justify-end">
+              <button onClick={() => { setAcceptedTerms(true); setShowTerms(false); }} className="btn-primary py-2 px-6 text-sm">
+                I Agree
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
