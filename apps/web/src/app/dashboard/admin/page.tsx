@@ -16,7 +16,7 @@ export default function DashboardOverview() {
   useEffect(() => {
     const token = localStorage.getItem("admin_session");
     if (!token) {
-      router.push("/login");
+      router.push("/login/candi/admin");
       return;
     }
 

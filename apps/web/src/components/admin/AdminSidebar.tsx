@@ -18,12 +18,12 @@ import {
 import { NotificationBell } from "./NotificationBell";
 
 const navItems = [
-  { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Users", href: "/dashboard/users", icon: Users },
-  { name: "Verifications", href: "/dashboard/verifications", icon: ShieldCheck },
-  { name: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
-  { name: "Products", href: "/dashboard/products", icon: Package },
-  { name: "Support", href: "/dashboard/support", icon: HeadphonesIcon },
+  { name: "Overview", href: "/dashboard/admin", icon: LayoutDashboard },
+  { name: "Users", href: "/dashboard/admin/users", icon: Users },
+  { name: "Verifications", href: "/dashboard/admin/verifications", icon: ShieldCheck },
+  { name: "Orders", href: "/dashboard/admin/orders", icon: ShoppingCart },
+  { name: "Products", href: "/dashboard/admin/products", icon: Package },
+  { name: "Support", href: "/dashboard/admin/support", icon: HeadphonesIcon },
 ];
 
 export function AdminSidebar() {
@@ -33,11 +33,11 @@ export function AdminSidebar() {
 
   const handleLogout = () => {
     localStorage.removeItem("admin_session");
-    router.push("/login");
+    router.push("/login/candi/admin");
   };
 
   const isActive = (href: string) =>
-    href === "/dashboard" ? pathname === href : pathname.startsWith(href);
+    href === "/dashboard/admin" ? pathname === href : pathname.startsWith(href);
 
   return (
     <>
