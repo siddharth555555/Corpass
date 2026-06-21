@@ -170,10 +170,15 @@ body {
 :where(a:hover) { color: var(--cp-brand-700); }
 
 /* Visible, on-brand focus for keyboard users (accessibility — keep this). */
-:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+:where(button, a, input:not([type="checkbox"]):not([type="radio"]), select, textarea, [tabindex]):focus-visible {
   outline: none;
   box-shadow: var(--cp-shadow-focus);
   border-radius: var(--cp-radius-sm);
+}
+
+:where(input[type="checkbox"], input[type="radio"]):focus-visible {
+  outline: 2px solid var(--cp-brand-500);
+  outline-offset: 2px;
 }
 
 /* Fix WebKit Autofill in Dark Mode */

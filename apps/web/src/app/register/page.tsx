@@ -9,7 +9,7 @@ import { Select } from "@/components/ui/Select";
 
 export default function RegisterPage() {
   const [role, setRole] = useState<'BUYER' | 'SELLER'>('BUYER');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | string[] | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [formData, setFormData] = useState({
     name: "", loginId: "", password: "", email: "", mobile: "", dialCode: "+91",
@@ -38,6 +38,13 @@ export default function RegisterPage() {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     
+    // Combine dial code and mobile number, then remove non-DTO fields
+    if (data.dialCode && data.mobile) {
+      data.mobile = `${data.dialCode}${data.mobile}`;
+    }
+    delete data.dialCode;
+    delete data.terms;
+    
     // Inject the role
     data.role = role;
 
@@ -51,7 +58,7 @@ export default function RegisterPage() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Registration failed");
+        throw errorData;
       }
 
       const resData = await res.json();
@@ -63,7 +70,7 @@ export default function RegisterPage() {
         router.push("/dashboard/buyer");
       }
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Registration failed. Please try again.");
     }
   };
 
@@ -109,7 +116,26 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleRegister} className="space-y-8">
-          {error && <div className="p-3 bg-copper-bg text-copper text-sm border border-copper">{error}</div>}
+          {error && (
+            <div className="p-4 bg-copper-bg/50 text-copper text-sm border border-copper/30 rounded-md shadow-sm">
+              <div className="flex items-start">
+                <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="flex-1">
+                  {Array.isArray(error) ? (
+                    <ul className="list-disc list-inside space-y-1">
+                      {error.map((err, i) => (
+                        <li key={i}>{err}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>{error}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* User Details Section (Shared) */}
           <div className="space-y-5">
