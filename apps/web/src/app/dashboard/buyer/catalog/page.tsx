@@ -130,12 +130,8 @@ export default function BuyerMarketplace() {
     setBuySubmitting(true);
     try {
       const token = localStorage.getItem('access_token');
-      if (!token) {
-        setShowLoginModal(true);
-        setBuySubmitting(false);
-        return;
-      }
-
+      // Token check removed from here since it's checked by requireAuth before opening the modal
+      
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `http://${window.location.hostname}:3001`}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -147,6 +143,15 @@ export default function BuyerMarketplace() {
         setAlertMessage(error.message || "Failed to place order");
       }
     } catch (e) { console.error(e); } finally { setBuySubmitting(false); }
+  };
+
+  const requireAuth = (callback: () => void) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      setShowLoginModal(true);
+    } else {
+      callback();
+    }
   };
 
   const fetchProducts = async () => {
@@ -188,11 +193,7 @@ export default function BuyerMarketplace() {
     setSubmitting(true);
     try {
       const token = localStorage.getItem("access_token");
-      if (!token) {
-        setShowLoginModal(true);
-        setSubmitting(false);
-        return;
-      }
+      // Token check removed from here since it's checked by requireAuth before opening the modal
       
       let payload;
       if (selectedProduct === 'BUNDLE') {
@@ -433,7 +434,7 @@ export default function BuyerMarketplace() {
                     <div className="absolute -top-5 right-4 z-10">
                       <button 
                         title="Add to Bundle Quote"
-                        onClick={(e) => { e.stopPropagation(); handleToggleBundle(p); }}
+                        onClick={(e) => { e.stopPropagation(); requireAuth(() => handleToggleBundle(p)); }}
                         className={`h-10 w-10 rounded-full flex items-center justify-center shadow-md transition-all duration-300 border-[3px] ${isBundled ? 'bg-brand-600 border-white text-white scale-110' : 'bg-surface border-white text-muted hover:bg-surface-2'}`}
                       >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isBundled ? 3 : 2} d={isBundled ? "M5 13l4 4L19 7" : "M12 4v16m8-8H4"} /></svg>
@@ -459,11 +460,11 @@ export default function BuyerMarketplace() {
                       </div>
                       
                       <div className="flex gap-2">
-                        <button onClick={() => setBuyProduct(p)} disabled={p.isOutOfRange}
+                        <button onClick={() => requireAuth(() => setBuyProduct(p))} disabled={p.isOutOfRange}
                           className={`flex-1 cp-btn cp-btn--secondary text-brand-600 border-brand-200 hover:border-brand-600 ${p.isOutOfRange ? 'opacity-50 cursor-not-allowed text-muted border-border hover:border-border hover:bg-surface' : ''}`}>
                           {p.isOutOfRange ? 'Out of Range' : 'Buy Now'}
                         </button>
-                        <button onClick={() => setSelectedProduct(p)}
+                        <button onClick={() => requireAuth(() => setSelectedProduct(p))}
                           className="flex-1 cp-btn cp-btn--ghost border border-border-strong hover:border-brand-300">
                           Inquire
                         </button>
@@ -528,7 +529,7 @@ export default function BuyerMarketplace() {
              <button onClick={() => setBundleCart([])} className="h-9 w-9 rounded-full flex items-center justify-center text-slate hover:bg-paper-2 hover:text-ink transition-colors">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
              </button>
-             <button onClick={() => { setSelectedProduct('BUNDLE'); setInquiryType('QUOTE'); }} className="px-5 py-2.5 bg-ink hover:bg-ink text-canvas shadow-sm text-sm font-bold rounded-full transition-colors flex items-center gap-2">
+             <button onClick={() => requireAuth(() => { setSelectedProduct('BUNDLE'); setInquiryType('QUOTE'); })} className="px-5 py-2.5 bg-ink hover:bg-ink text-canvas shadow-sm text-sm font-bold rounded-full transition-colors flex items-center gap-2">
                Request Quote
                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
              </button>
