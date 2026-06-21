@@ -186,14 +186,29 @@ export class ProductsService {
       
       if (productRange === 'LOCAL_100KM') {
         const effectiveCities = (p.deliveryCities as any[]) || (p.sellerProfile.deliveryCities as any[]) || [{ name: p.sellerProfile.user?.city }];
-        if (city && !effectiveCities.some(c => c.name?.toLowerCase() === city.toLowerCase())) {
-          isOutOfRange = true;
+        if (city) {
+          if (!effectiveCities.some(c => c.name?.toLowerCase() === city.toLowerCase())) {
+            isOutOfRange = true;
+          }
+        } else if (buyerPincode) {
+          const sellerPin = p.sellerProfile.user?.pincode;
+          const dist = calculateDistanceKm(sellerPin, buyerPincode);
+          // If distance is infinite (pincode not found), we fallback to assuming it's out of range unless the pincodes match
+          if (dist > 100 && sellerPin !== buyerPincode) {
+            isOutOfRange = true;
+          }
         }
       } else if (productRange === 'HYPER_LOCAL_20KM') {
         const effectivePincodes = (p.deliveryPincodes as string[]) || (p.sellerProfile.deliveryPincodes as string[]) || [p.sellerProfile.user?.pincode];
-        logger.debug(`Product ${p.id} HYPER_LOCAL matching: buyerPincode=${buyerPincode}, effectivePincodes=${JSON.stringify(effectivePincodes)}`);
-        if (!buyerPincode || !effectivePincodes.includes(buyerPincode)) {
+        if (!buyerPincode) {
           isOutOfRange = true;
+        } else if (!effectivePincodes.includes(buyerPincode)) {
+          // Fallback to checking distance if it's not explicitly in the list
+          const sellerPin = p.sellerProfile.user?.pincode;
+          const dist = calculateDistanceKm(sellerPin, buyerPincode);
+          if (dist > 20 && sellerPin !== buyerPincode) {
+            isOutOfRange = true;
+          }
         }
       }
       
