@@ -132,12 +132,12 @@ export default function RegisterPage() {
                     value={formData.dialCode}
                     onChange={val => setFormData({...formData, dialCode: val})}
                     options={[
-                      {value: "+1", label: "US (+1)"},
-                      {value: "+44", label: "UK (+44)"},
-                      {value: "+91", label: "IN (+91)"},
-                      {value: "+61", label: "AU (+61)"},
-                      {value: "+971", label: "UAE (+971)"},
-                      {value: "+65", label: "SG (+65)"}
+                      {value: "+1", label: "🇺🇸 US (+1)"},
+                      {value: "+44", label: "🇬🇧 UK (+44)"},
+                      {value: "+91", label: "🇮🇳 IN (+91)"},
+                      {value: "+61", label: "🇦🇺 AU (+61)"},
+                      {value: "+971", label: "🇦🇪 UAE (+971)"},
+                      {value: "+65", label: "🇸🇬 SG (+65)"}
                     ]}
                     className="w-28"
                   />
