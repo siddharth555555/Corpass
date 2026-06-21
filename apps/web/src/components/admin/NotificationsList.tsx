@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useNotifications } from "../hooks/useNotifications";
+import { useNotifications } from "@/hooks/admin-useNotifications";
 
 function timeAgo(dateString: string) {
   const date = new Date(dateString);

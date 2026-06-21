@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useNotifications } from "../hooks/useNotifications";
+import { useNotifications } from "@/hooks/admin-useNotifications";
 
 interface NotificationBellProps {
   href: string;
